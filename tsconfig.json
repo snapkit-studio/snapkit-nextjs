@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["dom", "dom.iterable", "ES2020"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@snapkit/core": ["./packages/core/src"],
+      "@snapkit/nextjs": ["./packages/nextjs/src"],
+      "@snapkit/react": ["./packages/react/src"]
+    }
+  },
+  "include": [
+    "packages/*/src/**/*.ts",
+    "packages/*/src/**/*.tsx",
+    "apps/*/src/**/*.ts",
+    "apps/*/src/**/*.tsx",
+    "apps/**/app/**/*.ts",
+    "apps/**/app/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/dist",
+    "**/node_modules"
+  ]
+}

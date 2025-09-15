@@ -1,0 +1,17 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Documentation
+    url: https://docs.snapkit.dev
+    about: Check our comprehensive documentation for setup guides, API reference, and tutorials
+  
+  - name: 💬 Discussions
+    url: https://github.com/snapkit/snapkit-nextjs/discussions
+    about: Ask questions, share ideas, or discuss Snapkit with the community
+  
+  - name: 🔒 Security Vulnerabilities
+    url: https://github.com/snapkit/snapkit-nextjs/security/advisories/new
+    about: Report security vulnerabilities privately through GitHub Security Advisories
+  
+  - name: 📧 Enterprise Support
+    url: mailto:support@snapkit.dev
+    about: Contact our team directly for enterprise support and custom solutions

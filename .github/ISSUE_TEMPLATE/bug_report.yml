@@ -1,0 +1,160 @@
+name: 🐛 Bug Report
+description: Report a bug to help us improve Snapkit
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to report a bug! Please fill out the information below to help us diagnose and fix the issue.
+
+  - type: dropdown
+    id: affected-area
+    attributes:
+      label: Affected Area
+      description: Which area of the application is affected by this bug?
+      options:
+        - User Interface (UI)
+        - Authentication/Login
+        - Image Upload/Processing
+        - Project Management
+        - Gallery/Asset Management
+        - Settings/Configuration
+        - Performance
+        - Other
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: Describe what happened and what you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this issue?
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. Scroll down to '...'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: Describe what should have happened instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+      placeholder: Describe what actually happened, including any error messages.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser (for web-related issues)
+      description: If this is a web-related issue, which browser are you using?
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - Other
+        - Not applicable
+      default: 5
+
+  - type: input
+    id: browser-version
+    attributes:
+      label: Browser Version (if applicable)
+      placeholder: e.g., Chrome 120.0.6099.62
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - iOS
+        - Android
+        - Other
+      default: 0
+    validations:
+      required: true
+
+  - type: input
+    id: os-version
+    attributes:
+      label: OS Version
+      placeholder: e.g., Windows 11, macOS 14.1, Ubuntu 22.04
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Details
+      description: |
+        Please provide relevant environment information:
+        - Account/User information (if applicable)
+        - Application version
+        - Any relevant configuration details
+      placeholder: |
+        - Account: example-user
+        - Version: 1.0.0
+        - Configuration: default settings
+        - etc.
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error Logs/Console Output
+      description: If applicable, provide any error messages, console logs, or stack traces.
+      render: shell
+      placeholder: Paste any relevant error messages or logs here
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots/Videos
+      description: If applicable, add screenshots or videos to help explain the problem.
+      placeholder: Drag and drop images/videos here or paste URLs
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here.
+      placeholder: Any additional information that might help us understand and fix the issue
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following before submitting
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have provided all requested information above
+          required: true
+        - label: I have tested this issue in the latest version of the affected application
+          required: false

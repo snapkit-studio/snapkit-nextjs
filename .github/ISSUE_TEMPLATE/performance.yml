@@ -1,0 +1,243 @@
+name: ⚡ Performance Issue
+description: Report performance problems, slowdowns, or optimization opportunities
+title: "[Performance]: "
+labels: ["performance", "needs-investigation"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a performance issue! Performance problems can significantly impact user experience, so we take these reports seriously.
+
+  - type: dropdown
+    id: affected-area
+    attributes:
+      label: Affected Area
+      description: Which area of the application is experiencing performance issues?
+      options:
+        - User Interface (UI)
+        - Authentication/Login
+        - Image Upload/Processing
+        - Project Management
+        - Gallery/Asset Management
+        - Settings/Configuration
+        - Database operations
+        - Network requests
+        - Other
+      default: 0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: performance-type
+    attributes:
+      label: Performance Issue Type
+      description: What type of performance problem are you experiencing?
+      options:
+        - Slow page load times
+        - Slow server responses
+        - High memory usage
+        - High CPU usage
+        - Long image processing times
+        - Database query slowness
+        - Network request delays
+        - UI lag/freezing
+        - Bundle size issues
+        - Other
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Performance Issue Description
+      description: Describe the performance problem you're experiencing.
+      placeholder: |
+        Provide a clear description of the performance issue:
+        - What operation is slow?
+        - When does the slowdown occur?
+        - How long does it take vs. expected time?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this performance issue?
+      placeholder: |
+        1. Navigate to '...'
+        2. Perform action '...'
+        3. Wait for/observe '...'
+        4. Notice slowdown/high usage
+    validations:
+      required: true
+
+  - type: textarea
+    id: performance-metrics
+    attributes:
+      label: Performance Metrics
+      description: Please provide specific performance measurements if available.
+      placeholder: |
+        Include any relevant metrics:
+        - Load times (e.g., "Page loads in 8 seconds, expected <2 seconds")
+        - Server response times (e.g., "Request takes 5 seconds")
+        - Memory usage (e.g., "Memory usage grows to 2GB after uploading 50 images")
+        - CPU usage percentages
+        - Network transfer times
+        - Database operation execution times
+    validations:
+      required: false
+
+  - type: dropdown
+    id: data-size
+    attributes:
+      label: Data Size/Scale
+      description: What is the scale of data involved when the performance issue occurs?
+      options:
+        - Small (< 10 items/files)
+        - Medium (10-100 items/files)
+        - Large (100-1000 items/files)
+        - Very large (1000+ items/files)
+        - Not applicable
+      default: 4
+    validations:
+      required: false
+
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: Issue Frequency
+      description: How often does this performance issue occur?
+      options:
+        - Always
+        - Most of the time (>75%)
+        - Sometimes (25-75%)
+        - Rarely (<25%)
+        - Only under specific conditions
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Details
+      description: Provide details about your environment when the issue occurs.
+      placeholder: |
+        Include relevant environment information:
+        - Account information (if applicable)
+        - Number of projects/assets
+        - Network conditions
+        - Device specifications (CPU, RAM)
+        - Browser version (for web issues)
+        - Application version
+    validations:
+      required: false
+
+  - type: textarea
+    id: browser-metrics
+    attributes:
+      label: Browser Performance Data (for web issues)
+      description: If this is a web performance issue, please provide browser performance data.
+      placeholder: |
+        Use browser dev tools to gather:
+        - Performance tab recordings
+        - Network tab data
+        - Lighthouse scores
+        - Core Web Vitals (LCP, FID, CLS)
+        - Memory snapshots
+        - CPU profiling data
+
+        You can paste screenshots or export data here.
+    validations:
+      required: false
+
+  - type: textarea
+    id: server-metrics
+    attributes:
+      label: Server Metrics (for backend issues)
+      description: If this is a backend performance issue, please provide server metrics if available.
+      placeholder: |
+        Include any available server metrics:
+        - CPU usage during the issue
+        - Memory usage patterns
+        - Database query execution plans
+        - Network I/O metrics
+        - Log entries showing slow operations
+    validations:
+      required: false
+
+  - type: textarea
+    id: expected-performance
+    attributes:
+      label: Expected Performance
+      description: What performance do you expect for this operation?
+      placeholder: |
+        Describe your performance expectations:
+        - Expected load time
+        - Expected response time
+        - Expected resource usage
+        - Performance of similar operations in other applications
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact Assessment
+      description: How does this performance issue impact your workflow or user experience?
+      placeholder: |
+        Describe the impact:
+        - Does it block your work?
+        - How does it affect productivity?
+        - Does it impact end users?
+        - Are there workarounds available?
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other information that might help us diagnose and fix the performance issue.
+      placeholder: |
+        Include:
+        - Recent changes that might have caused the issue
+        - Patterns you've noticed
+        - Potential causes you've investigated
+        - Related performance issues
+
+  - type: checkboxes
+    id: investigation
+    attributes:
+      label: Investigation Done
+      description: What investigation have you already done? (Check all that apply)
+      options:
+        - label: I have tested this in multiple browsers/environments
+          required: false
+        - label: I have checked browser dev tools for performance issues
+          required: false
+        - label: I have tried clearing cache/storage
+          required: false
+        - label: I have tested with different data sizes
+          required: false
+        - label: I have checked for browser extensions that might interfere
+          required: false
+        - label: I have tested the issue in incognito/private mode
+          required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following before submitting
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have provided specific performance measurements where possible
+          required: true
+        - label: I have described the expected vs. actual performance
+          required: true

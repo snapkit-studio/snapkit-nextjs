@@ -1,0 +1,45 @@
+{
+  "name": "@snapkit/core",
+  "version": "1.0.0",
+  "description": "Core utilities and types for Snapkit image optimization",
+  "keywords": [
+    "snapkit",
+    "image",
+    "optimization",
+    "utilities",
+    "types"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snapkit/snapkit-nextjs.git",
+    "directory": "packages/core"
+  },
+  "license": "MIT",
+  "author": "Snapkit",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+    "check-types": "tsc --noEmit",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "lint": "eslint src --ext .ts",
+    "test": "vitest --run"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "tsup": "^8.0.0",
+    "vitest": "^2.1.8"
+  }
+}

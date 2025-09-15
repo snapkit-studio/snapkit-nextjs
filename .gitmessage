@@ -1,0 +1,38 @@
+# <type>[optional scope]: <description>
+
+# [optional body]
+
+# [optional footer(s)]
+
+# --- COMMIT END ---
+# Type can be:
+#    feat     (new feature)
+#    fix      (bug fix)
+#    refactor (refactoring production code)
+#    style    (formatting, missing semi colons, etc; no code change)
+#    docs     (changes to documentation)
+#    test     (adding or refactoring tests; no production code change)
+#    chore    (updating grunt tasks etc; no production code change)
+#    perf     (performance improvements)
+#    ci       (CI/CD related changes)
+#    build    (build system or external dependencies)
+#    revert   (reverting a previous commit)
+# --------------------
+# Remember to:
+#    Capitalize the subject line
+#    Use the imperative mood in the subject line
+#    Do not end the subject line with a period
+#    Separate subject from body with a blank line
+#    Use the body to explain what and why vs. how
+#    Can use multiple lines with "-" for bullet points in body
+# --------------------
+# Examples:
+#    feat: add email notifications on new direct messages
+#    feat(shopping cart): add the amazing button
+#    fix: fix foo to enable bar
+#    fix(compile): fix some IE8 compatibility issues
+#    docs(README): update install instructions
+#    style: fix whitespace
+#    refactor: simplify code with use of Object.assign
+#    test: ensure Tayne jokes return expected results
+# --------------------

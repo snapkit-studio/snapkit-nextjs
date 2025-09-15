@@ -1,0 +1,172 @@
+name: 📚 Documentation Improvement
+description: Suggest improvements to documentation, guides, or code comments
+title: "[Docs]: "
+labels: ["documentation", "good first issue"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping us improve our documentation! Clear documentation makes Snapkit better for everyone.
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Documentation Type
+      description: What type of documentation needs improvement?
+      options:
+        - README files
+        - API documentation
+        - Code comments
+        - Setup/Installation guides
+        - User guides
+        - Developer guides
+        - Architecture documentation
+        - Troubleshooting guides
+        - Contributing guidelines
+        - Other
+      default: 0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: target-area
+    attributes:
+      label: Target Area
+      description: Which area of the application does this documentation relate to?
+      options:
+        - User Interface (UI)
+        - Authentication/Login
+        - Image Upload/Processing
+        - Project Management
+        - Gallery/Asset Management
+        - Settings/Configuration
+        - API/Integration
+        - General/Repository-wide
+        - Development workflow
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-issue
+    attributes:
+      label: Current Issue
+      description: What is unclear, missing, or incorrect in the current documentation?
+      placeholder: |
+        Describe the problem with the current documentation:
+        - What is confusing or misleading?
+        - What information is missing?
+        - What steps are unclear?
+        - Are there any errors or outdated information?
+    validations:
+      required: true
+
+  - type: input
+    id: affected-files
+    attributes:
+      label: Affected Files/Pages
+      description: Which specific files or documentation pages are affected?
+      placeholder: e.g., apps/web/README.md, docs/api-reference.md, or https://docs.snapkit.dev/setup
+
+  - type: textarea
+    id: proposed-improvement
+    attributes:
+      label: Proposed Improvement
+      description: How would you improve the documentation?
+      placeholder: |
+        Describe your suggested improvements:
+        - What should be added, changed, or removed?
+        - How can the explanation be clearer?
+        - What examples would be helpful?
+        - Should the structure be reorganized?
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-impact
+    attributes:
+      label: User Impact
+      description: Who would benefit from this improvement and how?
+      placeholder: |
+        Consider different user types:
+        - New developers setting up the project
+        - Contributors adding new features
+        - Developers integrating with the application
+        - End users using the application
+    validations:
+      required: false
+
+  - type: dropdown
+    id: difficulty
+    attributes:
+      label: Implementation Difficulty
+      description: How difficult do you think this documentation improvement would be?
+      options:
+        - Easy - Simple text updates or clarifications
+        - Medium - Requires some research or restructuring
+        - Hard - Needs significant technical knowledge or major reorganization
+        - Not sure
+      default: 3
+    validations:
+      required: false
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples or References
+      description: Provide examples of good documentation or references that could be helpful.
+      placeholder: |
+        Include:
+        - Links to well-documented projects
+        - Screenshots of current confusing sections
+        - Example text or code snippets
+        - References to documentation standards
+
+  - type: textarea
+    id: research
+    attributes:
+      label: Research Done
+      description: What research or investigation have you done on this topic?
+      placeholder: |
+        For example:
+        - Tried to follow current instructions and got stuck
+        - Compared with documentation from similar projects
+        - Asked community members about this topic
+        - Tested the current setup process
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution Interest
+      description: Are you interested in helping with this improvement?
+      options:
+        - label: I would like to contribute to fixing this documentation issue
+          required: false
+        - label: I can help with writing content
+          required: false
+        - label: I can help with reviewing proposed changes
+          required: false
+        - label: I can provide technical expertise in this area
+          required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other information that would help us understand this documentation need?
+      placeholder: Any additional context, screenshots, or information
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following before submitting
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have reviewed the current documentation thoroughly
+          required: true
+        - label: I have provided specific examples of what needs improvement
+          required: true

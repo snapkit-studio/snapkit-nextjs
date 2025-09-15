@@ -1,0 +1,176 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement for Snapkit
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting a new feature! Please fill out the information below to help us understand your request.
+
+  - type: dropdown
+    id: target-area
+    attributes:
+      label: Target Area
+      description: Which area of the application should this feature be added to?
+      options:
+        - User Interface (UI)
+        - Authentication/Login
+        - Image Upload/Processing
+        - Project Management
+        - Gallery/Asset Management
+        - Settings/Configuration
+        - API/Integration
+        - Performance
+        - Other
+      default: 0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: feature-type
+    attributes:
+      label: Feature Type
+      description: What type of feature are you requesting?
+      options:
+        - New functionality
+        - UI/UX improvement
+        - Performance enhancement
+        - Backend enhancement
+        - Integration with external service
+        - Developer experience improvement
+        - Security enhancement
+        - Other
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What is the current limitation or pain point?
+      placeholder: Describe the problem or limitation that this feature would address.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: Describe your proposed solution in detail.
+      placeholder: |
+        Describe how you envision this feature working:
+        - What would the user interface look like?
+        - How would users interact with this feature?
+        - What would be the expected behavior?
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-stories
+    attributes:
+      label: User Stories
+      description: Describe how different users would benefit from this feature.
+      placeholder: |
+        As a [type of user], I want [goal] so that [benefit].
+        
+        Example:
+        - As a designer, I want to bulk upload images with automatic tagging so that I can organize my assets more efficiently.
+        - As a developer, I want API rate limiting information so that I can optimize my integration.
+    validations:
+      required: false
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: What conditions must be met for this feature to be considered complete?
+      placeholder: |
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+        - [ ] Criterion 3
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How important is this feature to you?
+      options:
+        - Low - Nice to have
+        - Medium - Would improve workflow
+        - High - Significantly impacts productivity
+        - Critical - Blocking current work
+      default: 1
+    validations:
+      required: true
+
+  - type: dropdown
+    id: user-type
+    attributes:
+      label: User Type
+      description: What type of user would primarily benefit from this feature?
+      options:
+        - End users (designers, content creators)
+        - Developers/Integrators
+        - Account administrators
+        - All users
+        - Other
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered any alternative solutions or workarounds?
+      placeholder: Describe any alternative approaches you've considered and why they might not be suitable.
+    validations:
+      required: false
+
+  - type: textarea
+    id: technical-considerations
+    attributes:
+      label: Technical Considerations
+      description: Any technical requirements, constraints, or considerations?
+      placeholder: |
+        Consider mentioning:
+        - Performance requirements
+        - Scalability concerns
+        - Integration requirements
+        - Security considerations
+        - Third-party dependencies
+    validations:
+      required: false
+
+  - type: textarea
+    id: mockups
+    attributes:
+      label: Mockups/Examples
+      description: If applicable, provide mockups, wireframes, or examples from other applications.
+      placeholder: Drag and drop images here or paste URLs to examples
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context, research, or information about the feature request.
+      placeholder: Any additional information that would help us understand and evaluate this feature request
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following before submitting
+      options:
+        - label: I have searched existing issues and feature requests to ensure this is not a duplicate
+          required: true
+        - label: I have provided a clear problem statement and proposed solution
+          required: true
+        - label: I understand this is a request and not a guarantee of implementation
+          required: true

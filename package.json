@@ -1,0 +1,79 @@
+{
+  "name": "snapkit-nextjs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Snapkit image optimization libraries monorepo",
+  "keywords": [
+    "nextjs",
+    "image",
+    "optimization",
+    "snapkit",
+    "react"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snapkit/snapkit-nextjs.git"
+  },
+  "license": "MIT",
+  "author": "Snapkit",
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "build": "turbo build",
+    "check-types": "turbo check-types",
+    "commit": "git-cz",
+    "commitlint": "commitlint --edit",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "prepare": "husky install",
+    "release": "semantic-release",
+    "release:dry-run": "semantic-release --dry-run",
+    "test": "turbo test",
+    "test:coverage": "turbo test:coverage",
+    "type-check": "turbo check-types"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "browserslist": [
+    "> 0.5%",
+    "last 2 versions",
+    "not dead",
+    "not IE 11"
+  ],
+  "devDependencies": {
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
+    "@eslint/js": "^9.34.0",
+    "@ianvs/prettier-plugin-sort-imports": "4.6.2",
+    "@playwright/test": "^1.55.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^10.3.5",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.41.0",
+    "@typescript-eslint/parser": "^8.41.0",
+    "@vitest/coverage-v8": "^2.1.8",
+    "commitizen": "^4.3.1",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "9.34.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "husky": "^9.1.6",
+    "jsdom": "^25.0.1",
+    "prettier-plugin-tailwindcss": "0.6.14",
+    "semantic-release": "24.2.7",
+    "tsup": "^8.0.0",
+    "turbo": "^2.5.6",
+    "typescript": "^5.0.0",
+    "vitest": "^2.1.8"
+  },
+  "packageManager": "pnpm@10.16.1+sha512.0e155aa2629db8672b49e8475da6226aa4bdea85fdcdfdc15350874946d4f3c91faaf64cbdc4a5d1ab8002f473d5c3fcedcd197989cf0390f9badd3c04678706",
+  "engines": {
+    "pnpm": ">=10.0.0",
+    "npm": "please-use-pnpm",
+    "yarn": "please-use-pnpm"
+  }
+}

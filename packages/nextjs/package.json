@@ -1,0 +1,53 @@
+{
+  "name": "@snapkit/nextjs",
+  "version": "1.0.0",
+  "description": "Next.js image loader for Snapkit image optimization",
+  "keywords": [
+    "nextjs",
+    "image",
+    "loader",
+    "snapkit",
+    "optimization"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snapkit/snapkit-nextjs.git",
+    "directory": "packages/nextjs"
+  },
+  "license": "MIT",
+  "author": "Snapkit",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+    "check-types": "tsc --noEmit",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "lint": "eslint src --ext .ts",
+    "test": "vitest --run",
+    "test:coverage": "vitest --run --coverage"
+  },
+  "dependencies": {
+    "@snapkit/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^2.1.8",
+    "typescript": "^5.0.0",
+    "tsup": "^8.0.0",
+    "vitest": "^2.1.8"
+  },
+  "peerDependencies": {
+    "next": ">=13.0.0"
+  }
+}
