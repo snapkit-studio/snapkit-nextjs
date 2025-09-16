@@ -143,15 +143,15 @@ describe('SnapkitUrlBuilder Class', () => {
     it('should generate URL with extract region parameters', () => {
       const transforms: ImageTransforms = {
         extract: {
-          x: 100,
-          y: 50,
-          width: 400,
-          height: 300,
+          x: 25,
+          y: 10,
+          width: 50,
+          height: 75,
         },
       };
       const result = urlBuilder.buildTransformedUrl('test.jpg', transforms);
 
-      expect(result).toContain('extract=100%2C50%2C400%2C300');
+      expect(result).toContain('extract=25%2C10%2C50%2C75');
     });
 
     it('should generate URL with background color parameters', () => {

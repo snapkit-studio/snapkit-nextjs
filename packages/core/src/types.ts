@@ -23,11 +23,15 @@ export interface ImageTransforms {
   negate?: boolean;
   normalize?: boolean;
 
-  // Region extraction
+  // Region extraction (percentage-based: 0-100)
   extract?: {
+    /** Starting x-coordinate as percentage (0-100) */
     x: number;
+    /** Starting y-coordinate as percentage (0-100) */
     y: number;
+    /** Width of extracted region as percentage (0-100) */
     width: number;
+    /** Height of extracted region as percentage (0-100) */
     height: number;
   };
 
