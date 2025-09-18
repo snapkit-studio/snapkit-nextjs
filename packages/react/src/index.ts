@@ -9,6 +9,6 @@ export type {
   ImageTransforms,
   NextImageProps,
   SnapkitConfig,
-  SnapkitImageProps,
+  SnapkitImageProps
 } from '@snapkit-studio/core';
 
