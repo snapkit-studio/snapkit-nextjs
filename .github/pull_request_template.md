@@ -1,5 +1,31 @@
 # Pull Request
 
+## Important: PR Title Format
+
+**Your PR title MUST follow Conventional Commits format:**
+
+```
+<type>[optional scope]: <description>
+```
+
+**Examples:**
+- `feat(core): add utility functions for image optimization`
+- `fix(react): resolve image loading issue in Safari`
+- `docs: update installation guide`
+- `feat!: change API response format` (breaking change)
+
+**Common Types:**
+- `feat:` - New feature (minor version bump)
+- `fix:` - Bug fix (patch version bump)
+- `docs:` - Documentation changes
+- `style:` - Code style changes (formatting, etc.)
+- `refactor:` - Code refactoring without functionality changes
+- `test:` - Adding or updating tests
+- `chore:` - Build process, dependencies, or tooling changes
+- `feat!:` or `fix!:` - Breaking changes (major version bump)
+
+**Why this matters:** We use squash merge, so your PR title becomes the final commit message that semantic-release uses for automatic versioning.
+
 ## Summary
 
 <!-- Briefly describe what this PR accomplishes -->
@@ -69,13 +95,15 @@
 
 <!-- Ensure all requirements from CONTRIBUTING.md are met -->
 
-- [ ] All tests pass
+- [ ] **PR title follows conventional commits format** (see format guide above)
+- [ ] All tests pass (`pnpm test`)
+- [ ] Type checking passes (`pnpm check-types`)
+- [ ] Linting passes (`pnpm lint`)
 - [ ] Code follows our style guidelines
 - [ ] Self-review of the code
 - [ ] Documentation updated (if applicable)
 - [ ] No breaking changes (unless intentional and documented)
-- [ ] Conventional commit messages used
-- [ ] PR title follows conventional commits format
+- [ ] Conventional commit messages used in individual commits
 
 ## Screenshots (if applicable)
 

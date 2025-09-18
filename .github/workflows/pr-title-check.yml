@@ -1,0 +1,98 @@
+name: PR Title Check
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  check-title:
+    name: Check PR Title Format
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check PR title follows Conventional Commits
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # Configure which types are allowed
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            test
+            chore
+            perf
+            ci
+            build
+            revert
+
+          # Require a scope for certain types
+          requireScope: false
+
+          # Configure which scopes are allowed
+          scopes: |
+            core
+            react
+            nextjs
+            web
+            figma-plugin
+            api
+            data-access
+            docs
+            deps
+
+          # Allow empty scope
+          allowEmptyScope: true
+
+          # Custom error messages
+          subjectPattern: ^(?![A-Z]).+$
+          subjectPatternError: |
+            The subject "{subject}" found in the pull request title "{title}"
+            didn't match the configured pattern. Please ensure that the subject
+            doesn't start with an uppercase character.
+
+          # Validate the entire title
+          validateSingleCommit: false
+          ignoreLabels: |
+            bot
+            ignore-semantic-pull-request
+
+      - name: Comment on PR if title is invalid
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## ❌ PR Title Format Error
+
+            Your PR title doesn't follow the required Conventional Commits format.
+
+            **Current title:** \`${{ github.event.pull_request.title }}\`
+
+            **Required format:** \`<type>[optional scope]: <description>\`
+
+            **Examples:**
+            - \`feat(core): add utility functions for image optimization\`
+            - \`fix(react): resolve image loading issue in Safari\`
+            - \`docs: update installation guide\`
+            - \`feat!: change API response format\` (breaking change)
+
+            **Common types:**
+            - \`feat:\` - New feature (minor version bump)
+            - \`fix:\` - Bug fix (patch version bump)
+            - \`docs:\` - Documentation changes
+            - \`style:\` - Code style changes
+            - \`refactor:\` - Code refactoring
+            - \`test:\` - Adding or updating tests
+            - \`chore:\` - Build process or tooling changes
+
+            **Why this matters:** We use squash merge, so your PR title becomes the final commit message that semantic-release uses for automatic versioning.
+
+            Please update your PR title and this check will run again automatically.`
+            })
