@@ -8,7 +8,6 @@ echo "🚀 Starting Git-based selective package publishing..."
 echo "🔍 Environment Variables Debug:"
 echo "  - NPM_TOKEN: $([ -n "$NPM_TOKEN" ] && echo "✅ Set (length: ${#NPM_TOKEN})" || echo "❌ Not set")"
 echo "  - GH_TOKEN: $([ -n "$GH_TOKEN" ] && echo "✅ Set (length: ${#GH_TOKEN})" || echo "❌ Not set")"
-echo "  - GITHUB_TOKEN: $([ -n "$GITHUB_TOKEN" ] && echo "✅ Set (length: ${#GITHUB_TOKEN})" || echo "❌ Not set")"
 echo "  - NODE_AUTH_TOKEN: $([ -n "$NODE_AUTH_TOKEN" ] && echo "✅ Set (length: ${#NODE_AUTH_TOKEN})" || echo "❌ Not set")"
 echo "  - PUBLISH_GITHUB_PACKAGES: ${PUBLISH_GITHUB_PACKAGES:-'not set'}"
 
