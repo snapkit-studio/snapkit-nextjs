@@ -44,29 +44,6 @@ EOF
 
 echo "📋 NPM configuration created"
 
-# Test NPM authentication
-echo "🔍 Testing NPM authentication..."
-if npm whoami --registry https://registry.npmjs.org; then
-  CURRENT_USER=$(npm whoami --registry https://registry.npmjs.org)
-  echo "✅ NPM authentication successful"
-  echo "📋 Authenticated as: $CURRENT_USER"
-
-  # Check organization access
-  echo "🔍 Checking @snapkit-studio organization access..."
-  if npm access list packages @snapkit-studio 2>/dev/null; then
-    echo "✅ Organization access confirmed"
-  else
-    echo "⚠️ Organization access check failed - this may cause publishing issues"
-    echo "📋 User may not have access to @snapkit-studio organization"
-    echo "📋 Continuing with publish attempt..."
-  fi
-else
-  echo "❌ NPM authentication failed"
-  echo "📋 Current .npmrc contents:"
-  cat ~/.npmrc | sed 's/npm_[a-zA-Z0-9]*/[REDACTED]/g'
-  exit 1
-fi
-
 npm config set access public
 
 # Publish only changed packages
