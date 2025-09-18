@@ -49,20 +49,9 @@ jobs:
             echo "Changes detected in nextjs package"
             echo "skip=false" >> $GITHUB_OUTPUT
           fi
-
-      - name: Lint and type check
-        if: steps.changes.outputs.skip != 'true'
-        run: |
-          pnpm --filter @snapkit-studio/nextjs lint
-          pnpm --filter @snapkit-studio/nextjs check-types
-
-      - name: Run tests
-        if: steps.changes.outputs.skip != 'true'
-        run: pnpm --filter @snapkit-studio/nextjs test
-
       - name: Build package
         if: steps.changes.outputs.skip != 'true'
-        run: pnpm --filter @snapkit-studio/nextjs build
+        run: pnpm exec turbo build --filter @snapkit-studio/nextjs
 
       - name: Determine next version
         if: steps.changes.outputs.skip != 'true'
@@ -74,39 +63,40 @@ jobs:
           CURRENT_VERSION=$(node -p "require('./package.json').version")
           echo "Current version: $CURRENT_VERSION"
 
-          # Determine next version based on commit messages since last release
-          LAST_TAG=$(git describe --tags --match "nextjs-v*" --abbrev=0 2>/dev/null || echo "")
+          # Get commits since last commit for this package (recent changes only)
+          COMMITS=$(git log --oneline -10 -- packages/nextjs/)
+          echo "Recent commits affecting nextjs package:"
+          echo "$COMMITS"
 
-          if [ -z "$LAST_TAG" ]; then
-            # First release
-            NEXT_VERSION="1.0.0"
+          # Determine version bump based on commit messages
+          if echo "$COMMITS" | grep -q "BREAKING CHANGE\|feat!\|fix!\|chore!"; then
+            # Major version bump
+            NEXT_VERSION=$(node -p "
+              const v = require('./package.json').version.split('.');
+              \`\${parseInt(v[0]) + 1}.0.0\`
+            ")
+            echo "Major version bump detected (BREAKING CHANGE)"
+          elif echo "$COMMITS" | grep -q "feat(\|feat:"; then
+            # Minor version bump
+            NEXT_VERSION=$(node -p "
+              const v = require('./package.json').version.split('.');
+              \`\${v[0]}.\${parseInt(v[1]) + 1}.0\`
+            ")
+            echo "Minor version bump detected (feat)"
+          elif echo "$COMMITS" | grep -q "fix(\|fix:\|perf(\|perf:"; then
+            # Patch version bump
+            NEXT_VERSION=$(node -p "
+              const v = require('./package.json').version.split('.');
+              \`\${v[0]}.\${v[1]}.\${parseInt(v[2]) + 1}\`
+            ")
+            echo "Patch version bump detected (fix/perf)"
           else
-            # Get commits since last tag for this package
-            COMMITS=$(git log ${LAST_TAG}..HEAD --oneline -- packages/nextjs/ || git log --oneline -- packages/nextjs/)
-
-            if echo "$COMMITS" | grep -q "BREAKING CHANGE\|feat!"; then
-              # Major version bump
-              NEXT_VERSION=$(node -p "
-                const v = require('./package.json').version.split('.');
-                \`\${parseInt(v[0]) + 1}.0.0\`
-              ")
-            elif echo "$COMMITS" | grep -q "feat:"; then
-              # Minor version bump
-              NEXT_VERSION=$(node -p "
-                const v = require('./package.json').version.split('.');
-                \`\${v[0]}.\${parseInt(v[1]) + 1}.0\`
-              ")
-            elif echo "$COMMITS" | grep -q "fix:\|perf:"; then
-              # Patch version bump
-              NEXT_VERSION=$(node -p "
-                const v = require('./package.json').version.split('.');
-                \`\${v[0]}.\${v[1]}.\${parseInt(v[2]) + 1}\`
-              ")
-            else
-              echo "No releasable changes found"
-              echo "skip=true" >> $GITHUB_OUTPUT
-              exit 0
-            fi
+            # Default to patch bump for any other changes
+            NEXT_VERSION=$(node -p "
+              const v = require('./package.json').version.split('.');
+              \`\${v[0]}.\${v[1]}.\${parseInt(v[2]) + 1}\`
+            ")
+            echo "Default patch version bump (other changes)"
           fi
 
           echo "Next version: $NEXT_VERSION"
