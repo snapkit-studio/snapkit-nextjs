@@ -10,5 +10,5 @@ export type {
   NextImageProps,
   SnapkitConfig,
   SnapkitImageProps,
-} from '@snapkit/core';
+} from '@snapkit-studio/core';
 

@@ -1,10 +1,10 @@
 import {
-  ImageLoaderParams,
-  ImageLoader,
-  SnapkitLoaderOptions,
   getDefaultUrlBuilder,
+  ImageLoader,
+  ImageLoaderParams,
+  SnapkitLoaderOptions,
   SnapkitUrlBuilder,
-} from '@snapkit/core';
+} from '@snapkit-studio/core';
 
 /**
  * Default Snapkit image loader for Next.js

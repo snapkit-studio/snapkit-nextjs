@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { mergeConfiguration, createBuildOptions } from '../configMerger';
-import type { SnapkitConfig } from '@snapkit/core';
+import type { SnapkitConfig } from '@snapkit-studio/core';
+import { describe, expect, it } from 'vitest';
+import { createBuildOptions, mergeConfiguration } from '../configMerger';
 
 describe('configMerger', () => {
   describe('mergeConfiguration', () => {

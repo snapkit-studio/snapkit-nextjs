@@ -1,8 +1,8 @@
-# @snapkit/nextjs에 기여하기
+# @snapkit-studio/nextjs에 기여하기
 
 [![English](https://img.shields.io/badge/docs-English-blue)](./CONTRIBUTING.md) [![한국어](https://img.shields.io/badge/docs-한국어-blue)](./CONTRIBUTING-ko.md)
 
-여러분의 참여를 환영합니다! @snapkit/nextjs에 기여하는 것을 최대한 쉽고 투명하게 만들고자 합니다.
+여러분의 참여를 환영합니다! @snapkit-studio/nextjs에 기여하는 것을 최대한 쉽고 투명하게 만들고자 합니다.
 
 - 버그 신고
 - 코드 현황 논의
@@ -238,4 +238,4 @@ describe('Image component', () => {
 
 ---
 
-@snapkit/nextjs에 기여해 주셔서 감사합니다! 🚀
+@snapkit-studio/nextjs에 기여해 주셔서 감사합니다! 🚀

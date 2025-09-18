@@ -1,9 +1,9 @@
 # DO NOT USE IN PRODUCTION. WORKING IN PROGRESS NOW.
 
-# @snapkit/nextjs
+# @snapkit-studio/nextjs
 
-[![npm version](https://img.shields.io/npm/v/@snapkit/nextjs.svg)](https://www.npmjs.com/package/@snapkit/nextjs)
-[![npm downloads](https://img.shields.io/npm/dm/@snapkit/nextjs.svg)](https://www.npmjs.com/package/@snapkit/nextjs)
+[![npm version](https://img.shields.io/npm/v/@snapkit-studio/nextjs.svg)](https://www.npmjs.com/package/@snapkit-studio/nextjs)
+[![npm downloads](https://img.shields.io/npm/dm/@snapkit-studio/nextjs.svg)](https://www.npmjs.com/package/@snapkit-studio/nextjs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
 
@@ -24,11 +24,11 @@ A high-performance image optimization library for Next.js. Seamlessly integrates
 ## Installation
 
 ```bash
-npm install @snapkit/nextjs
+npm install @snapkit-studio/nextjs
 # or
-yarn add @snapkit/nextjs
+yarn add @snapkit-studio/nextjs
 # or
-pnpm add @snapkit/nextjs
+pnpm add @snapkit-studio/nextjs
 ```
 
 ## Quick Start
@@ -37,7 +37,7 @@ pnpm add @snapkit/nextjs
 
 ```tsx
 // app/layout.tsx or _app.tsx
-import { SnapkitProvider } from "@snapkit/nextjs";
+import { SnapkitProvider } from "@snapkit-studio/nextjs";
 
 export default function RootLayout({
   children,
@@ -64,7 +64,7 @@ export default function RootLayout({
 ### 2. Basic Usage
 
 ```tsx
-import { Image } from "@snapkit/nextjs";
+import { Image } from "@snapkit-studio/nextjs";
 
 export default function MyComponent() {
   return (
@@ -86,7 +86,7 @@ export default function MyComponent() {
 Provides API compatible with Next.js `Image` component.
 
 ```tsx
-import { Image } from "@snapkit/nextjs";
+import { Image } from "@snapkit-studio/nextjs";
 
 <Image
   src="/path/to/image.jpg"
@@ -188,7 +188,7 @@ import { Image } from "@snapkit/nextjs";
 ### Custom Hooks
 
 ```tsx
-import { useImageOptimization } from "@snapkit/nextjs";
+import { useImageOptimization } from "@snapkit-studio/nextjs";
 
 function CustomImage({ src }) {
   const { original } = useImageOptimization({
@@ -205,13 +205,13 @@ function CustomImage({ src }) {
 
 ## Next.js Image Loader Integration
 
-@snapkit/nextjs provides custom loader functions that can be used directly with Next.js Image component for seamless integration.
+@snapkit-studio/nextjs provides custom loader functions that can be used directly with Next.js Image component for seamless integration.
 
 ### Basic Loader Usage
 
 ```tsx
 import Image from 'next/image';
-import { snapkitLoader } from '@snapkit/nextjs';
+import { snapkitLoader } from '@snapkit-studio/nextjs';
 
 export default function MyComponent() {
   return (
@@ -230,7 +230,7 @@ export default function MyComponent() {
 
 ```tsx
 import Image from 'next/image';
-import { createSnapkitLoader } from '@snapkit/nextjs';
+import { createSnapkitLoader } from '@snapkit-studio/nextjs';
 
 const customLoader = createSnapkitLoader({
   baseUrl: 'https://custom-proxy.snapkit.com',
@@ -256,7 +256,7 @@ export default function MyComponent() {
 Create a loader file (e.g., `snapkit-loader.js`):
 
 ```js
-const { createSnapkitLoader } = require('@snapkit/nextjs');
+const { createSnapkitLoader } = require('@snapkit-studio/nextjs');
 
 module.exports = createSnapkitLoader({
   baseUrl: 'https://image-proxy.snapkit.com',
@@ -283,7 +283,7 @@ Use optimized loaders for common use cases:
 
 ```tsx
 import Image from 'next/image';
-import { defaultSnapkitLoaders } from '@snapkit/nextjs';
+import { defaultSnapkitLoaders } from '@snapkit-studio/nextjs';
 
 // High-quality images
 <Image
@@ -318,7 +318,7 @@ import { defaultSnapkitLoaders } from '@snapkit/nextjs';
 #### Loader with Image Transformations
 
 ```tsx
-import { createSnapkitLoaderWithTransforms } from '@snapkit/nextjs';
+import { createSnapkitLoaderWithTransforms } from '@snapkit-studio/nextjs';
 
 const blurredLoader = createSnapkitLoaderWithTransforms({
   blur: 20,
@@ -338,7 +338,7 @@ const blurredLoader = createSnapkitLoaderWithTransforms({
 #### Responsive Loader
 
 ```tsx
-import { createResponsiveSnapkitLoader } from '@snapkit/nextjs';
+import { createResponsiveSnapkitLoader } from '@snapkit-studio/nextjs';
 
 const responsiveLoader = createResponsiveSnapkitLoader([
   400, 800, 1200, 1600, 2000
@@ -357,7 +357,7 @@ const responsiveLoader = createResponsiveSnapkitLoader([
 #### Organization-specific Loader
 
 ```tsx
-import { createSnapkitLoaderForOrganization } from '@snapkit/nextjs';
+import { createSnapkitLoaderForOrganization } from '@snapkit-studio/nextjs';
 
 const orgLoader = createSnapkitLoaderForOrganization(
   'client-org',
@@ -549,12 +549,12 @@ pnpm release:dry-run
 
 ### Check Latest Version
 
-[![npm version](https://img.shields.io/npm/v/@snapkit/nextjs.svg)](https://www.npmjs.com/package/@snapkit/nextjs)
+[![npm version](https://img.shields.io/npm/v/@snapkit-studio/nextjs.svg)](https://www.npmjs.com/package/@snapkit-studio/nextjs)
 [![GitHub Release](https://img.shields.io/github/release/snapkit/snapkit-nextjs.svg)](https://github.com/snapkit/snapkit-nextjs/releases)
 
 ## Examples
 
-Check out our example projects to see @snapkit/nextjs in action:
+Check out our example projects to see @snapkit-studio/nextjs in action:
 
 - **[Basic Example](./examples/basic-nextjs/)** - Simple Next.js application showing basic usage
 - **[Advanced Features](./examples/advanced-features/)** - Progressive loading, custom hooks, and batch preloading

@@ -11,7 +11,7 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@snapkit/react": "workspace:*",
+    "@snapkit-studio/react": "workspace:*",
     "react": "19.1.1",
     "react-dom": "19.1.1"
   },

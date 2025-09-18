@@ -1,9 +1,8 @@
 // Next.js Image Loader for Snapkit
-export { snapkitLoader, createSnapkitLoader } from './image-loader';
+export { createSnapkitLoader, snapkitLoader } from './image-loader';
 
 // Re-export types needed for Next.js integration
 export type {
-  ImageLoaderParams,
-  ImageLoader,
-  SnapkitLoaderOptions,
-} from '@snapkit/core';
+  ImageLoader, ImageLoaderParams, SnapkitLoaderOptions,
+} from '@snapkit-studio/core';
+

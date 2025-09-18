@@ -1,12 +1,12 @@
-import { describe, it, expect, vi } from 'vitest';
+import type { ImageTransforms } from '@snapkit-studio/core';
+import { describe, expect, it, vi } from 'vitest';
 import {
-  generateResponsiveSrcSet,
-  generatePlaceholderUrl,
+    generatePlaceholderUrl,
+    generateResponsiveSrcSet,
 } from '../urlGenerators';
-import type { ImageTransforms } from '@snapkit/core';
 
 // Mock buildImageUrl
-vi.mock('@snapkit/core', () => ({
+vi.mock('@snapkit-studio/core', () => ({
   buildImageUrl: vi.fn((src: string, transforms: any, options: any) => {
     const params = new URLSearchParams();
     if (transforms.width) params.set('w', transforms.width.toString());

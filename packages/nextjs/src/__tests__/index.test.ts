@@ -17,7 +17,7 @@ describe('index exports', () => {
     expect(typeof createSnapkitLoader).toBe('function');
   });
 
-  it('should export all required types from @snapkit/core', async () => {
+  it('should export all required types from @snapkit-studio/core', async () => {
     // When: importing the module
     const exports = await import('../index');
 

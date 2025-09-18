@@ -1,9 +1,9 @@
 # 프로덕션에 사용하지 마세요. 현재는 개발 중입니다.
 
-# @snapkit/nextjs
+# @snapkit-studio/nextjs
 
-[![npm version](https://img.shields.io/npm/v/@snapkit/nextjs.svg)](https://www.npmjs.com/package/@snapkit/nextjs)
-[![npm downloads](https://img.shields.io/npm/dm/@snapkit/nextjs.svg)](https://www.npmjs.com/package/@snapkit/nextjs)
+[![npm version](https://img.shields.io/npm/v/@snapkit-studio/nextjs.svg)](https://www.npmjs.com/package/@snapkit-studio/nextjs)
+[![npm downloads](https://img.shields.io/npm/dm/@snapkit-studio/nextjs.svg)](https://www.npmjs.com/package/@snapkit-studio/nextjs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
 
@@ -24,11 +24,11 @@ Next.js를 위한 고성능 이미지 최적화 라이브러리입니다. Snapki
 ## 설치
 
 ```bash
-npm install @snapkit/nextjs
+npm install @snapkit-studio/nextjs
 # or
-yarn add @snapkit/nextjs
+yarn add @snapkit-studio/nextjs
 # or
-pnpm add @snapkit/nextjs
+pnpm add @snapkit-studio/nextjs
 ```
 
 ## 빠른 시작
@@ -37,7 +37,7 @@ pnpm add @snapkit/nextjs
 
 ```tsx
 // app/layout.tsx or _app.tsx
-import { SnapkitProvider } from "@snapkit/nextjs";
+import { SnapkitProvider } from "@snapkit-studio/nextjs";
 
 export default function RootLayout({
   children,
@@ -64,7 +64,7 @@ export default function RootLayout({
 ### 2. 기본 사용법
 
 ```tsx
-import { Image } from "@snapkit/nextjs";
+import { Image } from "@snapkit-studio/nextjs";
 
 export default function MyComponent() {
   return (
@@ -86,7 +86,7 @@ export default function MyComponent() {
 Next.js의 `Image` 컴포넌트와 호환되는 API를 제공합니다.
 
 ```tsx
-import { Image } from "@snapkit/nextjs";
+import { Image } from "@snapkit-studio/nextjs";
 
 <Image
   src="/path/to/image.jpg"
@@ -188,7 +188,7 @@ import { Image } from "@snapkit/nextjs";
 점진적 이미지 로딩으로 더 나은 사용자 경험을 제공합니다.
 
 ```tsx
-import { useProgressiveLoading } from "@snapkit/nextjs";
+import { useProgressiveLoading } from "@snapkit-studio/nextjs";
 
 function ProgressiveImage({ src, ...props }) {
   const { currentSrc, stage, progress } = useProgressiveLoading({
@@ -214,7 +214,7 @@ function ProgressiveImage({ src, ...props }) {
 ### 커스텀 Hook 활용
 
 ```tsx
-import { useImageOptimization, useResponsiveSrcSet } from "@snapkit/nextjs";
+import { useImageOptimization, useResponsiveSrcSet } from "@snapkit-studio/nextjs";
 
 function CustomImage({ src }) {
   const { avif, webp, original } = useImageOptimization({
@@ -239,7 +239,7 @@ function CustomImage({ src }) {
 ### 배치 이미지 사전 로딩
 
 ```tsx
-import { useBatchImagePreload } from "@snapkit/nextjs";
+import { useBatchImagePreload } from "@snapkit-studio/nextjs";
 
 function Gallery({ images }) {
   const { preloadedCount, progress, isAllPreloaded } = useBatchImagePreload(
@@ -268,13 +268,13 @@ function Gallery({ images }) {
 
 ## Next.js Image Loader 통합
 
-@snapkit/nextjs는 Next.js Image 컴포넌트와 직접 사용할 수 있는 커스텀 loader 함수들을 제공하여 완벽한 통합을 지원합니다.
+@snapkit-studio/nextjs는 Next.js Image 컴포넌트와 직접 사용할 수 있는 커스텀 loader 함수들을 제공하여 완벽한 통합을 지원합니다.
 
 ### 기본 Loader 사용법
 
 ```tsx
 import Image from 'next/image';
-import { snapkitLoader } from '@snapkit/nextjs';
+import { snapkitLoader } from '@snapkit-studio/nextjs';
 
 export default function MyComponent() {
   return (
@@ -293,7 +293,7 @@ export default function MyComponent() {
 
 ```tsx
 import Image from 'next/image';
-import { createSnapkitLoader } from '@snapkit/nextjs';
+import { createSnapkitLoader } from '@snapkit-studio/nextjs';
 
 const customLoader = createSnapkitLoader({
   baseUrl: 'https://custom-proxy.snapkit.com',
@@ -319,7 +319,7 @@ export default function MyComponent() {
 loader 파일을 생성합니다 (예: `snapkit-loader.js`):
 
 ```js
-const { createSnapkitLoader } = require('@snapkit/nextjs');
+const { createSnapkitLoader } = require('@snapkit-studio/nextjs');
 
 module.exports = createSnapkitLoader({
   baseUrl: 'https://image-proxy.snapkit.com',
@@ -346,7 +346,7 @@ module.exports = {
 
 ```tsx
 import Image from 'next/image';
-import { defaultSnapkitLoaders } from '@snapkit/nextjs';
+import { defaultSnapkitLoaders } from '@snapkit-studio/nextjs';
 
 // 고품질 이미지
 <Image
@@ -381,7 +381,7 @@ import { defaultSnapkitLoaders } from '@snapkit/nextjs';
 #### 이미지 변환이 포함된 Loader
 
 ```tsx
-import { createSnapkitLoaderWithTransforms } from '@snapkit/nextjs';
+import { createSnapkitLoaderWithTransforms } from '@snapkit-studio/nextjs';
 
 const blurredLoader = createSnapkitLoaderWithTransforms({
   blur: 20,
@@ -401,7 +401,7 @@ const blurredLoader = createSnapkitLoaderWithTransforms({
 #### 반응형 Loader
 
 ```tsx
-import { createResponsiveSnapkitLoader } from '@snapkit/nextjs';
+import { createResponsiveSnapkitLoader } from '@snapkit-studio/nextjs';
 
 const responsiveLoader = createResponsiveSnapkitLoader([
   400, 800, 1200, 1600, 2000
@@ -420,7 +420,7 @@ const responsiveLoader = createResponsiveSnapkitLoader([
 #### 조직별 전용 Loader
 
 ```tsx
-import { createSnapkitLoaderForOrganization } from '@snapkit/nextjs';
+import { createSnapkitLoaderForOrganization } from '@snapkit-studio/nextjs';
 
 const orgLoader = createSnapkitLoaderForOrganization(
   'client-org',
@@ -616,12 +616,12 @@ pnpm release:dry-run
 
 ### 최신 버전 확인
 
-[![npm version](https://img.shields.io/npm/v/@snapkit/nextjs.svg)](https://www.npmjs.com/package/@snapkit/nextjs)
+[![npm version](https://img.shields.io/npm/v/@snapkit-studio/nextjs.svg)](https://www.npmjs.com/package/@snapkit-studio/nextjs)
 [![GitHub Release](https://img.shields.io/github/release/snapkit/snapkit-nextjs.svg)](https://github.com/snapkit/snapkit-nextjs/releases)
 
 ## 예제
 
-@snapkit/nextjs를 실제로 사용하는 예제 프로젝트들을 확인해보세요:
+@snapkit-studio/nextjs를 실제로 사용하는 예제 프로젝트들을 확인해보세요:
 
 - **[기본 예제](./examples/basic-nextjs/)** - 기본 사용법을 보여주는 간단한 Next.js 애플리케이션
 - **[고급 기능](./examples/advanced-features/)** - Progressive loading, 커스텀 훅, 배치 사전 로딩

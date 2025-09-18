@@ -1,5 +1,5 @@
-import type { ImageTransforms } from '@snapkit/core';
-import { getBestSupportedFormat } from '@snapkit/core';
+import type { ImageTransforms } from '@snapkit-studio/core';
+import { getBestSupportedFormat } from '@snapkit-studio/core';
 
 /**
  * Image transformation utilities

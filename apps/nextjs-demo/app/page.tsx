@@ -1,5 +1,5 @@
-import { Image } from '@snapkit/react';
-import { snapkitLoader } from '@snapkit/nextjs';
+import { snapkitLoader } from '@snapkit-studio/nextjs';
+import { Image } from '@snapkit-studio/react';
 import NextImage from 'next/image';
 
 export default function Home() {
@@ -10,7 +10,7 @@ export default function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <h2 className="text-2xl font-semibold mb-4">Using @snapkit/react Image</h2>
+            <h2 className="text-2xl font-semibold mb-4">Using @snapkit-studio/react Image</h2>
             <Image
               src="/demo-image.jpg"
               alt="Demo image with Snapkit React component"

@@ -15,9 +15,9 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@snapkit/core": ["./packages/core/src"],
-      "@snapkit/nextjs": ["./packages/nextjs/src"],
-      "@snapkit/react": ["./packages/react/src"]
+      "@snapkit-studio/core": ["./packages/core/src"],
+      "@snapkit-studio/nextjs": ["./packages/nextjs/src"],
+      "@snapkit-studio/react": ["./packages/react/src"]
     }
   },
   "include": [

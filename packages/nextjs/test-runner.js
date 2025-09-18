@@ -8,7 +8,7 @@
 const fs = require('fs');
 const path = require('path');
 
-console.log('📊 Analyzing test coverage for @snapkit/nextjs...\n');
+console.log('📊 Analyzing test coverage for @snapkit-studio/nextjs...\n');
 
 // Read the source files
 const imageLoaderPath = path.join(__dirname, 'src', 'image-loader.ts');

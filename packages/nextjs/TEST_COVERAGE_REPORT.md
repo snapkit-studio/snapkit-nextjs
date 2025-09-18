@@ -1,7 +1,7 @@
-# Test Coverage Report for @snapkit/nextjs
+# Test Coverage Report for @snapkit-studio/nextjs
 
 ## Overview
-This document outlines the comprehensive test coverage for the `@snapkit/nextjs` package, ensuring 80%+ coverage of all source code.
+This document outlines the comprehensive test coverage for the `@snapkit-studio/nextjs` package, ensuring 80%+ coverage of all source code.
 
 ## Source Files Tested
 
@@ -13,7 +13,7 @@ This document outlines the comprehensive test coverage for the `@snapkit/nextjs`
 ### 2. `src/index.ts` (Module Exports)
 **Total Exports**: 2 functions + 3 type re-exports
 - Function exports from image-loader module
-- Type re-exports from @snapkit/core
+- Type re-exports from @snapkit-studio/core
 
 ## Test Files Created
 
@@ -138,7 +138,7 @@ pnpm test:coverage
 
 ## Summary
 
-The `@snapkit/nextjs` package has achieved comprehensive test coverage well above the required 80% threshold. All critical code paths, error conditions, edge cases, and normal operations are thoroughly tested using industry-standard testing practices with Vitest.
+The `@snapkit-studio/nextjs` package has achieved comprehensive test coverage well above the required 80% threshold. All critical code paths, error conditions, edge cases, and normal operations are thoroughly tested using industry-standard testing practices with Vitest.
 
 The test suite includes:
 - **Unit tests** for all functions

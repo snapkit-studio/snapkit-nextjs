@@ -1,4 +1,4 @@
-import { Image, SnapkitProvider } from '@snapkit/react';
+import { Image, SnapkitProvider } from '@snapkit-studio/react';
 
 function App() {
   return (

@@ -1,5 +1,5 @@
-import { buildImageUrl } from '@snapkit/core';
-import type { ImageTransforms } from '@snapkit/core';
+import type { ImageTransforms } from '@snapkit-studio/core';
+import { buildImageUrl } from '@snapkit-studio/core';
 
 /**
  * URL generation utilities for image components

@@ -1,29 +1,29 @@
 'use client';
 
 import {
-  SnapkitImageProps,
-  adjustQualityForConnection,
-  buildImageUrl,
-  calculateOptimalImageSize,
-  createLazyLoadObserver,
-  generateResponsiveWidths,
-  getDeviceCharacteristics,
-} from '@snapkit/core';
+    SnapkitImageProps,
+    adjustQualityForConnection,
+    buildImageUrl,
+    calculateOptimalImageSize,
+    createLazyLoadObserver,
+    generateResponsiveWidths,
+    getDeviceCharacteristics,
+} from '@snapkit-studio/core';
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { useSnapkitConfig } from '../providers/SnapkitProvider';
 import {
-  addSizeToTransforms,
-  createBuildOptions,
-  createContainerStyle,
-  createFinalTransforms,
-  createImageStyle,
-  createMainImageStyle,
-  createPlaceholderStyle,
-  createPlaceholderTransforms,
-  generateResponsiveSrcSet,
-  getPlaceholderUrl,
-  mergeConfiguration,
-  shouldShowBlurPlaceholder,
+    addSizeToTransforms,
+    createBuildOptions,
+    createContainerStyle,
+    createFinalTransforms,
+    createImageStyle,
+    createMainImageStyle,
+    createPlaceholderStyle,
+    createPlaceholderTransforms,
+    generateResponsiveSrcSet,
+    getPlaceholderUrl,
+    mergeConfiguration,
+    shouldShowBlurPlaceholder,
 } from '../utils';
 
 /**

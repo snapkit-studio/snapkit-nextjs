@@ -1,14 +1,14 @@
-import { describe, it, expect, vi } from 'vitest';
+import type { ImageTransforms } from '@snapkit-studio/core';
+import { describe, expect, it, vi } from 'vitest';
 import {
-  createFinalTransforms,
-  addSizeToTransforms,
-  createPlaceholderTransforms,
+    addSizeToTransforms,
+    createFinalTransforms,
+    createPlaceholderTransforms,
 } from '../imageTransformUtils';
-import type { ImageTransforms } from '@snapkit/core';
 
 // Mock getBestSupportedFormat
-vi.mock('@snapkit/core', async () => {
-  const actual = await vi.importActual('@snapkit/core');
+vi.mock('@snapkit-studio/core', async () => {
+  const actual = await vi.importActual('@snapkit-studio/core');
   return {
     ...actual,
     getBestSupportedFormat: vi.fn((defaultFormat?: string) => {

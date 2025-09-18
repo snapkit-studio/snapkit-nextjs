@@ -1,14 +1,14 @@
 import {
-  getDefaultUrlBuilder,
-  ImageLoaderParams,
-  SnapkitLoaderOptions,
-  SnapkitUrlBuilder,
-} from '@snapkit/core';
+    getDefaultUrlBuilder,
+    ImageLoaderParams,
+    SnapkitLoaderOptions,
+    SnapkitUrlBuilder,
+} from '@snapkit-studio/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createSnapkitLoader, snapkitLoader } from '../image-loader';
 
-// Mock @snapkit/core 모듈
-vi.mock('@snapkit/core', () => ({
+// Mock @snapkit-studio/core 모듈
+vi.mock('@snapkit-studio/core', () => ({
   getDefaultUrlBuilder: vi.fn(),
   setDefaultUrlBuilder: vi.fn(),
   SnapkitUrlBuilder: vi.fn(),

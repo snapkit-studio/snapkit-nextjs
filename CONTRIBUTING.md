@@ -1,8 +1,8 @@
-# Contributing to @snapkit/nextjs
+# Contributing to @snapkit-studio/nextjs
 
 [![English](https://img.shields.io/badge/docs-English-blue)](./CONTRIBUTING.md) [![한국어](https://img.shields.io/badge/docs-한국어-blue)](./CONTRIBUTING-ko.md)
 
-We love your input! We want to make contributing to @snapkit/nextjs as easy and transparent as possible, whether it's:
+We love your input! We want to make contributing to @snapkit-studio/nextjs as easy and transparent as possible, whether it's:
 
 - Reporting a bug
 - Discussing the current state of the code
@@ -239,4 +239,4 @@ Contributors are automatically added to our README and releases. We appreciate a
 
 ---
 
-Thank you for contributing to @snapkit/nextjs! 🚀
+Thank you for contributing to @snapkit-studio/nextjs! 🚀

@@ -10,8 +10,8 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@snapkit/nextjs": "workspace:*",
-    "@snapkit/react": "workspace:*",
+    "@snapkit-studio/nextjs": "workspace:*",
+    "@snapkit-studio/react": "workspace:*",
     "next": "15.5.3",
     "react": "19.1.1",
     "react-dom": "19.1.1"

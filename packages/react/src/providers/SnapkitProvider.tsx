@@ -1,9 +1,7 @@
 'use client';
 
+import { preloadFormatSupport, setDefaultUrlBuilder, SnapkitConfig } from '@snapkit-studio/core';
 import React, { createContext, useContext, useEffect } from 'react';
-import { SnapkitConfig } from '@snapkit/core';
-import { setDefaultUrlBuilder } from '@snapkit/core';
-import { preloadFormatSupport } from '@snapkit/core';
 
 const SnapkitContext = createContext<SnapkitConfig>({});
 
@@ -16,7 +14,7 @@ export interface SnapkitProviderProps extends SnapkitConfig {
  *
  * @example
  * ```tsx
- * import { SnapkitProvider } from '@snapkit/nextjs';
+ * import { SnapkitProvider } from '@snapkit-studio/nextjs';
  *
  * // Basic setup
  * function App() {

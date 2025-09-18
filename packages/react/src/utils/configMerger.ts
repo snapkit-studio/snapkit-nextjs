@@ -1,4 +1,4 @@
-import type { SnapkitConfig } from '@snapkit/core';
+import type { SnapkitConfig } from '@snapkit-studio/core';
 
 /**
  * Configuration merging utilities for Snapkit components
