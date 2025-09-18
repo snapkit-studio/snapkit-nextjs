@@ -14,6 +14,10 @@
     "url": "https://github.com/snapkit-studio/snapkit-nextjs.git",
     "directory": "packages/nextjs"
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
   "license": "MIT",
   "author": "Snapkit",
   "exports": {
