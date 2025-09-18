@@ -2,7 +2,7 @@
   "name": "web",
   "version": "1.6.0",
   "private": true,
-  "description": "Snapkit image optimization libraries monorepo - testing release workflow fix",
+  "description": "Snapkit image optimization libraries monorepo - fix GitHub token env vars",
   "keywords": [
     "nextjs",
     "image",
