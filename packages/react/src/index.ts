@@ -1,5 +1,5 @@
 // Main components
-// Test: react package change detection
+// Test: react package change detection v2
 export { Image } from './components/Image';
 
 // Provider
