@@ -1,6 +1,6 @@
 {
   "name": "@snapkit/nextjs",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Next.js image loader for Snapkit image optimization",
   "keywords": [
     "nextjs",
@@ -11,7 +11,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/snapkit/snapkit-nextjs.git",
+    "url": "https://github.com/snapkit-studio/snapkit-nextjs.git",
     "directory": "packages/nextjs"
   },
   "license": "MIT",
