@@ -22,20 +22,20 @@ fi
 
 echo "📦 Packages to publish to GitHub Packages: $CHANGED_PACKAGES"
 
-# Check if GITHUB_TOKEN is available
-if [ -z "$GITHUB_TOKEN" ]; then
-  echo "❌ GITHUB_TOKEN not set, cannot publish to GitHub Packages"
+# Check if GH_TOKEN is available
+if [ -z "$GH_TOKEN" ]; then
+  echo "❌ GH_TOKEN not set, cannot publish to GitHub Packages"
   exit 1
 fi
 
-echo "✅ GITHUB_TOKEN is available"
+echo "✅ GH_TOKEN is available"
 
 # Configure GitHub Packages authentication
 echo "📋 Configuring GitHub Packages authentication..."
 
 # Create temporary .npmrc for GitHub Packages
 cat > ~/.npmrc << EOF
-//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+//npm.pkg.github.com/:_authToken=${GH_TOKEN}
 @snapkit-studio:registry=https://npm.pkg.github.com/
 registry=https://npm.pkg.github.com/
 EOF
@@ -55,7 +55,7 @@ else
   echo "🔍 Attempting alternative authentication check..."
 
   # Try a different approach - check if we can access GitHub API
-  if curl -s -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/user > /dev/null 2>&1; then
+  if curl -s -H "Authorization: token ${GH_TOKEN}" https://api.github.com/user > /dev/null 2>&1; then
     echo "✅ GitHub API access works, continuing with publish attempt"
   else
     echo "❌ GitHub API access also failed"

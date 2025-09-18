@@ -24,7 +24,7 @@ echo "📦 Publishing to GitHub Packages..."
 
 # GitHub Packages 인증 설정
 cat > ~/.npmrc << EOF
-//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+//npm.pkg.github.com/:_authToken=${GH_TOKEN}
 @snapkit-studio:registry=https://npm.pkg.github.com/
 registry=https://npm.pkg.github.com/
 EOF
