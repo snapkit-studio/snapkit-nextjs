@@ -25,7 +25,7 @@
       }
     ]
   ],
-  "repositoryUrl": "https://github.com/snapkit-studio/snapkit-nextjs.git",
+  "repositoryUrl": "https://github.com/snapkit-studio/web.git",
   "preset": "angular",
   "releaseRules": [
     {"type": "docs", "scope": "README", "release": "patch"},

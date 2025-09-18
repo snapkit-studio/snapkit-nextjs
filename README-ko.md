@@ -26,7 +26,7 @@ npm install @snapkit-studio/nextjs
 # or
 yarn add @snapkit-studio/nextjs
 # or
-pnpm add @snapkit-studio/nextjs
+pnpm add @snapkit-studio/n Rextjs
 ```
 
 ## 빠른 시작
