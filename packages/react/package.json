@@ -1,6 +1,6 @@
 {
   "name": "@snapkit-studio/react",
-  "version": "0.1.0",
+  "version": "1.2.0",
   "description": "React components and hooks for Snapkit image optimization",
   "keywords": [
     "react",
@@ -40,7 +40,8 @@
     "check-types": "tsc --noEmit",
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "lint": "eslint src --ext .ts,.tsx",
-    "test": "vitest --run"
+    "test": "vitest --run",
+    "version-info": "node -p \"'Package: @snapkit-studio/react, Current version: ' + require('./package.json').version\""
   },
   "dependencies": {
     "@snapkit-studio/core": "workspace:*"

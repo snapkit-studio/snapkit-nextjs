@@ -1,5 +1,5 @@
 {
-  "name": "snapkit-nextjs",
+  "name": "web",
   "version": "1.1.1",
   "private": true,
   "description": "Snapkit image optimization libraries monorepo",
@@ -27,6 +27,7 @@
     "prepare": "husky install",
     "release": "semantic-release",
     "release:dry-run": "semantic-release --dry-run",
+    "publish:local": "bash ./scripts/publish-local.sh",
     "test": "turbo test",
     "test:coverage": "turbo test:coverage",
     "type-check": "turbo check-types"

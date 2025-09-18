@@ -1,6 +1,6 @@
 {
   "name": "@snapkit-studio/nextjs",
-  "version": "0.1.0",
+  "version": "1.2.0",
   "description": "Next.js image loader for Snapkit image optimization",
   "keywords": [
     "nextjs",
@@ -40,7 +40,8 @@
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "lint": "eslint src --ext .ts",
     "test": "vitest --run",
-    "test:coverage": "vitest --run --coverage"
+    "test:coverage": "vitest --run --coverage",
+    "version-info": "node -p \"'Package: @snapkit-studio/nextjs, Current version: ' + require('./package.json').version\""
   },
   "dependencies": {
     "@snapkit-studio/core": "workspace:*"

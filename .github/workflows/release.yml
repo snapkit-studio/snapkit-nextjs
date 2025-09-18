@@ -44,8 +44,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build package
-        run: pnpm build
+      - name: Check changed packages
+        run: |
+          echo "🔍 Checking changed packages with Git..."
+          git diff --name-only HEAD^ || echo "No changes detected since last commit"
+
+      - name: Build packages
+        run: |
+          echo "🏗️ Building all packages..."
+          pnpm build
 
       - name: Release with semantic-release
         run: pnpm release

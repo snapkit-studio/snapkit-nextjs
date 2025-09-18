@@ -13,7 +13,9 @@
     [
       "@semantic-release/exec",
       {
-        "publishCmd": "bash ./scripts/publish-packages.sh"
+        "verifyConditionsCmd": "echo 'Verifying release conditions...'",
+        "prepareCmd": "node ./scripts/update-versions.js ${nextRelease.version}",
+        "publishCmd": "bash ./scripts/publish-selective.sh"
       }
     ],
     "@semantic-release/github",

@@ -1,6 +1,6 @@
 {
   "name": "@snapkit-studio/core",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Core utilities and types for Snapkit Studio image optimization",
   "keywords": [
     "snapkit",
@@ -35,7 +35,8 @@
     "check-types": "tsc --noEmit",
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "lint": "eslint src --ext .ts",
-    "test": "vitest --run"
+    "test": "vitest --run",
+    "version-info": "node -p \"'Package: @snapkit-studio/core, Current version: ' + require('./package.json').version\""
   },
   "devDependencies": {
     "typescript": "^5.0.0",
