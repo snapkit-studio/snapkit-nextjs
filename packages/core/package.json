@@ -1,5 +1,5 @@
 {
-  "name": "@snapkit/core",
+  "name": "@snapkit-studio/core",
   "version": "1.0.0",
   "description": "Core utilities and types for Snapkit image optimization",
   "keywords": [
@@ -11,7 +11,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/snapkit/snapkit-nextjs.git",
+    "url": "https://github.com/snapkit-studio/snapkit-nextjs.git",
     "directory": "packages/core"
   },
   "license": "MIT",
