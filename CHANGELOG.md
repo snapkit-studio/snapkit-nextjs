@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/snapkit-studio/web/compare/v1.4.0...v1.5.0) (2025-09-18)
+
+
+### Features
+
+* add initial test file for nextjs package ([80c9056](https://github.com/snapkit-studio/web/commit/80c905658fe24d7406cddacdfabd7591c2eeb7ca))
+
 # [1.4.0](https://github.com/snapkit-studio/web/compare/v1.3.0...v1.4.0) (2025-09-18)
 
 
