@@ -59,7 +59,7 @@ jobs:
           echo "🚀 Starting semantic-release process..."
           echo "📋 Environment check:"
           echo "- GITHUB_TOKEN: $([ -n "$GITHUB_TOKEN" ] && echo "✅ Set" || echo "❌ Not set")"
-          echo "- NPM_AUTOMATION_TOKEN: $([ -n "$NPM_AUTOMATION_TOKEN" ] && echo "✅ Set" || echo "❌ Not set")"
+          echo "- NPM_TOKEN: $([ -n "$NPM_AUTOMATION_TOKEN" ] && echo "✅ Set" || echo "❌ Not set")"
           echo "- PUBLISH_GITHUB_PACKAGES: $PUBLISH_GITHUB_PACKAGES"
 
           pnpm release
