@@ -4,12 +4,14 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-function getChangedPackages(since = 'HEAD^') {
-  console.log('🔍 Detecting changed packages with Git...');
-  return getChangedPackagesFromGit(since);
+function getChangedPackages(since = 'HEAD^', silent = false) {
+  if (!silent) {
+    console.log('🔍 Detecting changed packages with Git...');
+  }
+  return getChangedPackagesFromGit(since, silent);
 }
 
-function getChangedPackagesFromGit(since = 'HEAD^') {
+function getChangedPackagesFromGit(since = 'HEAD^', silent = false) {
   try {
     const changedFiles = execSync(`git diff --name-only ${since}`, { encoding: 'utf8' })
       .split('\n')
@@ -38,13 +40,17 @@ function getChangedPackagesFromGit(since = 'HEAD^') {
     );
 
     if (hasRootChanges) {
-      console.log('🔄 Root level changes detected - updating all packages');
+      if (!silent) {
+        console.log('🔄 Root level changes detected - updating all packages');
+      }
       return getAllPackages();
     }
 
     return Array.from(packageDirs);
   } catch (error) {
-    console.error('❌ Git diff execution failed:', error.message);
+    if (!silent) {
+      console.error('❌ Git diff execution failed:', error.message);
+    }
     return [];
   }
 }

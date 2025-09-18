@@ -10,7 +10,7 @@ CHANGED_PACKAGES=""
 if command -v node >/dev/null 2>&1; then
   CHANGED_PACKAGES=$(node -e "
     const { getChangedPackages } = require('./scripts/update-versions.js');
-    const packages = getChangedPackages();
+    const packages = getChangedPackages('HEAD^', true); // silent mode
     console.log(packages.join(' '));
   ")
 fi
