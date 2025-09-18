@@ -3,6 +3,15 @@
 
 ### Features
 
+* modify description ([baae675](https://github.com/snapkit-studio/web/commit/baae675d899113c20148528e241dd5bc3c78c31e))
+* publish test ([41195da](https://github.com/snapkit-studio/web/commit/41195da125a45eb5c294139e5b3cd4a411025d3d))
+* Use npm automation token 2 ([c6fe1ba](https://github.com/snapkit-studio/web/commit/c6fe1bafc648ea31360d68a343d21b30edbd681b))
+
+# [1.6.0](https://github.com/snapkit-studio/web/compare/v1.5.1...v1.6.0) (2025-09-18)
+
+
+### Features
+
 * publish test ([41195da](https://github.com/snapkit-studio/web/commit/41195da125a45eb5c294139e5b3cd4a411025d3d))
 * Use npm automation token 2 ([c6fe1ba](https://github.com/snapkit-studio/web/commit/c6fe1bafc648ea31360d68a343d21b30edbd681b))
 
