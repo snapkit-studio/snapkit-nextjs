@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/snapkit-studio/web/compare/v1.1.0...v1.1.1) (2025-09-18)
+
+
+### Bug Fixes
+
+* improve NPM authentication in publish script ([045b5fd](https://github.com/snapkit-studio/web/commit/045b5fd2e3257b31757557f72775986757ff09ac))
+
 # [1.1.0](https://github.com/snapkit-studio/snapkit-nextjs/compare/v1.0.3...v1.1.0) (2025-09-18)
 
 
