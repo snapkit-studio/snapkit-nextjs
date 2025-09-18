@@ -4,6 +4,13 @@ set -e
 
 echo "🚀 Starting Git-based selective package publishing..."
 
+# Debug environment variables
+echo "🔍 Environment Variables Debug:"
+echo "  - NPM_TOKEN: $([ -n "$NPM_TOKEN" ] && echo "✅ Set (length: ${#NPM_TOKEN})" || echo "❌ Not set")"
+echo "  - GH_TOKEN: $([ -n "$GH_TOKEN" ] && echo "✅ Set (length: ${#GH_TOKEN})" || echo "❌ Not set")"
+echo "  - PUBLISH_GITHUB_PACKAGES: ${PUBLISH_GITHUB_PACKAGES:-'not set'}"
+echo "  - NODE_AUTH_TOKEN: $([ -n "$NODE_AUTH_TOKEN" ] && echo "✅ Set" || echo "❌ Not set")"
+
 # Detect changed packages using Git
 echo "🔍 Detecting changed packages with Git..."
 CHANGED_PACKAGES=""
@@ -36,15 +43,39 @@ echo "✅ NPM_TOKEN is available"
 
 # Configure NPM authentication
 echo "📋 Configuring NPM authentication..."
+
+# Create .npmrc with proper formatting
 cat > ~/.npmrc << EOF
 //registry.npmjs.org/:_authToken=${NPM_TOKEN}
 registry=https://registry.npmjs.org/
 @snapkit-studio:registry=https://registry.npmjs.org/
+always-auth=true
 EOF
 
 echo "📋 NPM configuration created"
 
+# Verify .npmrc was created correctly
+echo "🔍 Verifying .npmrc contents:"
+if [ -f ~/.npmrc ]; then
+  echo "✅ ~/.npmrc exists"
+  echo "📄 Contents (tokens masked):"
+  sed 's/:_authToken=.*/:_authToken=***MASKED***/g' ~/.npmrc | sed 's/^/  /'
+else
+  echo "❌ ~/.npmrc not found"
+fi
+
 npm config set access public
+
+# Test npm authentication immediately
+echo "🔐 Testing NPM authentication..."
+if npm whoami &>/dev/null; then
+  echo "✅ NPM authentication successful: $(npm whoami)"
+else
+  echo "❌ NPM authentication failed"
+  echo "🔍 NPM config check:"
+  npm config get registry
+  echo "🔍 Token check: $([ -n "$NPM_TOKEN" ] && echo "Token present" || echo "Token missing")"
+fi
 
 # Publish only changed packages
 for package in $CHANGED_PACKAGES; do
@@ -58,7 +89,7 @@ for package in $CHANGED_PACKAGES; do
 
   # Build the package first
   echo "🏗️ Building @snapkit-studio/$package..."
-  if pnpm build --filter "@snapkit-studio/$package"; then
+  if (cd "packages/$package" && npm run build); then
     echo "✅ Build successful for @snapkit-studio/$package"
   else
     echo "❌ Build failed for @snapkit-studio/$package, skipping publish"
@@ -87,7 +118,7 @@ for package in $CHANGED_PACKAGES; do
 
   # Attempt to publish
   echo "📤 Attempting to publish @snapkit-studio/$package@$CURRENT_VERSION to NPM..."
-  if pnpm publish --filter "@snapkit-studio/$package" --access public --no-git-checks --registry https://registry.npmjs.org; then
+  if (cd "packages/$package" && npm publish --access public --registry https://registry.npmjs.org); then
     echo "✅ @snapkit-studio/$package NPM publishing successful"
   else
     PUBLISH_EXIT_CODE=$?
