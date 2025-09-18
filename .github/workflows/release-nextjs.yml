@@ -1,11 +1,11 @@
 name: Release Next.js Package
 
 on:
-  push:
+  workflow_run:
+    workflows: ["CI", "Release React Package"]
+    types:
+      - completed
     branches: [main]
-    paths:
-      - 'packages/nextjs/**'
-      - '.github/workflows/release-nextjs.yml'
   workflow_dispatch:
 
 jobs:
@@ -18,6 +18,11 @@ jobs:
       pull-requests: write
       id-token: write
       packages: write
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       (github.event.workflow_run.name == 'CI' || github.event.workflow_run.name == 'Release React Package'))
 
     steps:
       - name: Checkout code
@@ -42,12 +47,29 @@ jobs:
       - name: Check for changes
         id: changes
         run: |
-          if git diff --quiet HEAD^ HEAD -- packages/nextjs/; then
-            echo "No changes in nextjs package"
-            echo "skip=true" >> $GITHUB_OUTPUT
+          # Check if this was triggered by workflow_run (CI completion)
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            # Get the commit that triggered the CI workflow
+            COMMIT_SHA="${{ github.event.workflow_run.head_sha }}"
+            echo "Checking changes for commit: $COMMIT_SHA"
+
+            # Check if the commit includes changes to nextjs package
+            if git diff --quiet ${COMMIT_SHA}^ ${COMMIT_SHA} -- packages/nextjs/; then
+              echo "No changes in nextjs package for commit $COMMIT_SHA"
+              echo "skip=true" >> $GITHUB_OUTPUT
+            else
+              echo "Changes detected in nextjs package for commit $COMMIT_SHA"
+              echo "skip=false" >> $GITHUB_OUTPUT
+            fi
           else
-            echo "Changes detected in nextjs package"
-            echo "skip=false" >> $GITHUB_OUTPUT
+            # Manual trigger - check latest changes
+            if git diff --quiet HEAD^ HEAD -- packages/nextjs/; then
+              echo "No changes in nextjs package"
+              echo "skip=true" >> $GITHUB_OUTPUT
+            else
+              echo "Changes detected in nextjs package"
+              echo "skip=false" >> $GITHUB_OUTPUT
+            fi
           fi
       - name: Build package
         if: steps.changes.outputs.skip != 'true'
@@ -142,8 +164,31 @@ jobs:
           git commit -m "chore(nextjs): release v${{ steps.version.outputs.version }} [skip ci]"
           git tag "${{ steps.version.outputs.tag }}" -m "Release @snapkit-studio/nextjs@${{ steps.version.outputs.version }}"
 
-          git push origin main
-          git push origin "${{ steps.version.outputs.tag }}"
+          # Push with retry logic to handle concurrent releases
+          for i in {1..5}; do
+            echo "Attempt $i to push changes..."
+
+            # Pull latest changes first
+            if git pull --rebase origin main; then
+              echo "Successfully pulled latest changes"
+            else
+              echo "Pull failed, continuing with push attempt..."
+            fi
+
+            # Try to push
+            if git push origin main && git push origin "${{ steps.version.outputs.tag }}"; then
+              echo "Successfully pushed changes and tag"
+              break
+            else
+              echo "Push failed, waiting 10 seconds before retry..."
+              sleep 10
+
+              if [ $i -eq 5 ]; then
+                echo "Failed to push after 5 attempts"
+                exit 1
+              fi
+            fi
+          done
 
       - name: Create GitHub Release
         if: steps.changes.outputs.skip != 'true' && steps.version.outputs.skip != 'true' && steps.npm_check.outputs.exists != 'true'
