@@ -6,7 +6,7 @@ on:
 
 jobs:
   test:
-    name: Test
+    name: Lint, Type Check, Test
     runs-on: ubuntu-latest
 
     steps:
