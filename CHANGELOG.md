@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/snapkit-studio/web/compare/v1.5.0...v1.5.1) (2025-09-18)
+
+
+### Bug Fixes
+
+* **core:** recreate utility functions with ESLint compliance ([eb8eb9f](https://github.com/snapkit-studio/web/commit/eb8eb9f5f6ba54da16b28e3b42a605adb28ce600))
+
 # [1.5.0](https://github.com/snapkit-studio/web/compare/v1.4.0...v1.5.0) (2025-09-18)
 
 
