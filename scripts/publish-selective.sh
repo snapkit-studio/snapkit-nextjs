@@ -69,17 +69,44 @@ for package in $CHANGED_PACKAGES; do
   CURRENT_VERSION=$(node -p "require('./packages/$package/package.json').version")
   echo "📋 Current version: @snapkit-studio/$package@$CURRENT_VERSION"
 
+  # Check if this version already exists on NPM
+  echo "🔍 Checking if @snapkit-studio/$package@$CURRENT_VERSION already exists..."
+  if npm view "@snapkit-studio/$package@$CURRENT_VERSION" version &>/dev/null; then
+    echo "📦 Package @snapkit-studio/$package@$CURRENT_VERSION already exists on NPM, skipping..."
+    continue
+  fi
+
+  # Verify NPM authentication
+  echo "🔐 Verifying NPM authentication..."
+  if ! npm whoami &>/dev/null; then
+    echo "❌ NPM authentication failed. Please check NPM_TOKEN"
+    continue
+  fi
+
+  echo "✅ NPM authentication verified as: $(npm whoami)"
+
   # Attempt to publish
   echo "📤 Attempting to publish @snapkit-studio/$package@$CURRENT_VERSION to NPM..."
-  if pnpm publish --filter "@snapkit-studio/$package" --access public --no-git-checks; then
+  if pnpm publish --filter "@snapkit-studio/$package" --access public --no-git-checks --registry https://registry.npmjs.org; then
     echo "✅ @snapkit-studio/$package NPM publishing successful"
   else
-    echo "⚠️ @snapkit-studio/$package NPM publishing failed"
-    echo "🔍 Checking if package already exists..."
-    if npm view "@snapkit-studio/$package@$CURRENT_VERSION" version 2>/dev/null; then
-      echo "📦 Package @snapkit-studio/$package@$CURRENT_VERSION already exists on NPM"
+    PUBLISH_EXIT_CODE=$?
+    echo "⚠️ @snapkit-studio/$package NPM publishing failed with exit code: $PUBLISH_EXIT_CODE"
+
+    # More detailed error checking
+    echo "🔍 Checking package details..."
+    echo "  - Package name: @snapkit-studio/$package"
+    echo "  - Version: $CURRENT_VERSION"
+    echo "  - Registry: https://registry.npmjs.org"
+    echo "  - User: $(npm whoami 2>/dev/null || echo 'not authenticated')"
+
+    # Check organization membership
+    echo "🏢 Checking organization membership..."
+    if npm access ls-packages @snapkit-studio 2>/dev/null | grep -q "@snapkit-studio/$package"; then
+      echo "✅ User has access to @snapkit-studio organization"
     else
-      echo "❌ Publishing failed for unknown reason - check NPM organization access"
+      echo "❌ User may not have access to @snapkit-studio organization"
+      echo "💡 Please ensure NPM_TOKEN has publish access to @snapkit-studio organization"
     fi
   fi
 done
