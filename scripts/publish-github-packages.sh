@@ -44,13 +44,23 @@ echo "📋 GitHub Packages configuration created"
 
 # Test authentication
 echo "🔍 Testing GitHub Packages authentication..."
-if npm whoami --registry https://npm.pkg.github.com; then
+if npm whoami --registry https://npm.pkg.github.com 2>/dev/null; then
   echo "✅ GitHub Packages authentication successful"
+  CURRENT_USER=$(npm whoami --registry https://npm.pkg.github.com 2>/dev/null)
+  echo "📋 Authenticated as: $CURRENT_USER"
 else
   echo "❌ GitHub Packages authentication failed"
   echo "📋 Current .npmrc contents:"
   cat ~/.npmrc | sed 's/ghp_[a-zA-Z0-9]*/[REDACTED]/g'
-  exit 1
+  echo "🔍 Attempting alternative authentication check..."
+
+  # Try a different approach - check if we can access GitHub API
+  if curl -s -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/user > /dev/null 2>&1; then
+    echo "✅ GitHub API access works, continuing with publish attempt"
+  else
+    echo "❌ GitHub API access also failed"
+    exit 1
+  fi
 fi
 
 # Publish changed packages to GitHub Packages
@@ -72,11 +82,22 @@ for package in $CHANGED_PACKAGES; do
     continue
   fi
 
+  # Check current version
+  CURRENT_VERSION=$(node -p "require('./packages/$package/package.json').version")
+  echo "📋 Current version: @snapkit-studio/$package@$CURRENT_VERSION"
+
   # Publish to GitHub Packages
+  echo "📤 Attempting to publish @snapkit-studio/$package@$CURRENT_VERSION to GitHub Packages..."
   if pnpm publish --filter "@snapkit-studio/$package" --access public --no-git-checks --registry https://npm.pkg.github.com; then
     echo "✅ @snapkit-studio/$package GitHub Packages publishing successful"
   else
-    echo "⚠️ @snapkit-studio/$package GitHub Packages publishing failed (already exists or error)"
+    echo "⚠️ @snapkit-studio/$package GitHub Packages publishing failed"
+    echo "🔍 Checking if package already exists on GitHub Packages..."
+    if npm view "@snapkit-studio/$package@$CURRENT_VERSION" --registry https://npm.pkg.github.com version 2>/dev/null; then
+      echo "📦 Package @snapkit-studio/$package@$CURRENT_VERSION already exists on GitHub Packages"
+    else
+      echo "❌ Publishing failed for unknown reason - check GitHub Packages access"
+    fi
   fi
 done
 
