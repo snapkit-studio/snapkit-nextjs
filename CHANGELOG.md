@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/snapkit-studio/snapkit-nextjs/compare/v1.0.3...v1.1.0) (2025-09-18)
+
+
+### Features
+
+* update package descriptions for Snapkit Studio branding ([b8a61dd](https://github.com/snapkit-studio/snapkit-nextjs/commit/b8a61ddba0fe855243bd20555aa5614a24101f75))
+
 ## [1.0.3](https://github.com/snapkit-studio/snapkit-nextjs/compare/v1.0.2...v1.0.3) (2025-09-18)
 
 
