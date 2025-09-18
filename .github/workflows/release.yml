@@ -54,7 +54,32 @@ jobs:
           echo "🏗️ Building all packages..."
           pnpm build
 
+      - name: Check for duplicate releases
+        run: |
+          echo "🔍 Checking for potential duplicate releases..."
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "Current package.json version: $CURRENT_VERSION"
+
+          # Check if tag already exists
+          if git tag -l | grep -q "^v$CURRENT_VERSION$"; then
+            echo "⚠️  Tag v$CURRENT_VERSION already exists"
+
+            # Check if there are new commits since last release
+            LAST_RELEASE_COMMIT=$(git rev-list -n 1 v$CURRENT_VERSION 2>/dev/null || echo "")
+            CURRENT_COMMIT=$(git rev-parse HEAD)
+
+            if [ "$LAST_RELEASE_COMMIT" = "$CURRENT_COMMIT" ]; then
+              echo "🛑 No new commits since last release. Skipping release."
+              echo "SKIP_RELEASE=true" >> $GITHUB_ENV
+            else
+              echo "✅ New commits found since last release. Proceeding with release."
+            fi
+          else
+            echo "✅ No existing tag found for v$CURRENT_VERSION"
+          fi
+
       - name: Release with semantic-release
+        if: ${{ env.SKIP_RELEASE != 'true' }}
         run: |
           echo "🚀 Starting semantic-release process..."
           echo "📋 Environment check:"
@@ -62,7 +87,20 @@ jobs:
           echo "- NPM_TOKEN: $([ -n "$NPM_AUTOMATION_TOKEN" ] && echo "✅ Set" || echo "❌ Not set")"
           echo "- PUBLISH_GITHUB_PACKAGES: $PUBLISH_GITHUB_PACKAGES"
 
+          # Remove existing tag if it exists to allow semantic-release to recreate it
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          if git tag -l | grep -q "^v$CURRENT_VERSION$"; then
+            echo "🏷️  Removing existing tag v$CURRENT_VERSION to allow recreation..."
+            git tag -d v$CURRENT_VERSION || true
+            git push origin :refs/tags/v$CURRENT_VERSION || true
+          fi
+
           pnpm release
+
+      - name: Skip release notification
+        if: ${{ env.SKIP_RELEASE == 'true' }}
+        run: |
+          echo "⏭️  Release skipped - no new commits since last release"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN }}
