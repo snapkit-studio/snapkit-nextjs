@@ -1,5 +1,3 @@
-# Snapkit Studio - Next.js Image Optimization
-
 # @snapkit-studio/nextjs
 
 [![npm version](https://img.shields.io/npm/v/@snapkit-studio/nextjs.svg)](https://www.npmjs.com/package/@snapkit-studio/nextjs)
@@ -183,7 +181,6 @@ import { Image } from "@snapkit-studio/nextjs";
 ```
 
 ## Advanced Features
-
 
 ### Custom Hooks
 
@@ -449,13 +446,13 @@ Automatically falls back to JPEG/PNG in older browsers.
 
 ### Images Not Loading
 
-1. **Check organizationName**
+- **Check organizationName**
 
 ```tsx
 <SnapkitProvider organizationName="correct-org-name">
 ```
 
-2. **Check image path**
+- **Check image path**
 
 ```tsx
 // Use absolute path
@@ -465,7 +462,7 @@ Automatically falls back to JPEG/PNG in older browsers.
 <Image src="https://cdn.snapkit.com/org/project/image.jpg" />
 ```
 
-3. **Check network requests**
+- **Check network requests**
    Verify image request URLs and responses in browser dev tools.
 
 ### TypeScript Errors
@@ -482,7 +479,7 @@ Automatically falls back to JPEG/PNG in older browsers.
 
 ## Release Process
 
-This project uses **Semantic Versioning** and **Conventional Commits** for automated releases.
+This project uses **Semantic Versioning** and **Conventional Commits** for automated package-specific releases.
 
 ### Automatic Version Management
 
@@ -515,42 +512,37 @@ type(scope): description
 #### Examples
 
 ```bash
-feat: add support for AVIF format
-fix: resolve image loading issue in Safari
+feat(core): add support for AVIF format
+fix(nextjs): resolve image loading issue in Safari
 docs: update API documentation
-feat!: change default quality from 75 to 85
+feat(react)!: change default quality from 75 to 85
 
 # With BREAKING CHANGE
-feat: update Image component API
+feat(nextjs): update Image component API
 
 BREAKING CHANGE: remove deprecated `lazy` prop, use `loading` instead
 ```
 
-### Release Workflow
+### Package-specific Release Workflow
 
-1. **Development**: Push to `main` branch with conventional commits
-2. **CI Validation**: Automatic tests, linting, type checking
-3. **Automatic Release**: When CI passes, semantic-release:
-   - Analyzes commit history to determine version
-   - Auto-generates/updates `CHANGELOG.md`
+1. **Development**: Modify content in package folders (`packages/core/`, `packages/react/`, `packages/nextjs/`)
+2. **Auto Detection**: Workflow runs only when changes are detected in specific packages
+3. **CI Validation**: Automatic tests, linting, type checking
+4. **Automatic Release**: When CI passes, GitHub Actions:
+   - Analyzes commit history to determine package version
    - Creates GitHub Release (with release notes)
    - Automatically publishes to npm
-   - Creates Git tags
+   - Creates Git tags (`core-v1.0.1`, `react-v2.1.0`, etc.)
 
 ### Manual Release (if needed)
 
 ```bash
-# Dry run to preview release
-pnpm release:dry-run
+# Local individual package release
+./scripts/publish-local.sh --package=core --version=1.0.1 --dry-run
 
 # Manual execution in GitHub Actions
-# Repository → Actions → Release → Run workflow
+# Repository → Actions → Release Core/React/NextJS → Run workflow
 ```
-
-### Check Latest Version
-
-[![npm version](https://img.shields.io/npm/v/@snapkit-studio/nextjs.svg)](https://www.npmjs.com/package/@snapkit-studio/nextjs)
-[![GitHub Release](https://img.shields.io/github/release/snapkit/snapkit-nextjs.svg)](https://github.com/snapkit/snapkit-nextjs/releases)
 
 ## Examples
 

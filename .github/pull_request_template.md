@@ -24,7 +24,7 @@
 - `chore:` - Build process, dependencies, or tooling changes
 - `feat!:` or `fix!:` - Breaking changes (major version bump)
 
-**Why this matters:** We use squash merge, so your PR title becomes the final commit message that semantic-release uses for automatic versioning.
+**Why this matters:** We use squash merge, so your PR title becomes the final commit message that GitHub Actions uses for automatic versioning and package-specific releases.
 
 ## Summary
 

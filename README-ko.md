@@ -26,7 +26,7 @@ npm install @snapkit-studio/nextjs
 # or
 yarn add @snapkit-studio/nextjs
 # or
-pnpm add @snapkit-studio/n Rextjs
+pnpm add @snapkit-studio/nextjs
 ```
 
 ## 빠른 시작
@@ -547,7 +547,7 @@ MIT
 
 ## 릴리즈 프로세스
 
-이 프로젝트는 **Semantic Versioning**과 **Conventional Commits**를 사용하여 자동화된 릴리즈를 제공합니다.
+이 프로젝트는 **Semantic Versioning**과 **Conventional Commits**를 사용하여 패키지별 자동화된 릴리즈를 제공합니다.
 
 ### 자동 버전 관리
 
@@ -580,36 +580,36 @@ type(scope): description
 #### 예시
 
 ```bash
-feat: add support for AVIF format
-fix: resolve image loading issue in Safari
+feat(core): add support for AVIF format
+fix(nextjs): resolve image loading issue in Safari
 docs: update API documentation
-feat!: change default quality from 75 to 85
+feat(react)!: change default quality from 75 to 85
 
 # BREAKING CHANGE가 포함된 경우
-feat: update Image component API
+feat(nextjs): update Image component API
 
 BREAKING CHANGE: remove deprecated `lazy` prop, use `loading` instead
 ```
 
-### 릴리즈 워크플로우
+### 패키지별 릴리즈 워크플로우
 
-1. **개발**: `main` 브랜치에 conventional commit으로 push
-2. **CI 검증**: 자동 테스트, 린팅, 타입 체크 실행
-3. **자동 릴리즈**: CI 통과 시 semantic-release가:
-   - 커밋 히스토리 분석하여 버전 결정
-   - `CHANGELOG.md` 자동 생성/업데이트
+1. **개발**: 패키지 폴더 (`packages/core/`, `packages/react/`, `packages/nextjs/`) 내용 수정
+2. **자동 감지**: 해당 패키지에 변경사항이 있을 때만 워크플로우 실행
+3. **CI 검증**: 자동 테스트, 린팅, 타입 체크 실행
+4. **자동 릴리즈**: CI 통과 시 GitHub Actions가:
+   - 커밋 히스토리 분석하여 해당 패키지 버전 결정
    - GitHub Release 생성 (릴리즈 노트 포함)
    - npm에 자동 배포
-   - Git 태그 생성
+   - Git 태그 생성 (`core-v1.0.1`, `react-v2.1.0` 등)
 
 ### 수동 릴리즈 (필요시)
 
 ```bash
-# 드라이런으로 릴리즈 미리보기
-pnpm release:dry-run
+# 로컬에서 개별 패키지 릴리즈
+./scripts/publish-local.sh --package=core --version=1.0.1 --dry-run
 
 # GitHub Actions에서 수동 실행
-# Repository → Actions → Release → Run workflow
+# Repository → Actions → Release Core/React/NextJS → Run workflow
 ```
 
 ### 최신 버전 확인
