@@ -2,7 +2,7 @@
   "name": "web",
   "version": "1.6.0",
   "private": true,
-  "description": "Snapkit image optimization libraries monorepo - fix NPM_TOKEN environment variable passing",
+  "description": "Snapkit image optimization libraries monorepo - fix semantic-release env var reference",
   "keywords": [
     "nextjs",
     "image",

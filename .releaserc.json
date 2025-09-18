@@ -15,7 +15,7 @@
       {
         "verifyConditionsCmd": "echo 'Verifying release conditions...'",
         "prepareCmd": "node ./scripts/update-versions.js ${nextRelease.version}",
-        "publishCmd": "NPM_TOKEN=\"${NPM_TOKEN}\" GH_TOKEN=\"${GH_TOKEN}\" PUBLISH_GITHUB_PACKAGES=\"${PUBLISH_GITHUB_PACKAGES}\" bash ./scripts/publish-selective.sh"
+        "publishCmd": "bash ./scripts/publish-selective.sh"
       }
     ],
     "@semantic-release/github",
