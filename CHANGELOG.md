@@ -1,3 +1,15 @@
+# [1.3.0](https://github.com/snapkit-studio/web/compare/v1.2.0...v1.3.0) (2025-09-18)
+
+
+### Bug Fixes
+
+* resolve GitHub Packages publishing issue ([416b28c](https://github.com/snapkit-studio/web/commit/416b28c8604ca093fde9fdf305ca99ef5a9e5417))
+
+
+### Features
+
+* improve GitHub Packages publishing with better error handling ([38088a2](https://github.com/snapkit-studio/web/commit/38088a241869cd477d4fe656b80ae85a131e1c04))
+
 # [1.2.0](https://github.com/snapkit-studio/web/compare/v1.1.1...v1.2.0) (2025-09-18)
 
 
