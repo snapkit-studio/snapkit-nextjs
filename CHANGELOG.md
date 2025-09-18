@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/snapkit-studio/snapkit-nextjs/compare/v1.0.1...v1.0.2) (2025-09-18)
+
+
+### Bug Fixes
+
+* correct GitHub Packages publishing configuration ([961d7eb](https://github.com/snapkit-studio/snapkit-nextjs/commit/961d7ebde8ea2482698384c02509f158221c398d))
+
 ## [1.0.1](https://github.com/snapkit-studio/snapkit-nextjs/compare/v1.0.0...v1.0.1) (2025-09-18)
 
 
