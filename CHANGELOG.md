@@ -1,3 +1,16 @@
+# [1.2.0](https://github.com/snapkit-studio/web/compare/v1.1.1...v1.2.0) (2025-09-18)
+
+
+### Bug Fixes
+
+* exclude scripts/ directory from root level change detection ([c079ca4](https://github.com/snapkit-studio/web/commit/c079ca4b55f3c22b5dea487279c78d8214f4a37a))
+* restore core package to clean state ([1702aef](https://github.com/snapkit-studio/web/commit/1702aef47e1eff422f0d84a6d2771102862693dc))
+
+
+### Features
+
+* implement Git-based smart version management system ([ad1ee02](https://github.com/snapkit-studio/web/commit/ad1ee020ce9e688081cd98e454d5cef7538df50d))
+
 ## [1.1.1](https://github.com/snapkit-studio/web/compare/v1.1.0...v1.1.1) (2025-09-18)
 
 
