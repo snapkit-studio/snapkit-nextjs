@@ -31,6 +31,7 @@ function getChangedPackagesFromGit(since = 'HEAD^') {
       !file.startsWith('packages/') &&
       !file.startsWith('apps/') &&
       !file.startsWith('.github/') &&
+      !file.startsWith('scripts/') &&
       !file.startsWith('.git') &&
       !file.includes('CHANGELOG') &&
       !file.includes('README')
@@ -120,15 +121,27 @@ function updateWorkspaceDependencies(packageNames, newVersion) {
 
 function main() {
   const args = process.argv.slice(2);
-  const newVersion = args[0];
-  const since = args[1] || 'HEAD^';
+  let newVersion = args[0];
+  let since = 'HEAD^';
+  let dryRun = false;
 
-  if (!newVersion) {
-    console.error('❌ Usage: node update-versions.js <new-version> [since-commit]');
+  // Parse arguments
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--dry-run') {
+      dryRun = true;
+    } else if (args[i].startsWith('--since=')) {
+      since = args[i].split('=')[1];
+    } else if (!newVersion && !args[i].startsWith('--')) {
+      newVersion = args[i];
+    }
+  }
+
+  if (!newVersion && !dryRun) {
+    console.error('❌ Usage: node update-versions.js <new-version> [--since=commit] [--dry-run]');
     process.exit(1);
   }
 
-  console.log(`🚀 Starting version update: ${newVersion}`);
+  console.log(`🚀 Starting version update${dryRun ? ' (DRY RUN)' : ''}: ${newVersion || 'detection only'}`);
 
   const changedPackages = getChangedPackages(since);
 
@@ -139,6 +152,11 @@ function main() {
 
   console.log(`\n📦 Packages to update (${changedPackages.length}):`);
   changedPackages.forEach(pkg => console.log(`  - @snapkit-studio/${pkg}`));
+
+  if (dryRun) {
+    console.log('\n🔍 DRY RUN - No files will be modified');
+    return;
+  }
 
   // Update individual package versions
   let updatedCount = 0;
