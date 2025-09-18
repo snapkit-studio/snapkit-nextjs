@@ -84,7 +84,7 @@ jobs:
           echo "🚀 Starting semantic-release process..."
           echo "📋 Environment check:"
           echo "- GH_TOKEN: $([ -n "$GH_TOKEN" ] && echo "✅ Set" || echo "❌ Not set")"
-          echo "- NPM_TOKEN: $([ -n "$NPM_AUTOMATION_TOKEN" ] && echo "✅ Set" || echo "❌ Not set")"
+          echo "- NPM_TOKEN: $([ -n "$NPM_TOKEN" ] && echo "✅ Set" || echo "❌ Not set")"
           echo "- PUBLISH_GITHUB_PACKAGES: $PUBLISH_GITHUB_PACKAGES"
 
           # Remove existing tag if it exists to allow semantic-release to recreate it
