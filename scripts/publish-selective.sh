@@ -48,28 +48,13 @@ for package in $CHANGED_PACKAGES; do
   fi
 done
 
-# Publish to GitHub Packages
-echo "📦 Publishing to GitHub Packages..."
-
-# Configure GitHub Packages authentication
-cat > ~/.npmrc << EOF
-//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
-@snapkit-studio:registry=https://npm.pkg.github.com/
-registry=https://npm.pkg.github.com/
-EOF
-
-echo "📋 GitHub Packages configuration:"
-cat ~/.npmrc
-
-# Publish changed packages to GitHub Packages only
-for package in $CHANGED_PACKAGES; do
-  echo "📤 Publishing @snapkit-studio/$package to GitHub Packages..."
-  if pnpm publish --filter "@snapkit-studio/$package" --access public --no-git-checks --registry https://npm.pkg.github.com; then
-    echo "✅ @snapkit-studio/$package GitHub Packages publishing successful"
-  else
-    echo "⚠️ @snapkit-studio/$package GitHub Packages publishing failed (already exists or error)"
-  fi
-done
+# Publish to GitHub Packages (optional)
+if [ "$PUBLISH_GITHUB_PACKAGES" = "true" ]; then
+  echo "📦 Publishing to GitHub Packages..."
+  bash ./scripts/publish-github-packages.sh
+else
+  echo "📦 Skipping GitHub Packages publishing (set PUBLISH_GITHUB_PACKAGES=true to enable)"
+fi
 
 echo "🎉 Selective package publishing completed!"
 echo "📦 Published packages: $CHANGED_PACKAGES"
