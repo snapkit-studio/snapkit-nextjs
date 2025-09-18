@@ -4,6 +4,24 @@
 ### Bug Fixes
 
 * add missing environment variables to release step ([8385305](https://github.com/snapkit-studio/web/commit/8385305f436761a84172b3ffec531acdd9594289))
+* improve npm publish configuration and error handling ([ddd3f4c](https://github.com/snapkit-studio/web/commit/ddd3f4c1747d0ee8ddf57eff1a0d6d6d65a0f5e5))
+
+
+### Features
+
+* fix release workflow for github token ([ecdfbae](https://github.com/snapkit-studio/web/commit/ecdfbae3227e4ed7e164e6273f308269c5d92688))
+* fix release workflow tag conflict issue ([4a4f825](https://github.com/snapkit-studio/web/commit/4a4f825bc4f33a1edc3407ef4d5e15ca08ae52d4))
+* modify description ([baae675](https://github.com/snapkit-studio/web/commit/baae675d899113c20148528e241dd5bc3c78c31e))
+* publish test ([41195da](https://github.com/snapkit-studio/web/commit/41195da125a45eb5c294139e5b3cd4a411025d3d))
+* remove npm auth check ([b0331e4](https://github.com/snapkit-studio/web/commit/b0331e4735aeba01bfda14b0a721d92a25225c81))
+* Use npm automation token 2 ([c6fe1ba](https://github.com/snapkit-studio/web/commit/c6fe1bafc648ea31360d68a343d21b30edbd681b))
+
+# [1.6.0](https://github.com/snapkit-studio/web/compare/v1.5.1...v1.6.0) (2025-09-18)
+
+
+### Bug Fixes
+
+* add missing environment variables to release step ([8385305](https://github.com/snapkit-studio/web/commit/8385305f436761a84172b3ffec531acdd9594289))
 
 
 ### Features
