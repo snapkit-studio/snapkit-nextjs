@@ -1,5 +1,3 @@
-# 프로덕션에 사용하지 마세요. 현재는 개발 중입니다.
-
 # @snapkit-studio/nextjs
 
 [![npm version](https://img.shields.io/npm/v/@snapkit-studio/nextjs.svg)](https://www.npmjs.com/package/@snapkit-studio/nextjs)
