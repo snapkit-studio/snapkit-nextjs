@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/snapkit-studio/web/compare/v1.3.0...v1.4.0) (2025-09-18)
+
+
+### Features
+
+* enhance publishing system with comprehensive error handling and diagnostics ([4ea5be6](https://github.com/snapkit-studio/web/commit/4ea5be6c8398474f711b504c98cae4b83cc620d9))
+
 # [1.3.0](https://github.com/snapkit-studio/web/compare/v1.2.0...v1.3.0) (2025-09-18)
 
 
