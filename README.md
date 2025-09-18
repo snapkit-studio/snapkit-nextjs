@@ -1,4 +1,4 @@
-# DO NOT USE IN PRODUCTION. WORKING IN PROGRESS NOW.
+# Snapkit Studio - Next.js Image Optimization
 
 # @snapkit-studio/nextjs
 
