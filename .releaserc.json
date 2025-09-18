@@ -5,6 +5,12 @@
     "@semantic-release/release-notes-generator",
     "@semantic-release/changelog",
     [
+      "@semantic-release/npm",
+      {
+        "npmPublish": false
+      }
+    ],
+    [
       "@semantic-release/exec",
       {
         "publishCmd": "echo 'Publishing to NPM...' && pnpm publish --filter @snapkit/react --access public && pnpm publish --filter @snapkit/nextjs --access public && echo 'Publishing to GitHub Packages...' && NODE_AUTH_TOKEN=$GITHUB_TOKEN pnpm publish --filter @snapkit/react --registry https://npm.pkg.github.com --access public && NODE_AUTH_TOKEN=$GITHUB_TOKEN pnpm publish --filter @snapkit/nextjs --registry https://npm.pkg.github.com --access public"
