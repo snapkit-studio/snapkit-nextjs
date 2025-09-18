@@ -1,0 +1,177 @@
+name: Release React Package
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/react/**'
+      - '.github/workflows/release-react.yml'
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Release @snapkit-studio/react
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet HEAD^ HEAD -- packages/react/; then
+            echo "No changes in react package"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected in react package"
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Lint and type check
+        if: steps.changes.outputs.skip != 'true'
+        run: |
+          pnpm --filter @snapkit-studio/react lint
+          pnpm --filter @snapkit-studio/react check-types
+
+      - name: Run tests
+        if: steps.changes.outputs.skip != 'true'
+        run: pnpm --filter @snapkit-studio/react test
+
+      - name: Build package
+        if: steps.changes.outputs.skip != 'true'
+        run: pnpm --filter @snapkit-studio/react build
+
+      - name: Determine next version
+        if: steps.changes.outputs.skip != 'true'
+        id: version
+        run: |
+          cd packages/react
+
+          # Get current version
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "Current version: $CURRENT_VERSION"
+
+          # Determine next version based on commit messages since last release
+          LAST_TAG=$(git describe --tags --match "react-v*" --abbrev=0 2>/dev/null || echo "")
+
+          if [ -z "$LAST_TAG" ]; then
+            # First release
+            NEXT_VERSION="1.0.0"
+          else
+            # Get commits since last tag for this package
+            COMMITS=$(git log ${LAST_TAG}..HEAD --oneline -- packages/react/ || git log --oneline -- packages/react/)
+
+            if echo "$COMMITS" | grep -q "BREAKING CHANGE\|feat!"; then
+              # Major version bump
+              NEXT_VERSION=$(node -p "
+                const v = require('./package.json').version.split('.');
+                \`\${parseInt(v[0]) + 1}.0.0\`
+              ")
+            elif echo "$COMMITS" | grep -q "feat:"; then
+              # Minor version bump
+              NEXT_VERSION=$(node -p "
+                const v = require('./package.json').version.split('.');
+                \`\${v[0]}.\${parseInt(v[1]) + 1}.0\`
+              ")
+            elif echo "$COMMITS" | grep -q "fix:\|perf:"; then
+              # Patch version bump
+              NEXT_VERSION=$(node -p "
+                const v = require('./package.json').version.split('.');
+                \`\${v[0]}.\${v[1]}.\${parseInt(v[2]) + 1}\`
+              ")
+            else
+              echo "No releasable changes found"
+              echo "skip=true" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          fi
+
+          echo "Next version: $NEXT_VERSION"
+          echo "version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+          echo "tag=react-v$NEXT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Update package version
+        if: steps.changes.outputs.skip != 'true' && steps.version.outputs.skip != 'true'
+        run: |
+          cd packages/react
+          npm version ${{ steps.version.outputs.version }} --no-git-tag-version
+
+          # Update root package.json if needed
+          cd ../..
+          git add packages/react/package.json
+
+      - name: Check if version already exists on NPM
+        if: steps.changes.outputs.skip != 'true' && steps.version.outputs.skip != 'true'
+        id: npm_check
+        run: |
+          if npm view "@snapkit-studio/react@${{ steps.version.outputs.version }}" version &>/dev/null; then
+            echo "Version ${{ steps.version.outputs.version }} already exists on NPM"
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Version ${{ steps.version.outputs.version }} does not exist on NPM"
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Publish to NPM
+        if: steps.changes.outputs.skip != 'true' && steps.version.outputs.skip != 'true' && steps.npm_check.outputs.exists != 'true'
+        run: |
+          cd packages/react
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create git tag and commit
+        if: steps.changes.outputs.skip != 'true' && steps.version.outputs.skip != 'true' && steps.npm_check.outputs.exists != 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          git commit -m "chore(react): release v${{ steps.version.outputs.version }} [skip ci]"
+          git tag "${{ steps.version.outputs.tag }}" -m "Release @snapkit-studio/react@${{ steps.version.outputs.version }}"
+
+          git push origin main
+          git push origin "${{ steps.version.outputs.tag }}"
+
+      - name: Create GitHub Release
+        if: steps.changes.outputs.skip != 'true' && steps.version.outputs.skip != 'true' && steps.npm_check.outputs.exists != 'true'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          release_name: "@snapkit-studio/react v${{ steps.version.outputs.version }}"
+          body: |
+            ## @snapkit-studio/react v${{ steps.version.outputs.version }}
+
+            ### Changes
+            - Published to NPM: https://www.npmjs.com/package/@snapkit-studio/react/v/${{ steps.version.outputs.version }}
+
+            ### Installation
+            ```bash
+            npm install @snapkit-studio/react@${{ steps.version.outputs.version }}
+            ```
+          draft: false
+          prerelease: false
