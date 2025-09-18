@@ -1,4 +1,5 @@
 // Type definitions
+// Test comment: core package change detection
 export type {
   ImageTransforms,
   NextImageProps,
