@@ -105,7 +105,7 @@ importers:
 
   packages/nextjs:
     dependencies:
-      '@snapkit/core':
+      '@snapkit-studio/core':
         specifier: workspace:*
         version: link:../core
       next:
@@ -127,7 +127,7 @@ importers:
 
   packages/react:
     dependencies:
-      '@snapkit/core':
+      '@snapkit-studio/core':
         specifier: workspace:*
         version: link:../core
       react:
