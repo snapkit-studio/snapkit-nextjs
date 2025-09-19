@@ -12,3 +12,9 @@ export * from './urlGenerators';
 
 // Placeholder utilities
 export * from './placeholderUtils';
+
+// Loading optimization utilities
+export * from './loadingOptimization';
+
+// Error handling utilities
+export * from './errorHandling';

@@ -4,26 +4,30 @@ import {
     SnapkitImageProps,
     adjustQualityForConnection,
     buildImageUrl,
-    calculateOptimalImageSize,
     createLazyLoadObserver,
     generateResponsiveWidths,
-    getDeviceCharacteristics,
 } from '@snapkit-studio/core';
-import React, { forwardRef, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { useSnapkitConfig } from '../providers/SnapkitProvider';
 import {
     addSizeToTransforms,
     createBuildOptions,
     createContainerStyle,
+    createEnhancedLazyLoadObserver,
     createFinalTransforms,
     createImageStyle,
-    createMainImageStyle,
     createPlaceholderStyle,
     createPlaceholderTransforms,
+    createPreloadHint,
+    createReservedSpace,
     generateResponsiveSrcSet,
+    getImageVisibility,
     getPlaceholderUrl,
+    handleImageError,
     mergeConfiguration,
+    shouldLoadEagerly,
     shouldShowBlurPlaceholder,
+    shouldShowPlaceholderOnError,
 } from '../utils';
 
 /**
@@ -90,9 +94,10 @@ export const Image = forwardRef<HTMLImageElement, SnapkitImageProps>(
     const config = useSnapkitConfig();
     const [isLoaded, setIsLoaded] = useState(false);
     const [hasError, setHasError] = useState(false);
-    const [isVisible, setIsVisible] = useState(priority);
+    // Next.js Image style: Determine eager loading
+    const shouldLoadEager = shouldLoadEagerly(priority, loading);
+    const [isVisible, setIsVisible] = useState(shouldLoadEager);
     const imgRef = useRef<HTMLImageElement>(null);
-    const containerRef = useRef<HTMLDivElement>(null);
 
     // Merge configuration values
     const { finalOrganizationName, finalBaseUrl, finalQuality } = mergeConfiguration(
@@ -103,8 +108,11 @@ export const Image = forwardRef<HTMLImageElement, SnapkitImageProps>(
     // Adjust quality based on network conditions
     const adjustedQuality = adjustQualityForConnection(finalQuality);
 
-    // Device characteristics
-    const deviceInfo = getDeviceCharacteristics();
+    // Next.js Image style: Create reserved space for layout stability
+    const reservedSpace = useMemo(() =>
+      createReservedSpace(fill, width, height),
+      [fill, width, height]
+    );
 
     // Configure image transformation options
     const baseTransforms = createFinalTransforms(
@@ -114,42 +122,19 @@ export const Image = forwardRef<HTMLImageElement, SnapkitImageProps>(
       config.defaultFormat,
     );
 
-    // Detect container size in fill mode
-    const [containerSize, setContainerSize] = useState<{
-      width: number;
-      height?: number;
-    } | null>(null);
-
-    useEffect(() => {
-      if (!fill || !containerRef.current) return;
-
-      const updateSize = () => {
-        if (containerRef.current) {
-          const rect = containerRef.current.getBoundingClientRect();
-          setContainerSize({
-            width: rect.width,
-            height: rect.height > 0 ? rect.height : undefined,
-          });
-        }
-      };
-
-      updateSize();
-
-      const resizeObserver = new ResizeObserver(updateSize);
-      resizeObserver.observe(containerRef.current);
-
-      return () => resizeObserver.disconnect();
-    }, [fill]);
-
-    // Calculate actual image size
-    const imageSize =
-      fill && containerSize
-        ? calculateOptimalImageSize(
-            containerSize.width,
-            containerSize.height,
-            deviceInfo.devicePixelRatio,
-          )
-        : { width, height };
+    // Next.js Image style: Simplified fill mode without ResizeObserver
+    // For fill mode, we rely on CSS positioning instead of dynamic size detection
+    const imageSize = useMemo(() => {
+      if (fill) {
+        // In fill mode, use reasonable defaults for optimization
+        // The actual display size is handled by CSS
+        return {
+          width: 1200, // Default optimization width for fill mode
+          height: undefined,
+        };
+      }
+      return { width, height };
+    }, [fill, width, height]);
 
     // Add size information to final transformation settings
     const finalTransforms = addSizeToTransforms(baseTransforms, imageSize, transforms);
@@ -169,11 +154,20 @@ export const Image = forwardRef<HTMLImageElement, SnapkitImageProps>(
       srcSet = generateResponsiveSrcSet(src, responsiveWidths, finalTransforms, buildOptions);
     }
 
-    // Lazy loading setup
+    // Next.js Image style: Priority loading with preload hints
     useEffect(() => {
-      if (priority || isVisible) return;
+      if (!priority || !imageUrl) return;
 
-      const observer = createLazyLoadObserver((entry) => {
+      // Create preload hint for priority images
+      const cleanup = createPreloadHint(imageUrl, sizes);
+      return cleanup;
+    }, [priority, imageUrl, sizes]);
+
+    // Enhanced lazy loading setup
+    useEffect(() => {
+      if (shouldLoadEager || isVisible) return;
+
+      const observer = createEnhancedLazyLoadObserver((entry) => {
         setIsVisible(true);
         observer?.unobserve(entry.target);
       });
@@ -183,7 +177,7 @@ export const Image = forwardRef<HTMLImageElement, SnapkitImageProps>(
       }
 
       return () => observer?.disconnect();
-    }, [priority, isVisible]);
+    }, [shouldLoadEager, isVisible]);
 
     // Load event handler
     const handleLoad: React.ReactEventHandler<HTMLImageElement> = (event) => {
@@ -193,26 +187,30 @@ export const Image = forwardRef<HTMLImageElement, SnapkitImageProps>(
 
     const handleError: React.ReactEventHandler<HTMLImageElement> = (event) => {
       setHasError(true);
-      onError?.(event);
+      handleImageError(event, onError);
     };
 
-    // Style calculation
+    // Style calculation with Next.js Image layout stability
     const imageStyle = createImageStyle(style, fill);
-    const containerStyle = createContainerStyle(fill);
+    const containerStyle = createContainerStyle(fill, reservedSpace);
 
-    // blur placeholder handling
+    // Next.js Image style blur placeholder handling
     const showBlurPlaceholder = shouldShowBlurPlaceholder(placeholder, isLoaded, hasError);
+    const showPlaceholderOnError = shouldShowPlaceholderOnError(hasError, placeholder, isLoaded);
     const placeholderTransforms = createPlaceholderTransforms(finalTransforms);
     const generatedPlaceholderUrl = buildImageUrl(src, placeholderTransforms, buildOptions);
     const placeholderUrl = getPlaceholderUrl(placeholder, blurDataURL, generatedPlaceholderUrl);
 
+    // Next.js Image style image visibility
+    const imageOpacity = getImageVisibility(isLoaded, hasError, showBlurPlaceholder);
+
     const content = (
       <>
-        {showBlurPlaceholder && placeholderUrl && (
+        {(showBlurPlaceholder || showPlaceholderOnError) && placeholderUrl && (
           <img
             src={placeholderUrl}
             alt=""
-            style={createPlaceholderStyle(imageStyle, isLoaded)}
+            style={createPlaceholderStyle(imageStyle, isLoaded && !hasError)}
             aria-hidden="true"
           />
         )}
@@ -232,9 +230,13 @@ export const Image = forwardRef<HTMLImageElement, SnapkitImageProps>(
           alt={alt}
           width={fill ? undefined : width}
           height={fill ? undefined : height}
-          loading={loading || (priority ? 'eager' : 'lazy')}
+          loading={loading || (shouldLoadEager ? 'eager' : 'lazy')}
           className={className}
-          style={createMainImageStyle(imageStyle, isLoaded, showBlurPlaceholder)}
+          style={{
+            ...imageStyle,
+            opacity: imageOpacity,
+            transition: showBlurPlaceholder ? 'opacity 0.3s ease' : undefined,
+          }}
           onLoad={handleLoad}
           onError={handleError}
           {...props}
@@ -243,7 +245,11 @@ export const Image = forwardRef<HTMLImageElement, SnapkitImageProps>(
     );
 
     return fill ? (
-      <div ref={containerRef} style={containerStyle}>
+      <div style={containerStyle}>
+        {content}
+      </div>
+    ) : reservedSpace ? (
+      <div style={containerStyle}>
         {content}
       </div>
     ) : (
