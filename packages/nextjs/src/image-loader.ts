@@ -29,12 +29,10 @@ export const snapkitLoader: ImageLoader = ({ src, width, quality }: ImageLoaderP
  * Useful when you need different settings for different image components
  */
 export function createSnapkitLoader(options: SnapkitLoaderOptions): ImageLoader {
-  const urlBuilder = new SnapkitUrlBuilder(options.baseUrl, options.organizationName);
+  const urlBuilder = new SnapkitUrlBuilder(options.organizationName);
 
   return ({ src, width, quality }: ImageLoaderParams): string => {
-    const format = options.optimizeFormat === 'off'
-      ? undefined
-      : (options.optimizeFormat || 'auto');
+    const format = options.unoptimizedFormat ? undefined : (options.transforms?.format ?? 'auto');
 
     const transforms = {
       ...options.transforms,
@@ -43,6 +41,6 @@ export function createSnapkitLoader(options: SnapkitLoaderOptions): ImageLoader 
       format,
     };
 
-    return urlBuilder.buildTransformedUrl(src, transforms, options.organizationName);
+    return urlBuilder.buildTransformedUrl(src, transforms);
   };
 }
