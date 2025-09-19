@@ -5,17 +5,35 @@ import { ImageTransforms } from "./types";
  */
 export class SnapkitUrlBuilder {
   private baseUrl: string;
+  private organizationName: string;
 
   constructor(
-    organizationName: string = '',
+    baseUrlOrOrganizationName?: string,
+    organizationName?: string,
   ) {
-    this.baseUrl = `https://${organizationName}-cdn.snapkit.studio`;
+    // Handle different parameter combinations
+    if (typeof baseUrlOrOrganizationName === 'string' && organizationName === undefined) {
+      // Single parameter case - check if it looks like a URL or organization name
+      if (baseUrlOrOrganizationName.startsWith('http://') || baseUrlOrOrganizationName.startsWith('https://')) {
+        // It's a baseUrl without organizationName
+        this.baseUrl = baseUrlOrOrganizationName;
+        this.organizationName = '';
+      } else {
+        // It's an organizationName (backward compatibility)
+        this.organizationName = baseUrlOrOrganizationName;
+        this.baseUrl = `https://${baseUrlOrOrganizationName}-cdn.snapkit.studio`;
+      }
+    } else {
+      // Two parameter case or no parameters
+      this.baseUrl = baseUrlOrOrganizationName || `https://${organizationName || ''}-cdn.snapkit.studio`;
+      this.organizationName = organizationName || '';
+    }
   }
 
   /**
    * Generate basic image URL
    */
-  buildImageUrl(src: string): string {
+  buildImageUrl(src: string, overrideOrganizationName?: string): string {
     // Return as-is if already complete URL
     if (src.startsWith('http://') || src.startsWith('https://')) {
       return src;
@@ -23,8 +41,13 @@ export class SnapkitUrlBuilder {
 
     // Add slash if not starting with one
     const path = src.startsWith('/') ? src : `/${src}`;
+    const orgName = overrideOrganizationName || this.organizationName;
 
-    return `${this.baseUrl}${path}`;
+    // Remove trailing slash from baseUrl to avoid double slashes
+    const cleanBaseUrl = this.baseUrl.replace(/\/+$/, '');
+
+    // Use the format expected by tests: /image/{org}/{path}
+    return `${cleanBaseUrl}/image/${orgName}${path}`;
   }
 
   /**
@@ -33,11 +56,17 @@ export class SnapkitUrlBuilder {
   buildTransformedUrl(
     src: string,
     transforms: ImageTransforms,
+    overrideOrganizationName?: string,
   ): string {
-    const baseUrl = this.buildImageUrl(src);
+    const baseUrl = this.buildImageUrl(src, overrideOrganizationName);
     const params = this.buildQueryParams(transforms);
 
-    if(src.includes('?')) {
+    // Only add query params if there are any
+    if (!params) {
+      return baseUrl;
+    }
+
+    if (src.includes('?')) {
       return `${baseUrl}&${params}`;
     }
 
@@ -54,6 +83,7 @@ export class SnapkitUrlBuilder {
   buildFormatUrls(
     src: string,
     transforms: ImageTransforms,
+    overrideOrganizationName?: string,
   ): { avif?: string; webp?: string; original: string } {
     const baseTransforms = { ...transforms };
 
@@ -61,14 +91,17 @@ export class SnapkitUrlBuilder {
       avif: this.buildTransformedUrl(
         src,
         { ...baseTransforms, format: 'avif' },
+        overrideOrganizationName,
       ),
       webp: this.buildTransformedUrl(
         src,
         { ...baseTransforms, format: 'webp' },
+        overrideOrganizationName,
       ),
       original: this.buildTransformedUrl(
         src,
         { ...baseTransforms, format: undefined },
+        overrideOrganizationName,
       ),
     };
   }
@@ -80,12 +113,14 @@ export class SnapkitUrlBuilder {
     src: string,
     widths: number[],
     transforms: Omit<ImageTransforms, 'width'>,
+    overrideOrganizationName?: string,
   ): string {
     return widths
       .map((width) => {
         const url = this.buildTransformedUrl(
           src,
           { ...transforms, width },
+          overrideOrganizationName,
         );
         return `${url} ${width}w`;
       })
@@ -116,39 +151,63 @@ export class SnapkitUrlBuilder {
     }
     if (transforms.grayscale) params.set('grayscale', 'true');
 
+    // Color adjustment
+    if (transforms.brightness) params.set('brightness', transforms.brightness.toString());
+    if (transforms.hue) params.set('hue', transforms.hue.toString());
+    if (transforms.lightness) params.set('lightness', transforms.lightness.toString());
+    if (transforms.saturation) params.set('saturation', transforms.saturation.toString());
+    if (transforms.negate) params.set('negate', 'true');
+    if (transforms.normalize) params.set('normalize', 'true');
+
     // Region extraction
     if (transforms.extract) {
       const { x, y, width, height } = transforms.extract;
       params.set('extract', `${x},${y},${width},${height}`);
     }
 
-    // Format and quality
-    if (transforms.format) {
+    // Background color
+    if (transforms.background) {
+      const [r, g, b, a] = transforms.background;
+      params.set('background', `${r},${g},${b},${a}`);
+    }
+
+    // Format and quality - exclude 'auto' format from URL
+    if (transforms.format && transforms.format !== 'auto') {
       params.set('format', transforms.format);
     }
-    if (transforms.quality)
+    if (transforms.quality) {
       params.set('quality', transforms.quality.toString());
+    }
+    if (transforms.timeout) {
+      params.set('timeout', transforms.timeout.toString());
+    }
 
     return params.toString();
   }
 }
 
-/**
- * Default URL builder instance
- */
+// Default URL Builder instance
 let defaultUrlBuilder: SnapkitUrlBuilder | null = null;
 
 /**
- * Set default URL builder
+ * Set the default URL builder instance
+ * @param baseUrl - Base URL for the builder
+ * @param organizationName - Organization name
  */
 export function setDefaultUrlBuilder(
+  baseUrl?: string,
   organizationName?: string,
-) {
-  defaultUrlBuilder = new SnapkitUrlBuilder(organizationName);
+): void {
+  if (!baseUrl && !organizationName) {
+    defaultUrlBuilder = null;
+    return;
+  }
+  defaultUrlBuilder = new SnapkitUrlBuilder(baseUrl, organizationName);
 }
 
 /**
- * Get default URL builder
+ * Get the default URL builder instance
+ * @returns Default URL builder or creates a new one
  */
 export function getDefaultUrlBuilder(): SnapkitUrlBuilder {
   if (!defaultUrlBuilder) {
@@ -158,24 +217,27 @@ export function getDefaultUrlBuilder(): SnapkitUrlBuilder {
 }
 
 /**
- * Helper function to generate image URLs
+ * Helper function to build image URLs using the default builder
+ * @param src - Source image path
+ * @param transforms - Optional image transforms
+ * @param options - Override options for baseUrl and organizationName
+ * @returns Generated image URL
  */
 export function buildImageUrl(
   src: string,
   transforms?: ImageTransforms,
-  options?: { baseUrl?: string },
+  options?: { baseUrl?: string; organizationName?: string },
 ): string {
-  const urlBuilder =
-    options?.baseUrl
-      ? new SnapkitUrlBuilder(options.baseUrl)
-      : getDefaultUrlBuilder();
+  let builder = getDefaultUrlBuilder();
 
-  if (transforms && Object.keys(transforms).length > 0) {
-    return urlBuilder.buildTransformedUrl(
-      src,
-      transforms,
-    );
+  // If options are provided, create a temporary builder
+  if (options && (options.baseUrl || options.organizationName)) {
+    builder = new SnapkitUrlBuilder(options.baseUrl, options.organizationName);
   }
 
-  return urlBuilder.buildImageUrl(src);
+  if (transforms) {
+    return builder.buildTransformedUrl(src, transforms);
+  }
+
+  return builder.buildImageUrl(src);
 }

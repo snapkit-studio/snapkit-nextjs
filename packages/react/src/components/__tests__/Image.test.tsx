@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import { Image } from '../Image';
+import { SnapkitProvider } from '../../providers/SnapkitProvider';
 import { createImageUrl } from '../../utils/createImageUrl';
 
 // Mock @snapkit-studio/core
