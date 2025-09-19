@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+/* Shiki code highlighting custom styles */
+.shiki {
+  overflow-x: auto;
+}
+
+.shiki code {
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.shiki .line {
+  min-height: 1.5rem;
+}
+
+/* Custom scrollbar for code blocks */
+.shiki::-webkit-scrollbar {
+  height: 8px;
+}
+
+.shiki::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.shiki::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.shiki::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
