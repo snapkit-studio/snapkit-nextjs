@@ -47,6 +47,7 @@
     "@snapkit-studio/core": "workspace:*"
   },
   "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
     "@vitest/coverage-v8": "^2.1.8",
     "typescript": "^5.0.0",
     "tsup": "^8.0.0",

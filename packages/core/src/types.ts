@@ -111,7 +111,7 @@ export interface SnapkitConfig {
   baseUrl?: string;
   organizationName?: string;
   defaultQuality?: number;
-  defaultFormat?: 'avif' | 'webp' | 'auto';
+  defaultFormat?: 'avif' | 'webp' | 'auto' | 'off';
   enableBlurPlaceholder?: boolean;
 }
 
@@ -137,8 +137,7 @@ export type ImageLoader = (params: ImageLoaderParams) => string;
 
 // Snapkit loader configuration types
 export interface SnapkitLoaderOptions {
-  baseUrl?: string;
   organizationName?: string;
   transforms?: ImageTransforms;
-  optimizeFormat?: 'avif' | 'webp' | 'auto' | 'off';
+  unoptimizedFormat?: boolean;
 }

@@ -7,7 +7,15 @@
 
 [![English](https://img.shields.io/badge/docs-English-blue)](./README.md) [![한국어](https://img.shields.io/badge/docs-한국어-blue)](./README-ko.md)
 
-A high-performance image optimization library for Next.js. Seamlessly integrates with Snapkit image proxy service to provide automatic format optimization, real-time image transformations, lazy loading, and more.
+A comprehensive image optimization library for React and Next.js applications. Seamlessly integrates with Snapkit image proxy service to provide automatic format optimization, real-time image transformations, lazy loading, and more.
+
+## Architecture
+
+This monorepo contains multiple packages for different use cases:
+
+- **@snapkit-studio/core** - Core utilities and types
+- **@snapkit-studio/react** - React components and hooks
+- **@snapkit-studio/nextjs** - Next.js optimized components and loaders
 
 ## Features
 
@@ -21,6 +29,8 @@ A high-performance image optimization library for Next.js. Seamlessly integrates
 
 ## Installation
 
+### For Next.js Projects
+
 ```bash
 npm install @snapkit-studio/nextjs
 # or
@@ -29,13 +39,25 @@ yarn add @snapkit-studio/nextjs
 pnpm add @snapkit-studio/nextjs
 ```
 
+### For React Projects
+
+```bash
+npm install @snapkit-studio/react
+# or
+yarn add @snapkit-studio/react
+# or
+pnpm add @snapkit-studio/react
+```
+
 ## Quick Start
 
 ### 1. Provider Setup (Optional)
 
+#### For Next.js
+
 ```tsx
 // app/layout.tsx or _app.tsx
-import { SnapkitProvider } from "@snapkit-studio/nextjs";
+import { SnapkitProvider } from "@snapkit-studio/react";
 
 export default function RootLayout({
   children,
@@ -59,7 +81,29 @@ export default function RootLayout({
 }
 ```
 
+#### For React
+
+```tsx
+// App.tsx or index.tsx
+import { SnapkitProvider } from "@snapkit-studio/react";
+
+function App() {
+  return (
+    <SnapkitProvider
+      baseUrl="https://image-proxy.snapkit.com"
+      organizationName="your-org"
+      defaultQuality={85}
+      defaultFormat="auto"
+    >
+      <YourApp />
+    </SnapkitProvider>
+  );
+}
+```
+
 ### 2. Basic Usage
+
+#### Next.js Image Component
 
 ```tsx
 import { Image } from "@snapkit-studio/nextjs";
@@ -77,6 +121,23 @@ export default function MyComponent() {
 }
 ```
 
+#### React Image Component
+
+```tsx
+import { Image } from "@snapkit-studio/react";
+
+export default function MyComponent() {
+  return (
+    <Image
+      src="/project/hero.jpg"
+      alt="Hero Image"
+      width={800}
+      height={600}
+    />
+  );
+}
+```
+
 ## API Reference
 
 ### Image Component
@@ -84,7 +145,10 @@ export default function MyComponent() {
 Provides API compatible with Next.js `Image` component.
 
 ```tsx
+// For Next.js
 import { Image } from "@snapkit-studio/nextjs";
+// For React
+// import { Image } from "@snapkit-studio/react";
 
 <Image
   src="/path/to/image.jpg"
@@ -185,7 +249,7 @@ import { Image } from "@snapkit-studio/nextjs";
 ### Custom Hooks
 
 ```tsx
-import { useImageOptimization } from "@snapkit-studio/nextjs";
+import { useImageOptimization } from "@snapkit-studio/react";
 
 function CustomImage({ src }) {
   const { original } = useImageOptimization({
@@ -546,10 +610,10 @@ BREAKING CHANGE: remove deprecated `lazy` prop, use `loading` instead
 
 ## Examples
 
-Check out our example projects to see @snapkit-studio/nextjs in action:
+Check out our example projects to see Snapkit in action:
 
-- **[Basic Example](./examples/basic-nextjs/)** - Simple Next.js application showing basic usage
-- **[Advanced Features](./examples/advanced-features/)** - Progressive loading, custom hooks, and batch preloading
+- **[Next.js Demo](./apps/nextjs-demo/)** - Next.js application with advanced features
+- **[React Demo](./apps/react-demo/)** - React application showing component usage
 - **[Online Demo](https://codesandbox.io/s/snapkit-nextjs-basic)** - Try it out in CodeSandbox
 
 ## Contributing

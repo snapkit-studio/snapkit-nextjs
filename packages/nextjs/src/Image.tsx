@@ -2,7 +2,7 @@
 
 import { ImageTransforms } from "@snapkit-studio/core";
 import { useSnapkitConfig } from "@snapkit-studio/react";
-import NextImage, { type ImageProps } from "next/image";
+import NextImage, { type ImageProps } from 'next/image';
 import { createSnapkitLoader } from "./image-loader";
 import { calculateEnhancedStyle } from "./utils";
 
@@ -15,8 +15,7 @@ export function Image({ src, transforms, style, ...props }: SnapkitImageProps) {
 
   const loader = createSnapkitLoader({
     organizationName: config.organizationName,
-    baseUrl: config.baseUrl,
-    defaultFormat: config.defaultFormat,
+    unoptimizedFormat: config.defaultFormat === 'off',
     transforms,
   });
 
