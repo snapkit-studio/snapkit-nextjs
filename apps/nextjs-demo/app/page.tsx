@@ -1,35 +1,70 @@
-import { snapkitLoader } from '@snapkit-studio/nextjs';
-import { Image } from '@snapkit-studio/react';
-import NextImage from 'next/image';
+import { CodeBlock } from "apps/nextjs-demo/app/components/CodeBlock";
+import { SnapkitImageExample } from "apps/nextjs-demo/app/examples/SnapkitImageExample";
+import { SnapkitImageLoaderExample } from "apps/nextjs-demo/app/examples/SnapkitImageLoaderExample";
 
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm">
-        <h1 className="text-4xl font-bold mb-8">Snapkit Next.js Demo</h1>
+        <h1 className="mb-8 text-4xl font-bold">Snapkit Next.js Demo</h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           <div>
-            <h2 className="text-2xl font-semibold mb-4">Using @snapkit-studio/react Image</h2>
-            <Image
-              src="/demo-image.jpg"
-              alt="Demo image with Snapkit React component"
-              width={400}
-              height={300}
-              className="rounded-lg"
-            />
+            <h2 className="mb-4 text-2xl font-semibold">{`Image Component`}</h2>
+            <SnapkitImageExample />
+            <CodeBlock language="tsx">
+              {`import { Image } from "@snapkit-studio/nextjs";
+
+export function SnapkitImageExample() {
+  return (
+    <Image
+      src="/landing-page/fox.jpg"
+      alt="fox image with grayscale and flop"
+      width={400}
+      height={300}
+      className="object-contain"
+      transforms={{
+        grayscale: true,
+        flop: true,
+      }}
+    />
+  );
+}`}
+            </CodeBlock>
           </div>
-
           <div>
-            <h2 className="text-2xl font-semibold mb-4">Using Next.js Image with Snapkit Loader</h2>
-            <NextImage
-              src="/demo-image.jpg"
-              alt="Demo image with Next.js Image and Snapkit loader"
-              width={400}
-              height={300}
-              loader={snapkitLoader}
-              className="rounded-lg"
-            />
+            <h2 className="mb-4 text-2xl font-semibold">next/image with Custom Loader</h2>
+            <SnapkitImageLoaderExample />
+            <CodeBlock language="tsx">
+              {`"use client";
+
+import Image from "next/image";
+import { SnapkitTransformBuilder } from "@snapkit-studio/core";
+import { createSnapkitLoader } from "@snapkit-studio/nextjs";
+
+export function SnapkitImageLoaderExample() {
+  const loader = createSnapkitLoader({ organizationName: "snapkit" });
+  const src = new SnapkitTransformBuilder().build("/landing-page/fox.jpg", {
+    grayscale: true,
+    flop: true,
+  });
+
+  return (
+    <Image
+      src={src}
+      alt="fox image with grayscale and flop"
+      width={400}
+      height={300}
+      style={{
+        width: 400,
+        height: 300,
+      }}
+      className="object-contain"
+      loader={loader}
+    />
+  );
+}`}
+            </CodeBlock>
           </div>
         </div>
       </div>
