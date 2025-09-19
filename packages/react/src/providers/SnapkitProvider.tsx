@@ -65,10 +65,10 @@ export function SnapkitProvider({
 
   // Setup default URL builder
   useEffect(() => {
-    if (baseUrl || organizationName) {
-      setDefaultUrlBuilder(baseUrl, organizationName);
+    if (organizationName) {
+      setDefaultUrlBuilder(organizationName);
     }
-  }, [baseUrl, organizationName]);
+  }, [organizationName]);
 
   // Preload format support detection
   useEffect(() => {
