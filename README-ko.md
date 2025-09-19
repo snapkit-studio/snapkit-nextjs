@@ -7,7 +7,15 @@
 
 [![English](https://img.shields.io/badge/docs-English-blue)](./README.md) [![한국어](https://img.shields.io/badge/docs-한국어-blue)](./README-ko.md)
 
-Next.js를 위한 고성능 이미지 최적화 라이브러리입니다. Snapkit 이미지 프록시 서비스와 완벽하게 통합되어 자동 포맷 최적화, 실시간 이미지 변환, 지연 로딩 등의 기능을 제공합니다.
+React와 Next.js 애플리케이션을 위한 포괄적인 이미지 최적화 라이브러리입니다. Snapkit 이미지 프록시 서비스와 완벽하게 통합되어 자동 포맷 최적화, 실시간 이미지 변환, 지연 로딩 등의 기능을 제공합니다.
+
+## 아키텍처
+
+이 모노레포는 다양한 용도의 여러 패키지를 포함합니다:
+
+- **@snapkit-studio/core** - 핵심 유틸리티와 타입
+- **@snapkit-studio/react** - React 컴포넌트와 훅
+- **@snapkit-studio/nextjs** - Next.js 최적화 컴포넌트와 로더
 
 ## 특징
 
@@ -21,6 +29,8 @@ Next.js를 위한 고성능 이미지 최적화 라이브러리입니다. Snapki
 
 ## 설치
 
+### Next.js 프로젝트용
+
 ```bash
 npm install @snapkit-studio/nextjs
 # or
@@ -29,13 +39,25 @@ yarn add @snapkit-studio/nextjs
 pnpm add @snapkit-studio/nextjs
 ```
 
+### React 프로젝트용
+
+```bash
+npm install @snapkit-studio/react
+# or
+yarn add @snapkit-studio/react
+# or
+pnpm add @snapkit-studio/react
+```
+
 ## 빠른 시작
 
 ### 1. Provider 설정 (선택사항)
 
+#### Next.js용
+
 ```tsx
 // app/layout.tsx or _app.tsx
-import { SnapkitProvider } from "@snapkit-studio/nextjs";
+import { SnapkitProvider } from "@snapkit-studio/react";
 
 export default function RootLayout({
   children,
@@ -59,7 +81,29 @@ export default function RootLayout({
 }
 ```
 
+#### React용
+
+```tsx
+// App.tsx or index.tsx
+import { SnapkitProvider } from "@snapkit-studio/react";
+
+function App() {
+  return (
+    <SnapkitProvider
+      baseUrl="https://image-proxy.snapkit.com"
+      organizationName="your-org"
+      defaultQuality={85}
+      defaultFormat="auto"
+    >
+      <YourApp />
+    </SnapkitProvider>
+  );
+}
+```
+
 ### 2. 기본 사용법
+
+#### Next.js Image 컴포넌트
 
 ```tsx
 import { Image } from "@snapkit-studio/nextjs";
@@ -77,6 +121,23 @@ export default function MyComponent() {
 }
 ```
 
+#### React Image 컴포넌트
+
+```tsx
+import { Image } from "@snapkit-studio/react";
+
+export default function MyComponent() {
+  return (
+    <Image
+      src="/project/hero.jpg"
+      alt="Hero Image"
+      width={800}
+      height={600}
+    />
+  );
+}
+```
+
 ## API 레퍼런스
 
 ### Image 컴포넌트
@@ -84,7 +145,10 @@ export default function MyComponent() {
 Next.js의 `Image` 컴포넌트와 호환되는 API를 제공합니다.
 
 ```tsx
+// Next.js용
 import { Image } from "@snapkit-studio/nextjs";
+// React용
+// import { Image } from "@snapkit-studio/react";
 
 <Image
   src="/path/to/image.jpg"
@@ -212,7 +276,7 @@ function ProgressiveImage({ src, ...props }) {
 ### 커스텀 Hook 활용
 
 ```tsx
-import { useImageOptimization, useResponsiveSrcSet } from "@snapkit-studio/nextjs";
+import { useImageOptimization, useResponsiveSrcSet } from "@snapkit-studio/react";
 
 function CustomImage({ src }) {
   const { avif, webp, original } = useImageOptimization({
@@ -237,7 +301,7 @@ function CustomImage({ src }) {
 ### 배치 이미지 사전 로딩
 
 ```tsx
-import { useBatchImagePreload } from "@snapkit-studio/nextjs";
+import { useBatchImagePreload } from "@snapkit-studio/react";
 
 function Gallery({ images }) {
   const { preloadedCount, progress, isAllPreloaded } = useBatchImagePreload(
@@ -619,10 +683,10 @@ BREAKING CHANGE: remove deprecated `lazy` prop, use `loading` instead
 
 ## 예제
 
-@snapkit-studio/nextjs를 실제로 사용하는 예제 프로젝트들을 확인해보세요:
+Snapkit을 실제로 사용하는 예제 프로젝트들을 확인해보세요:
 
-- **[기본 예제](./examples/basic-nextjs/)** - 기본 사용법을 보여주는 간단한 Next.js 애플리케이션
-- **[고급 기능](./examples/advanced-features/)** - Progressive loading, 커스텀 훅, 배치 사전 로딩
+- **[Next.js 데모](./apps/nextjs-demo/)** - 고급 기능을 포함한 Next.js 애플리케이션
+- **[React 데모](./apps/react-demo/)** - 컴포넌트 사용법을 보여주는 React 애플리케이션
 - **[온라인 데모](https://codesandbox.io/s/snapkit-nextjs-basic)** - CodeSandbox에서 바로 체험해보기
 
 ## 기여하기
