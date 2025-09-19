@@ -1,26 +1,21 @@
-import { ImageTransforms } from './types';
+import { ImageTransforms } from "./types";
 
 /**
  * Generate Snapkit image proxy URLs
  */
 export class SnapkitUrlBuilder {
   private baseUrl: string;
-  private organizationName: string;
 
   constructor(
-    baseUrl: string = 'https://image-proxy.snapkit.com',
     organizationName: string = '',
   ) {
-    this.baseUrl = baseUrl.replace(/\/$/, ''); // Remove trailing slash
-    this.organizationName = organizationName;
+    this.baseUrl = `https://${organizationName}-cdn.snapkit.studio`;
   }
 
   /**
    * Generate basic image URL
    */
-  buildImageUrl(src: string, organizationName?: string): string {
-    const org = organizationName || this.organizationName;
-
+  buildImageUrl(src: string): string {
     // Return as-is if already complete URL
     if (src.startsWith('http://') || src.startsWith('https://')) {
       return src;
@@ -29,7 +24,7 @@ export class SnapkitUrlBuilder {
     // Add slash if not starting with one
     const path = src.startsWith('/') ? src : `/${src}`;
 
-    return `${this.baseUrl}/image/${org}${path}`;
+    return `${this.baseUrl}${path}`;
   }
 
   /**
@@ -38,13 +33,20 @@ export class SnapkitUrlBuilder {
   buildTransformedUrl(
     src: string,
     transforms: ImageTransforms,
-    organizationName?: string,
   ): string {
-    const baseUrl = this.buildImageUrl(src, organizationName);
+    const baseUrl = this.buildImageUrl(src);
     const params = this.buildQueryParams(transforms);
 
-    return params ? `${baseUrl}?${params}` : baseUrl;
+    if(src.includes('?')) {
+      return `${baseUrl}&${params}`;
+    }
+
+    return `${baseUrl}?${params}`;
   }
+
+  /**
+   * 
+   */
 
   /**
    * Generate format-specific URLs (for picture tags)
@@ -52,26 +54,21 @@ export class SnapkitUrlBuilder {
   buildFormatUrls(
     src: string,
     transforms: ImageTransforms,
-    organizationName?: string,
   ): { avif?: string; webp?: string; original: string } {
     const baseTransforms = { ...transforms };
-    const org = organizationName || this.organizationName;
 
     return {
       avif: this.buildTransformedUrl(
         src,
         { ...baseTransforms, format: 'avif' },
-        org,
       ),
       webp: this.buildTransformedUrl(
         src,
         { ...baseTransforms, format: 'webp' },
-        org,
       ),
       original: this.buildTransformedUrl(
         src,
         { ...baseTransforms, format: undefined },
-        org,
       ),
     };
   }
@@ -83,14 +80,12 @@ export class SnapkitUrlBuilder {
     src: string,
     widths: number[],
     transforms: Omit<ImageTransforms, 'width'>,
-    organizationName?: string,
   ): string {
     return widths
       .map((width) => {
         const url = this.buildTransformedUrl(
           src,
           { ...transforms, width },
-          organizationName,
         );
         return `${url} ${width}w`;
       })
@@ -121,36 +116,18 @@ export class SnapkitUrlBuilder {
     }
     if (transforms.grayscale) params.set('grayscale', 'true');
 
-    // Color adjustment
-    if (transforms.brightness)
-      params.set('brightness', transforms.brightness.toString());
-    if (transforms.hue) params.set('hue', transforms.hue.toString());
-    if (transforms.lightness)
-      params.set('lightness', transforms.lightness.toString());
-    if (transforms.saturation)
-      params.set('saturation', transforms.saturation.toString());
-    if (transforms.negate) params.set('negate', 'true');
-    if (transforms.normalize) params.set('normalize', 'true');
-
     // Region extraction
     if (transforms.extract) {
       const { x, y, width, height } = transforms.extract;
       params.set('extract', `${x},${y},${width},${height}`);
     }
 
-    // Background color
-    if (transforms.background) {
-      params.set('background', transforms.background.join(','));
-    }
-
     // Format and quality
-    if (transforms.format && transforms.format !== 'auto') {
+    if (transforms.format) {
       params.set('format', transforms.format);
     }
     if (transforms.quality)
       params.set('quality', transforms.quality.toString());
-    if (transforms.timeout)
-      params.set('timeout', transforms.timeout.toString());
 
     return params.toString();
   }
@@ -165,10 +142,9 @@ let defaultUrlBuilder: SnapkitUrlBuilder | null = null;
  * Set default URL builder
  */
 export function setDefaultUrlBuilder(
-  baseUrl?: string,
   organizationName?: string,
 ) {
-  defaultUrlBuilder = new SnapkitUrlBuilder(baseUrl, organizationName);
+  defaultUrlBuilder = new SnapkitUrlBuilder(organizationName);
 }
 
 /**
@@ -187,20 +163,19 @@ export function getDefaultUrlBuilder(): SnapkitUrlBuilder {
 export function buildImageUrl(
   src: string,
   transforms?: ImageTransforms,
-  options?: { baseUrl?: string; organizationName?: string },
+  options?: { baseUrl?: string },
 ): string {
   const urlBuilder =
-    options?.baseUrl || options?.organizationName
-      ? new SnapkitUrlBuilder(options.baseUrl, options.organizationName)
+    options?.baseUrl
+      ? new SnapkitUrlBuilder(options.baseUrl)
       : getDefaultUrlBuilder();
 
   if (transforms && Object.keys(transforms).length > 0) {
     return urlBuilder.buildTransformedUrl(
       src,
       transforms,
-      options?.organizationName,
     );
   }
 
-  return urlBuilder.buildImageUrl(src, options?.organizationName);
+  return urlBuilder.buildImageUrl(src);
 }
