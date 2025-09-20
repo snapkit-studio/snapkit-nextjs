@@ -44,32 +44,49 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Check for changes
+      - name: Check for changes (Enhanced with failed deployment tracking)
         id: changes
         run: |
-          # Check if this was triggered by workflow_run (CI completion)
-          if [ "${{ github.event_name }}" = "workflow_run" ]; then
-            # Get the commit that triggered the CI workflow
-            COMMIT_SHA="${{ github.event.workflow_run.head_sha }}"
-            echo "Checking changes for commit: $COMMIT_SHA"
+          PACKAGE_NAME="nextjs"
+          PACKAGE_PATH="packages/nextjs/"
 
-            # Check if the commit includes changes to nextjs package
-            if git diff --quiet ${COMMIT_SHA}^ ${COMMIT_SHA} -- packages/nextjs/; then
-              echo "No changes in nextjs package for commit $COMMIT_SHA"
-              echo "skip=true" >> $GITHUB_OUTPUT
-            else
-              echo "Changes detected in nextjs package for commit $COMMIT_SHA"
-              echo "skip=false" >> $GITHUB_OUTPUT
-            fi
+          echo "🔍 Enhanced change detection for $PACKAGE_NAME package"
+
+          # Find the last successful release tag for this package
+          LAST_SUCCESS_TAG=$(git tag -l "nextjs-v*" --sort=-version:refname | head -1)
+
+          if [ -z "$LAST_SUCCESS_TAG" ]; then
+            echo "📦 No previous successful release found for $PACKAGE_NAME"
+            # For first release, check against parent of current commit
+            COMPARE_COMMIT=$(git rev-parse HEAD^)
+            echo "🔄 Comparing against parent commit: $COMPARE_COMMIT"
           else
-            # Manual trigger - check latest changes
-            if git diff --quiet HEAD^ HEAD -- packages/nextjs/; then
-              echo "No changes in nextjs package"
-              echo "skip=true" >> $GITHUB_OUTPUT
-            else
-              echo "Changes detected in nextjs package"
-              echo "skip=false" >> $GITHUB_OUTPUT
-            fi
+            COMPARE_COMMIT=$(git rev-list -n 1 $LAST_SUCCESS_TAG)
+            echo "✅ Last successful release: $LAST_SUCCESS_TAG (commit: $COMPARE_COMMIT)"
+          fi
+
+          # Check for changes since last successful deployment
+          if git diff --quiet $COMPARE_COMMIT HEAD -- $PACKAGE_PATH; then
+            echo "⏭️ No changes in $PACKAGE_NAME package since last successful release"
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "skip_reason=no_changes_since_last_success" >> $GITHUB_OUTPUT
+          else
+            echo "🎯 Changes detected in $PACKAGE_NAME package since last successful release"
+            echo "skip=false" >> $GITHUB_OUTPUT
+
+            # Get list of commits with changes
+            CHANGED_COMMITS=$(git rev-list $COMPARE_COMMIT..HEAD --oneline -- $PACKAGE_PATH)
+            echo "📝 Commits with changes:"
+            echo "$CHANGED_COMMITS"
+
+            # Store commit count for version bump logic
+            COMMIT_COUNT=$(echo "$CHANGED_COMMITS" | wc -l | tr -d ' ')
+            echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+
+            # Store changed commits for Slack notification
+            echo "changed_commits<<EOF" >> $GITHUB_OUTPUT
+            echo "$CHANGED_COMMITS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
           fi
       - name: Build package
         if: steps.changes.outputs.skip != 'true'

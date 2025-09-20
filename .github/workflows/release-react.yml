@@ -44,32 +44,49 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Check for changes
+      - name: Check for changes (Enhanced with failed deployment tracking)
         id: changes
         run: |
-          # Check if this was triggered by workflow_run (CI completion)
-          if [ "${{ github.event_name }}" = "workflow_run" ]; then
-            # Get the commit that triggered the CI workflow
-            COMMIT_SHA="${{ github.event.workflow_run.head_sha }}"
-            echo "Checking changes for commit: $COMMIT_SHA"
+          PACKAGE_NAME="react"
+          PACKAGE_PATH="packages/react/"
 
-            # Check if the commit includes changes to react package
-            if git diff --quiet ${COMMIT_SHA}^ ${COMMIT_SHA} -- packages/react/; then
-              echo "No changes in react package for commit $COMMIT_SHA"
-              echo "skip=true" >> $GITHUB_OUTPUT
-            else
-              echo "Changes detected in react package for commit $COMMIT_SHA"
-              echo "skip=false" >> $GITHUB_OUTPUT
-            fi
+          echo "🔍 Enhanced change detection for $PACKAGE_NAME package"
+
+          # Find the last successful release tag for this package
+          LAST_SUCCESS_TAG=$(git tag -l "react-v*" --sort=-version:refname | head -1)
+
+          if [ -z "$LAST_SUCCESS_TAG" ]; then
+            echo "📦 No previous successful release found for $PACKAGE_NAME"
+            # For first release, check against parent of current commit
+            COMPARE_COMMIT=$(git rev-parse HEAD^)
+            echo "🔄 Comparing against parent commit: $COMPARE_COMMIT"
           else
-            # Manual trigger - check latest changes
-            if git diff --quiet HEAD^ HEAD -- packages/react/; then
-              echo "No changes in react package"
-              echo "skip=true" >> $GITHUB_OUTPUT
-            else
-              echo "Changes detected in react package"
-              echo "skip=false" >> $GITHUB_OUTPUT
-            fi
+            COMPARE_COMMIT=$(git rev-list -n 1 $LAST_SUCCESS_TAG)
+            echo "✅ Last successful release: $LAST_SUCCESS_TAG (commit: $COMPARE_COMMIT)"
+          fi
+
+          # Check for changes since last successful deployment
+          if git diff --quiet $COMPARE_COMMIT HEAD -- $PACKAGE_PATH; then
+            echo "⏭️ No changes in $PACKAGE_NAME package since last successful release"
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "skip_reason=no_changes_since_last_success" >> $GITHUB_OUTPUT
+          else
+            echo "🎯 Changes detected in $PACKAGE_NAME package since last successful release"
+            echo "skip=false" >> $GITHUB_OUTPUT
+
+            # Get list of commits with changes
+            CHANGED_COMMITS=$(git rev-list $COMPARE_COMMIT..HEAD --oneline -- $PACKAGE_PATH)
+            echo "📝 Commits with changes:"
+            echo "$CHANGED_COMMITS"
+
+            # Store commit count for version bump logic
+            COMMIT_COUNT=$(echo "$CHANGED_COMMITS" | wc -l | tr -d ' ')
+            echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+
+            # Store changed commits for Slack notification
+            echo "changed_commits<<EOF" >> $GITHUB_OUTPUT
+            echo "$CHANGED_COMMITS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
           fi
 
       - name: Build package
@@ -211,3 +228,183 @@ jobs:
             ```
           draft: false
           prerelease: false
+
+      # Slack Notifications
+      - name: Notify Slack - Success
+        if: steps.changes.outputs.skip != 'true' && steps.version.outputs.skip != 'true' && steps.npm_check.outputs.exists != 'true'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          payload: |
+            {
+              "text": "✅ @snapkit-studio/react v${{ steps.version.outputs.version }} deployment successful",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "✅ *@snapkit-studio/react v${{ steps.version.outputs.version }} deployment was successful*"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Package:*\n@snapkit-studio/react"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Version:*\nv${{ steps.version.outputs.version }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Commit:*\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${GITHUB_SHA:0:7}>"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Changed commits:*\n${{ steps.changes.outputs.commit_count || 1 }} commits"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Changed commits list:*\n```${{ steps.changes.outputs.changed_commits }}```"
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "📦 View on NPM"
+                      },
+                      "url": "https://www.npmjs.com/package/@snapkit-studio/react/v/${{ steps.version.outputs.version }}",
+                      "style": "primary"
+                    },
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "🔍 View Action Logs"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ]
+                }
+              ]
+            }
+
+      - name: Notify Slack - Skipped
+        if: steps.changes.outputs.skip == 'true'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          payload: |
+            {
+              "text": "⏭️ @snapkit-studio/react deployment skipped",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "⏭️ *@snapkit-studio/react package deployment was skipped*"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Package:*\n@snapkit-studio/react"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Skip reason:*\nNo changes since last successful deployment"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Commit:*\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${GITHUB_SHA:0:7}>"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow:*\n${{ github.event_name }}"
+                    }
+                  ]
+                }
+              ]
+            }
+
+      - name: Notify Slack - Failed
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          payload: |
+            {
+              "text": "❌ @snapkit-studio/react deployment failed",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "🚨 *@snapkit-studio/react package deployment failed*"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Package:*\n@snapkit-studio/react"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Failed at:*\n${{ github.event.head_commit.timestamp }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Commit:*\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${GITHUB_SHA:0:7}>"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Author:*\n${{ github.actor }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*🔍 Troubleshooting:*\n- Check GitHub Actions logs for detailed error information\n- Verify package dependencies and build configuration\n- Confirm NPM token and permissions"
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "🔍 View Failed Action Logs"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                      "style": "danger"
+                    }
+                  ]
+                }
+              ]
+            }
