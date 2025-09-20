@@ -57,24 +57,3 @@ export function addSizeToTransforms(
   return updatedTransforms;
 }
 
-/**
- * Creates placeholder transforms for blur placeholder
- * @param baseTransforms - Base transforms
- * @param width - Placeholder width (default: 40)
- * @param blur - Blur intensity (default: 20)
- * @param quality - Placeholder quality (default: 20)
- * @returns Placeholder transforms
- */
-export function createPlaceholderTransforms(
-  baseTransforms: ImageTransforms,
-  width = 40,
-  blur = 20,
-  quality = 20,
-): ImageTransforms {
-  return {
-    ...baseTransforms,
-    width,
-    blur,
-    quality,
-  };
-}

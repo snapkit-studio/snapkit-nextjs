@@ -27,6 +27,12 @@ export const config = [
     },
   },
   {
+    files: ["**/__tests__/**/*", "**/*.test.*", "**/*.spec.*"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
+  {
     ignores: ["dist/**"],
   },
 ];

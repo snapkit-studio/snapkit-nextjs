@@ -221,3 +221,43 @@ export function adjustQualityForConnection(
       return baseQuality;
   }
 }
+
+/**
+ * Network speed types
+ */
+export type NetworkSpeed = 'fast' | 'slow' | 'offline';
+
+/**
+ * Detect current network speed
+ * 
+ * ref: https://developer.mozilla.org/en-US/docs/Web/API/Network_Information_API
+ * This feature is not Baseline because it does not work in some of the most widely-used browsers.
+ */
+export function detectNetworkSpeed(): NetworkSpeed {
+  if (typeof navigator === 'undefined') {
+    return 'fast';
+  }
+
+  // Check if offline
+  if (!navigator.onLine) {
+    return 'offline';
+  }
+
+  // Check Network Information API
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const connection = (navigator as any).connection;
+  if (connection) {
+    // Check save data mode
+    if (connection.saveData) {
+      return 'slow';
+    }
+
+    // Check effective type
+    const effectiveType = connection.effectiveType;
+    if (effectiveType === 'slow-2g' || effectiveType === '2g') {
+      return 'slow';
+    }
+  }
+
+  return 'fast';
+}

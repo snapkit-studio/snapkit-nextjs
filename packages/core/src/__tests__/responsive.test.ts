@@ -1,15 +1,15 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  DEFAULT_BREAKPOINTS,
-  calculateImageSizes,
-  parseImageSizes,
-  generateResponsiveWidths,
-  calculateOptimalImageSize,
-  determineImagePriority,
-  createLazyLoadObserver,
-  getDeviceCharacteristics,
-  adjustQualityForConnection,
-} from '../src/responsive';
+    DEFAULT_BREAKPOINTS,
+    adjustQualityForConnection,
+    calculateImageSizes,
+    calculateOptimalImageSize,
+    createLazyLoadObserver,
+    determineImagePriority,
+    generateResponsiveWidths,
+    getDeviceCharacteristics,
+    parseImageSizes,
+} from '../responsive';
 
 describe('Default Breakpoints Constants', () => {
   it('Should return correct breakpoint array', () => {
@@ -440,15 +440,15 @@ describe('createLazyLoadObserver function', () => {
       disconnect: vi.fn(),
     };
 
-    // IntersectionObserver 모킹
+    // Mock IntersectionObserver
     global.IntersectionObserver = vi.fn((callback, options) => {
-      // 콜백 저장 (테스트에서 수동 호출용)
+      // Store callback (for manual invocation in tests)
       (mockIntersectionObserver as any).callback = callback;
       (mockIntersectionObserver as any).options = options;
       return mockIntersectionObserver;
     }) as any;
 
-    // Window 환경 설정 (IntersectionObserver 포함)
+    // Set up window environment (including IntersectionObserver)
     Object.defineProperty(global, 'window', {
       value: {
         IntersectionObserver: global.IntersectionObserver,
@@ -532,7 +532,7 @@ describe('createLazyLoadObserver function', () => {
 
       expect(observer).toBeNull();
 
-      // window restoration
+      // Restore window
       global.window = originalWindow;
     });
 
@@ -576,7 +576,7 @@ describe('getDeviceCharacteristics function', () => {
         dataLimit: undefined,
       });
 
-      // window restoration
+      // Restore window
       global.window = originalWindow;
     });
   });
@@ -684,7 +684,7 @@ describe('adjustQualityForConnection function', () => {
 
       expect(result).toBe(85);
 
-      // window restoration
+      // Restore window
       global.window = originalWindow;
     });
   });

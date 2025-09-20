@@ -51,7 +51,7 @@ describe('configMerger', () => {
       expect(result).toEqual({
         finalOrganizationName: '',
         finalBaseUrl: undefined,
-        finalQuality: 85,
+        finalQuality: undefined,
       });
     });
 

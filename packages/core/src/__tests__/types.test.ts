@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type {
-    ImageTransforms,
-    NextImageProps,
-    PictureSource,
-    ProcessedImageUrl,
-    SnapkitConfig,
-    SnapkitImageProps,
-    SnapkitPictureProps,
+  ImageTransforms,
+  NextImageProps,
+  PictureSource,
+  ProcessedImageUrl,
+  SnapkitConfig,
+  SnapkitImageProps,
+  SnapkitPictureProps,
 } from '../types';
 
 // This file provides compile-time tests to verify the correctness of type definitions.
@@ -26,17 +26,9 @@ describe('Type definition validation', () => {
         flop: false,
         blur: 10,
         grayscale: true,
-        brightness: 1.2,
-        hue: 180,
-        lightness: 0.8,
-        saturation: 1.5,
-        negate: false,
-        normalize: true,
         extract: { x: 0, y: 0, width: 100, height: 100 },
-        background: [255, 255, 255, 1],
         quality: 85,
         format: 'webp',
-        timeout: 5000,
       };
       expect(fullTransforms).toBeDefined();
     });
@@ -98,13 +90,6 @@ describe('Type definition validation', () => {
       expect(transform.extract?.height).toBe(150);
     });
 
-    it('should allow background as RGBA array', () => {
-      const transform: ImageTransforms = {
-        background: [255, 128, 0, 0.8],
-      };
-
-      expect(transform.background).toEqual([255, 128, 0, 0.8]);
-    });
   });
 
   describe('NextImageProps interface', () => {
@@ -118,8 +103,6 @@ describe('Type definition validation', () => {
         sizes: '(max-width: 768px) 100vw, 50vw',
         quality: 85,
         priority: true,
-        placeholder: 'blur',
-        blurDataURL: 'data:image/jpeg;base64,test',
         loading: 'eager',
         onLoad: () => {},
         onError: () => {},
@@ -129,27 +112,8 @@ describe('Type definition validation', () => {
 
       expect(props.src).toBe('test.jpg');
       expect(props.alt).toBe('Test image');
-      expect(props.placeholder).toBe('blur');
       expect(props.loading).toBe('eager');
     });
-
-    it('should allow valid placeholder values', () => {
-      const blurPlaceholder: NextImageProps = {
-        src: 'test.jpg',
-        alt: 'Test',
-        placeholder: 'blur',
-      };
-
-      const emptyPlaceholder: NextImageProps = {
-        src: 'test.jpg',
-        alt: 'Test',
-        placeholder: 'empty',
-      };
-
-      expect(blurPlaceholder.placeholder).toBe('blur');
-      expect(emptyPlaceholder.placeholder).toBe('empty');
-    });
-
     it('should allow valid loading values', () => {
       const lazyLoading: NextImageProps = {
         src: 'test.jpg',
@@ -184,7 +148,6 @@ describe('Type definition validation', () => {
         optimizeFormat: 'webp',
         // Next.js props
         priority: true,
-        placeholder: 'blur',
         loading: 'eager',
         className: 'test-class',
         onClick: () => {},
@@ -196,22 +159,11 @@ describe('Type definition validation', () => {
       expect(props.transforms?.blur).toBe(20);
     });
 
-    it('should allow extended placeholder options', () => {
-      const noneProps: SnapkitImageProps = {
-        src: 'test.jpg',
-        alt: 'Test',
-        placeholder: 'none',
-      };
-
-      expect(noneProps.placeholder).toBe('none');
-    });
-
     it('should allow valid optimizeFormat values', () => {
       const formatOptions: SnapkitImageProps['optimizeFormat'][] = [
         'avif',
         'webp',
         'auto',
-        'off',
         undefined,
       ];
 
@@ -299,14 +251,12 @@ describe('Type definition validation', () => {
         organizationName: 'test-org',
         defaultQuality: 85,
         defaultFormat: 'auto',
-        enableBlurPlaceholder: true,
       };
 
       expect(fullConfig.baseUrl).toBe('https://test.com');
       expect(fullConfig.organizationName).toBe('test-org');
       expect(fullConfig.defaultQuality).toBe(85);
       expect(fullConfig.defaultFormat).toBe('auto');
-      expect(fullConfig.enableBlurPlaceholder).toBe(true);
     });
 
     it('should allow valid defaultFormat values', () => {

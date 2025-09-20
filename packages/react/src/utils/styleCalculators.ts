@@ -64,45 +64,6 @@ export function createContainerStyle(
 }
 
 /**
- * Creates placeholder image style
- * @param imageStyle - Base image style
- * @param isLoaded - Whether the main image is loaded
- * @param blurAmount - Blur amount in pixels (default: 20)
- * @returns Placeholder style
- */
-export function createPlaceholderStyle(
-  imageStyle: CSSProperties,
-  isLoaded: boolean,
-  blurAmount = 20,
-): CSSProperties {
-  return {
-    ...imageStyle,
-    filter: `blur(${blurAmount}px)`,
-    transition: 'opacity 0.3s ease',
-    opacity: isLoaded ? 0 : 1,
-  };
-}
-
-/**
- * Creates main image style with loading states
- * @param imageStyle - Base image style
- * @param isLoaded - Whether the image is loaded
- * @param showBlurPlaceholder - Whether to show blur placeholder
- * @returns Main image style
- */
-export function createMainImageStyle(
-  imageStyle: CSSProperties,
-  isLoaded: boolean,
-  showBlurPlaceholder: boolean,
-): CSSProperties {
-  return {
-    ...imageStyle,
-    opacity: isLoaded ? 1 : showBlurPlaceholder ? 0 : 1,
-    transition: showBlurPlaceholder ? 'opacity 0.3s ease' : undefined,
-  };
-}
-
-/**
  * Creates reserved space for layout stability (Next.js Image style)
  * @param fill - Whether the image is in fill mode
  * @param width - Image width

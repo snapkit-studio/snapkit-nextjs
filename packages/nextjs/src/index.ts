@@ -6,6 +6,6 @@ export { Image } from './Image';
 
 // Re-export types needed for Next.js integration
 export type {
-  ImageLoader, ImageLoaderParams, SnapkitLoaderOptions
+  SnapkitLoaderOptions
 } from '@snapkit-studio/core';
 

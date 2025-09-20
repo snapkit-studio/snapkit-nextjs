@@ -1,16 +1,19 @@
 import {
-    getDefaultUrlBuilder,
-    ImageLoaderParams,
     SnapkitLoaderOptions,
     SnapkitUrlBuilder,
 } from '@snapkit-studio/core';
+
+// Local type definition for image loader parameters (Next.js ImageLoader params)
+interface ImageLoaderParams {
+  src: string;
+  width: number;
+  quality?: number;
+}
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createSnapkitLoader, snapkitLoader } from '../image-loader';
 
-// Mock @snapkit-studio/core 모듈
+// Mock @snapkit-studio/core module
 vi.mock('@snapkit-studio/core', () => ({
-  getDefaultUrlBuilder: vi.fn(),
-  setDefaultUrlBuilder: vi.fn(),
   SnapkitUrlBuilder: vi.fn(),
 }));
 
@@ -28,25 +31,10 @@ describe('image-loader', () => {
   });
 
   describe('snapkitLoader', () => {
-    it('should throw error when default URL builder is not configured', () => {
-      // Given: getDefaultUrlBuilder returns null
-      vi.mocked(getDefaultUrlBuilder).mockReturnValue(null as any);
-
-      const params: ImageLoaderParams = {
-        src: '/test-image.jpg',
-        width: 800,
-        quality: 85,
-      };
-
-      // When & Then: snapkitLoader should throw error
-      expect(() => snapkitLoader(params)).toThrow(
-        'Snapkit URL builder not configured. Please call setDefaultUrlBuilder() first.',
-      );
-    });
-
-    it('should call buildTransformedUrl with correct parameters when URL builder is configured', () => {
-      // Given: getDefaultUrlBuilder returns a mock URL builder
-      vi.mocked(getDefaultUrlBuilder).mockReturnValue(mockUrlBuilder as any);
+    it('should call buildTransformedUrl with correct parameters using hardcoded organization', () => {
+      // Given: SnapkitUrlBuilder is mocked
+      const MockSnapkitUrlBuilder = vi.mocked(SnapkitUrlBuilder);
+      MockSnapkitUrlBuilder.mockImplementation(() => mockUrlBuilder as any);
       mockUrlBuilder.buildTransformedUrl.mockReturnValue('https://example.com/optimized-image.jpg');
 
       const params: ImageLoaderParams = {
@@ -58,7 +46,10 @@ describe('image-loader', () => {
       // When: snapkitLoader is called
       const result = snapkitLoader(params);
 
-      // Then: buildTransformedUrl should be called with correct parameters
+      // Then: SnapkitUrlBuilder should be created with hardcoded organization name
+      expect(MockSnapkitUrlBuilder).toHaveBeenCalledWith('your-org-name');
+
+      // And: buildTransformedUrl should be called with correct parameters
       expect(mockUrlBuilder.buildTransformedUrl).toHaveBeenCalledWith('/test-image.jpg', {
         width: 800,
         quality: 85,
@@ -69,8 +60,9 @@ describe('image-loader', () => {
     });
 
     it('should work with minimal parameters (no quality)', () => {
-      // Given: getDefaultUrlBuilder returns a mock URL builder
-      vi.mocked(getDefaultUrlBuilder).mockReturnValue(mockUrlBuilder as any);
+      // Given: SnapkitUrlBuilder is mocked
+      const MockSnapkitUrlBuilder = vi.mocked(SnapkitUrlBuilder);
+      MockSnapkitUrlBuilder.mockImplementation(() => mockUrlBuilder as any);
       mockUrlBuilder.buildTransformedUrl.mockReturnValue('https://example.com/minimal-image.jpg');
 
       const params: ImageLoaderParams = {
@@ -92,8 +84,9 @@ describe('image-loader', () => {
     });
 
     it('should handle different image source formats', () => {
-      // Given: getDefaultUrlBuilder returns a mock URL builder
-      vi.mocked(getDefaultUrlBuilder).mockReturnValue(mockUrlBuilder as any);
+      // Given: SnapkitUrlBuilder is mocked
+      const MockSnapkitUrlBuilder = vi.mocked(SnapkitUrlBuilder);
+      MockSnapkitUrlBuilder.mockImplementation(() => mockUrlBuilder as any);
       mockUrlBuilder.buildTransformedUrl.mockReturnValue('https://example.com/absolute-image.jpg');
 
       const params: ImageLoaderParams = {
@@ -114,6 +107,26 @@ describe('image-loader', () => {
 
       expect(result).toBe('https://example.com/absolute-image.jpg');
     });
+
+    it('should throw error when URL builder fails', () => {
+      // Given: SnapkitUrlBuilder is mocked to throw an error
+      const MockSnapkitUrlBuilder = vi.mocked(SnapkitUrlBuilder);
+      MockSnapkitUrlBuilder.mockImplementation(() => mockUrlBuilder as any);
+      mockUrlBuilder.buildTransformedUrl.mockImplementation(() => {
+        throw new Error('URL builder failed');
+      });
+
+      const params: ImageLoaderParams = {
+        src: '/test-image.jpg',
+        width: 800,
+        quality: 85,
+      };
+
+      // When & Then: snapkitLoader should throw error
+      expect(() => snapkitLoader(params)).toThrow(
+        'Failed to generate optimized URL: URL builder failed. Please check your organization name and image source path.'
+      );
+    });
   });
 
   describe('createSnapkitLoader', () => {
@@ -126,7 +139,6 @@ describe('image-loader', () => {
     it('should create a custom loader with basic options', () => {
       // Given: basic options
       const options: SnapkitLoaderOptions = {
-        baseUrl: 'https://custom.example.com',
         organizationName: 'test-org',
       };
 
@@ -134,21 +146,17 @@ describe('image-loader', () => {
       const customLoader = createSnapkitLoader(options);
 
       // Then: SnapkitUrlBuilder should be instantiated with correct parameters
-      expect(MockSnapkitUrlBuilder).toHaveBeenCalledWith(
-        'https://custom.example.com',
-        'test-org',
-      );
+      expect(MockSnapkitUrlBuilder).toHaveBeenCalledWith('test-org');
 
       // And: should return a function
       expect(typeof customLoader).toBe('function');
     });
 
     it('should create loader that handles optimizeFormat "off"', () => {
-      // Given: options with optimizeFormat set to "off"
+      // Given: options with unoptimizedFormat set to true
       const options: SnapkitLoaderOptions = {
-        baseUrl: 'https://custom.example.com',
         organizationName: 'test-org',
-        optimizeFormat: 'off',
+        unoptimizedFormat: true,
       };
 
       mockUrlBuilder.buildTransformedUrl.mockReturnValue('https://custom.example.com/no-format.jpg');
@@ -161,24 +169,19 @@ describe('image-loader', () => {
         quality: 80,
       });
 
-      // Then: format should be undefined (not "off")
-      expect(mockUrlBuilder.buildTransformedUrl).toHaveBeenCalledWith(
-        '/test.jpg',
-        {
-          width: 600,
-          quality: 80,
-          format: undefined,
-        },
-        'test-org',
-      );
+      // Then: format should be undefined (unoptimized)
+      expect(mockUrlBuilder.buildTransformedUrl).toHaveBeenCalledWith('/test.jpg', {
+        width: 600,
+        quality: 80,
+        format: undefined,
+      });
 
       expect(result).toBe('https://custom.example.com/no-format.jpg');
     });
 
     it('should create loader that uses default "auto" format when optimizeFormat is not specified', () => {
-      // Given: options without optimizeFormat
+      // Given: options without unoptimizedFormat
       const options: SnapkitLoaderOptions = {
-        baseUrl: 'https://custom.example.com',
         organizationName: 'test-org',
       };
 
@@ -193,28 +196,25 @@ describe('image-loader', () => {
       });
 
       // Then: format should default to "auto"
-      expect(mockUrlBuilder.buildTransformedUrl).toHaveBeenCalledWith(
-        '/test.jpg',
-        {
-          width: 600,
-          quality: 80,
-          format: 'auto',
-        },
-        'test-org',
-      );
+      expect(mockUrlBuilder.buildTransformedUrl).toHaveBeenCalledWith('/test.jpg', {
+        width: 600,
+        quality: 80,
+        format: 'auto',
+      });
 
       expect(result).toBe('https://custom.example.com/auto-format.jpg');
     });
 
     it('should create loader that applies optimizeFormat when specified', () => {
-      // Given: options with specific optimizeFormat
+      // Given: options with custom transforms
       const options: SnapkitLoaderOptions = {
-        baseUrl: 'https://custom.example.com',
         organizationName: 'test-org',
-        optimizeFormat: 'webp',
+        transforms: {
+          format: 'webp',
+        },
       };
 
-      mockUrlBuilder.buildTransformedUrl.mockReturnValue('https://custom.example.com/webp-format.webp');
+      mockUrlBuilder.buildTransformedUrl.mockReturnValue('https://custom.example.com/webp-format.jpg');
 
       // When: custom loader is created and called
       const customLoader = createSnapkitLoader(options);
@@ -224,34 +224,29 @@ describe('image-loader', () => {
         quality: 80,
       });
 
-      // Then: format should be "webp"
-      expect(mockUrlBuilder.buildTransformedUrl).toHaveBeenCalledWith(
-        '/test.jpg',
-        {
-          width: 600,
-          quality: 80,
-          format: 'webp',
-        },
-        'test-org',
-      );
+      // Then: format should be webp
+      expect(mockUrlBuilder.buildTransformedUrl).toHaveBeenCalledWith('/test.jpg', {
+        width: 600,
+        quality: 80,
+        format: 'webp',
+      });
 
-      expect(result).toBe('https://custom.example.com/webp-format.webp');
+      expect(result).toBe('https://custom.example.com/webp-format.jpg');
     });
 
     it('should create loader that merges custom transforms with loader parameters', () => {
-      // Given: options with custom transforms
+      // Given: options with multiple transforms
       const options: SnapkitLoaderOptions = {
-        baseUrl: 'https://custom.example.com',
         organizationName: 'test-org',
         transforms: {
+          format: 'avif',
           blur: 5,
           grayscale: true,
           fit: 'cover',
         },
-        optimizeFormat: 'avif',
       };
 
-      mockUrlBuilder.buildTransformedUrl.mockReturnValue('https://custom.example.com/transformed.avif');
+      mockUrlBuilder.buildTransformedUrl.mockReturnValue('https://custom.example.com/complex.jpg');
 
       // When: custom loader is created and called
       const customLoader = createSnapkitLoader(options);
@@ -261,89 +256,59 @@ describe('image-loader', () => {
         quality: 90,
       });
 
-      // Then: transforms should be merged correctly
-      expect(mockUrlBuilder.buildTransformedUrl).toHaveBeenCalledWith(
-        '/test.jpg',
-        {
-          blur: 5,
-          grayscale: true,
-          fit: 'cover',
-          width: 800,
-          quality: 90,
-          format: 'avif',
-        },
-        'test-org',
-      );
-
-      expect(result).toBe('https://custom.example.com/transformed.avif');
-    });
-
-    it('should create loader that handles undefined baseUrl and organizationName', () => {
-      // Given: minimal options
-      const options: SnapkitLoaderOptions = {};
-
-      mockUrlBuilder.buildTransformedUrl.mockReturnValue('https://default.example.com/minimal.jpg');
-
-      // When: custom loader is created and called
-      const customLoader = createSnapkitLoader(options);
-
-      // Then: SnapkitUrlBuilder should be called with undefined values
-      expect(MockSnapkitUrlBuilder).toHaveBeenCalledWith(undefined, undefined);
-
-      // And: should work when called
-      const result = customLoader({
-        src: '/test.jpg',
-        width: 400,
+      // Then: should merge all transforms with loader parameters taking precedence for width/quality
+      expect(mockUrlBuilder.buildTransformedUrl).toHaveBeenCalledWith('/test.jpg', {
+        format: 'avif',
+        blur: 5,
+        grayscale: true,
+        fit: 'cover',
+        width: 800,
+        quality: 90,
       });
 
-      expect(mockUrlBuilder.buildTransformedUrl).toHaveBeenCalledWith(
-        '/test.jpg',
-        {
-          width: 400,
-          quality: undefined,
-          format: 'auto',
-        },
-        undefined,
-      );
+      expect(result).toBe('https://custom.example.com/complex.jpg');
+    });
 
-      expect(result).toBe('https://default.example.com/minimal.jpg');
+    it('should create loader that handles undefined organizationName', () => {
+      // Given: invalid options
+      const options = {} as SnapkitLoaderOptions;
+
+      // When & Then: should throw error
+      expect(() => createSnapkitLoader(options)).toThrow(
+        'Invalid organization name: organizationName must be a non-empty string.',
+      );
     });
 
     it('should override transforms width and quality with loader parameters', () => {
-      // Given: options with transforms that include width and quality
+      // Given: options with pre-set width and quality in transforms
       const options: SnapkitLoaderOptions = {
-        baseUrl: 'https://custom.example.com',
         organizationName: 'test-org',
         transforms: {
-          width: 500,     // This should be overridden
-          quality: 70,    // This should be overridden
+          width: 400,
+          quality: 50,
           blur: 3,
         },
       };
 
-      mockUrlBuilder.buildTransformedUrl.mockReturnValue('https://custom.example.com/overridden.jpg');
+      mockUrlBuilder.buildTransformedUrl.mockReturnValue('https://custom.example.com/override.jpg');
 
       // When: custom loader is created and called with different width/quality
       const customLoader = createSnapkitLoader(options);
       const result = customLoader({
         src: '/test.jpg',
-        width: 1000,    // Should override transforms.width
-        quality: 95,    // Should override transforms.quality
+        width: 1000,
+        quality: 95,
       });
 
-      // Then: loader parameters should take precedence
-      expect(mockUrlBuilder.buildTransformedUrl).toHaveBeenCalledWith(
-        '/test.jpg',
-        {
-          width: 1000,    // From loader params, not transforms
-          quality: 95,    // From loader params, not transforms
-          blur: 3,        // From transforms
-          format: 'auto',
-        },
-        'test-org',
-      );
+      // Then: loader parameters should override transform values
+      expect(mockUrlBuilder.buildTransformedUrl).toHaveBeenCalledWith('/test.jpg', {
+        blur: 3,
+        format: 'auto',
+        width: 1000,
+        quality: 95,
+      });
 
-      expect(result).toBe('https://custom.example.com/overridden.jpg');
+      expect(result).toBe('https://custom.example.com/override.jpg');
     });
   });
 });

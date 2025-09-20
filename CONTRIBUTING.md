@@ -1,8 +1,8 @@
-# Contributing to @snapkit-studio/nextjs
+# Contributing to Snapkit Studio
 
 [![English](https://img.shields.io/badge/docs-English-blue)](./CONTRIBUTING.md) [![한국어](https://img.shields.io/badge/docs-한국어-blue)](./CONTRIBUTING-ko.md)
 
-We love your input! We want to make contributing to @snapkit-studio/nextjs as easy and transparent as possible, whether it's:
+We love your input! We want to make contributing to Snapkit Studio monorepo as easy and transparent as possible, whether it's:
 
 - Reporting a bug
 - Discussing the current state of the code
@@ -19,11 +19,11 @@ We use GitHub to host code, to track issues and feature requests, as well as acc
 ```bash
 # Fork the repository on GitHub
 # Then clone your fork
-git clone https://github.com/YOUR_USERNAME/snapkit-nextjs.git
-cd snapkit-nextjs
+git clone https://github.com/YOUR_USERNAME/web.git
+cd web
 
 # Add upstream remote
-git remote add upstream https://github.com/snapkit/snapkit-nextjs.git
+git remote add upstream https://github.com/snapkit-studio/web.git
 ```
 
 ### 2. Install Dependencies
@@ -38,6 +38,24 @@ pnpm install
 git config commit.template .gitmessage
 ```
 
+## Project Structure
+
+This is a monorepo containing multiple packages for the Snapkit image optimization ecosystem:
+
+### Packages
+- **`@snapkit-studio/core`**: Core image transformation and URL building utilities
+- **`@snapkit-studio/nextjs`**: Next.js Image component integration with App Router support
+- **`@snapkit-studio/react`**: React image components with automatic optimization
+
+### Applications
+- **`apps/nextjs-demo`**: Demo application showcasing Next.js integration
+- **`apps/react-demo`**: Demo application showcasing React integration
+
+### System Requirements
+- Node.js >= 22.0.0
+- pnpm >= 10.0.0
+- Git >= 2.28.0
+
 ## Development Workflow
 
 ### Setting Up Your Local Environment
@@ -47,22 +65,36 @@ git config commit.template .gitmessage
    pnpm install
    ```
 
-2. **Run tests**:
+2. **Build all packages**:
    ```bash
+   pnpm build
+   ```
+
+3. **Run tests**:
+   ```bash
+   # All tests
    pnpm test
+
+   # Specific package
+   pnpm --filter @snapkit-studio/core test
    ```
 
-3. **Start development**:
+4. **Start development**:
    ```bash
+   # Start all dev servers
    pnpm dev
+
+   # Start specific demo app
+   pnpm --filter react-demo dev
+   pnpm --filter nextjs-demo dev
    ```
 
-4. **Run type checking**:
+5. **Run type checking**:
    ```bash
    pnpm check-types
    ```
 
-5. **Run linting**:
+6. **Run linting**:
    ```bash
    pnpm lint
    ```
@@ -163,6 +195,26 @@ feat!: change default compression quality to 80
 - [ ] No breaking changes (unless intentional and documented)
 - [ ] Conventional commit messages used
 
+## Package-Specific Guidelines
+
+### @snapkit-studio/core
+- Core transformation logic for image optimization
+- Browser compatibility utilities
+- URL building and parameter management
+- **Testing**: Focus on transformation accuracy and URL generation
+
+### @snapkit-studio/nextjs
+- Next.js Image component integration
+- App Router and Pages Router support
+- SSR/SSG compatibility
+- **Testing**: Ensure both router types work correctly
+
+### @snapkit-studio/react
+- Pure React image components
+- Framework-agnostic implementation
+- Client-side optimization
+- **Testing**: Browser compatibility and React version support
+
 ## Code Style Guidelines
 
 ### TypeScript
@@ -239,4 +291,4 @@ Contributors are automatically added to our README and releases. We appreciate a
 
 ---
 
-Thank you for contributing to @snapkit-studio/nextjs! 🚀
+Thank you for contributing to Snapkit Studio! 🚀

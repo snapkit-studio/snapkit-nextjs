@@ -1,6 +1,6 @@
 'use client';
 
-import { preloadFormatSupport, setDefaultUrlBuilder, SnapkitConfig } from '@snapkit-studio/core';
+import { preloadFormatSupport, SnapkitConfig } from '@snapkit-studio/core';
 import React, { createContext, useContext, useEffect } from 'react';
 
 const SnapkitContext = createContext<SnapkitConfig>({});
@@ -37,7 +37,6 @@ export interface SnapkitProviderProps extends SnapkitConfig {
  *       organizationName="acme-corp"
  *       defaultQuality={90}
  *       defaultFormat="webp"
- *       enableBlurPlaceholder={true}
  *     >
  *       <MyApp />
  *     </SnapkitProvider>
@@ -51,7 +50,6 @@ export function SnapkitProvider({
   organizationName,
   defaultQuality = 85,
   defaultFormat = 'auto',
-  enableBlurPlaceholder = true,
   ...config
 }: SnapkitProviderProps) {
   const contextValue: SnapkitConfig = {
@@ -59,16 +57,9 @@ export function SnapkitProvider({
     organizationName,
     defaultQuality,
     defaultFormat,
-    enableBlurPlaceholder,
     ...config,
   };
 
-  // Setup default URL builder
-  useEffect(() => {
-    if (organizationName) {
-      setDefaultUrlBuilder(organizationName);
-    }
-  }, [organizationName]);
 
   // Preload format support detection
   useEffect(() => {
