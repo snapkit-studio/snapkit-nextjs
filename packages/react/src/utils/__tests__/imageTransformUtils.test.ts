@@ -1,9 +1,8 @@
 import type { ImageTransforms } from '@snapkit-studio/core';
 import { describe, expect, it, vi } from 'vitest';
 import {
-    addSizeToTransforms,
-    createFinalTransforms,
-    createPlaceholderTransforms,
+  addSizeToTransforms,
+  createFinalTransforms,
 } from '../imageTransformUtils';
 
 // Mock getBestSupportedFormat
@@ -73,7 +72,6 @@ describe('imageTransformUtils', () => {
         width: 800,
         height: 600,
         blur: 10,
-        brightness: 120,
       };
 
       const result = createFinalTransforms(baseTransforms, 90, 'auto');
@@ -82,7 +80,6 @@ describe('imageTransformUtils', () => {
         width: 800,
         height: 600,
         blur: 10,
-        brightness: 120,
         quality: 90,
         format: 'avif',
       });
@@ -151,55 +148,4 @@ describe('imageTransformUtils', () => {
     });
   });
 
-  describe('createPlaceholderTransforms', () => {
-    it('should create placeholder transforms with default values', () => {
-      const baseTransforms: ImageTransforms = {
-        quality: 85,
-        format: 'webp',
-      };
-
-      const result = createPlaceholderTransforms(baseTransforms);
-
-      expect(result).toEqual({
-        quality: 20,
-        format: 'webp',
-        width: 40,
-        blur: 20,
-      });
-    });
-
-    it('should create placeholder transforms with custom values', () => {
-      const baseTransforms: ImageTransforms = {
-        quality: 85,
-        format: 'webp',
-      };
-
-      const result = createPlaceholderTransforms(baseTransforms, 60, 30, 30);
-
-      expect(result).toEqual({
-        quality: 30,
-        format: 'webp',
-        width: 60,
-        blur: 30,
-      });
-    });
-
-    it('should override base transforms with placeholder specific values', () => {
-      const baseTransforms: ImageTransforms = {
-        width: 800,
-        height: 600,
-        quality: 85,
-        blur: 5,
-      };
-
-      const result = createPlaceholderTransforms(baseTransforms, 50, 25, 25);
-
-      expect(result).toEqual({
-        width: 50,
-        height: 600,
-        quality: 25,
-        blur: 25,
-      });
-    });
-  });
 });

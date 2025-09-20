@@ -13,7 +13,7 @@ export interface ConfigMergeOptions {
 export interface MergedConfig {
   finalOrganizationName: string;
   finalBaseUrl?: string;
-  finalQuality: number;
+  finalQuality?: number;
 }
 
 /**
@@ -29,7 +29,7 @@ export function mergeConfiguration(
   return {
     finalOrganizationName: options.organizationName || config.organizationName || '',
     finalBaseUrl: options.baseUrl || config.baseUrl,
-    finalQuality: options.quality || config.defaultQuality || 85,
+    finalQuality: options.quality || config.defaultQuality,
   };
 }
 

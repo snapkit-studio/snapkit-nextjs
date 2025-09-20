@@ -7,6 +7,9 @@ export interface ImageTransforms {
   height?: number;
   fit?: 'contain' | 'cover' | 'fill' | 'inside' | 'outside';
 
+  // Device Pixel Ratio for high-DPI displays
+  dpr?: number;
+
   // Flipping
   flip?: boolean;
   flop?: boolean;
@@ -14,14 +17,6 @@ export interface ImageTransforms {
   // Visual effects
   blur?: number | boolean;
   grayscale?: boolean;
-
-  // Color adjustment
-  brightness?: number;
-  hue?: number;
-  lightness?: number;
-  saturation?: number;
-  negate?: boolean;
-  normalize?: boolean;
 
   // Region extraction (percentage-based: 0-100)
   extract?: {
@@ -35,13 +30,9 @@ export interface ImageTransforms {
     height: number;
   };
 
-  // Background color
-  background?: [number, number, number, number];
-
   // Others
   quality?: number;
   format?: 'jpeg' | 'jpg' | 'png' | 'webp' | 'avif' | 'auto';
-  timeout?: number;
 }
 
 // Props compatible with Next.js Image component
@@ -54,8 +45,6 @@ export interface NextImageProps {
   sizes?: string;
   quality?: number;
   priority?: boolean;
-  placeholder?: 'blur' | 'empty';
-  blurDataURL?: string;
   loading?: 'lazy' | 'eager';
   onLoad?: () => void;
   onError?: () => void;
@@ -75,7 +64,6 @@ export interface SnapkitImageProps extends Omit<ComponentProps<'img'>, 'src'> {
   sizes?: string;
   quality?: number;
   priority?: boolean;
-  placeholder?: 'blur' | 'empty' | 'none';
   blurDataURL?: string;
   loading?: 'lazy' | 'eager';
 
@@ -83,7 +71,7 @@ export interface SnapkitImageProps extends Omit<ComponentProps<'img'>, 'src'> {
   organizationName?: string;
   baseUrl?: string;
   transforms?: ImageTransforms;
-  optimizeFormat?: 'avif' | 'webp' | 'auto' | 'off';
+  optimizeFormat?: 'avif' | 'webp' | 'auto';
 }
 
 // Source definition for Picture component
@@ -112,7 +100,6 @@ export interface SnapkitConfig {
   organizationName?: string;
   defaultQuality?: number;
   defaultFormat?: 'avif' | 'webp' | 'auto' | 'off';
-  enableBlurPlaceholder?: boolean;
 }
 
 // Internal use types
@@ -125,15 +112,6 @@ export interface ProcessedImageUrl {
     original?: string;
   };
 }
-
-// Next.js Image Loader types
-export interface ImageLoaderParams {
-  src: string;
-  width: number;
-  quality?: number;
-}
-
-export type ImageLoader = (params: ImageLoaderParams) => string;
 
 // Snapkit loader configuration types
 export interface SnapkitLoaderOptions {

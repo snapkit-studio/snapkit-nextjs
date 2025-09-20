@@ -1,0 +1,61 @@
+{
+  "name": "@snapkit-studio/react",
+  "version": "1.6.2",
+  "description": "React components for Snapkit image optimization",
+  "keywords": [
+    "react",
+    "image",
+    "components",
+    "hooks",
+    "snapkit",
+    "optimization"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snapkit-studio/web.git",
+    "directory": "packages/react"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
+  "license": "MIT",
+  "author": "Snapkit",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+    "check-types": "tsc --noEmit",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "lint": "eslint src --ext .ts,.tsx",
+    "test": "vitest --run",
+    "version-info": "node -p \"'Package: @snapkit-studio/react, Current version: ' + require('./package.json').version\""
+  },
+  "dependencies": {
+    "@snapkit-studio/core": "^1.6.0"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^14.3.1",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "tsup": "8.5.0",
+    "typescript": "^5.0.0",
+    "vitest": "3.2.4"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  }
+}

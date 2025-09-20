@@ -1,41 +1,31 @@
 'use client';
 
+import { SnapkitImageProps } from '@snapkit-studio/core';
+import { forwardRef, useMemo } from 'react';
 import {
-    SnapkitImageProps,
-    adjustQualityForConnection,
-    buildImageUrl,
-    createLazyLoadObserver,
-    generateResponsiveWidths,
-} from '@snapkit-studio/core';
-import React, { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
-import { useSnapkitConfig } from '../providers/SnapkitProvider';
+  useImageOptimization,
+  useImageLazyLoading,
+  useImagePreload
+} from '../hooks';
 import {
-    addSizeToTransforms,
-    createBuildOptions,
-    createContainerStyle,
-    createEnhancedLazyLoadObserver,
-    createFinalTransforms,
-    createImageStyle,
-    createPlaceholderStyle,
-    createPlaceholderTransforms,
-    createPreloadHint,
-    createReservedSpace,
-    generateResponsiveSrcSet,
-    getImageVisibility,
-    getPlaceholderUrl,
-    handleImageError,
-    mergeConfiguration,
-    shouldLoadEagerly,
-    shouldShowBlurPlaceholder,
-    shouldShowPlaceholderOnError,
+  createContainerStyle,
+  createImageStyle,
+  createReservedSpace
 } from '../utils';
 
 /**
- * Optimized image component with automatic format detection and responsive loading
+ * Optimized image component with automatic format detection, DPR-based srcset, and responsive loading
+ *
+ * Features:
+ * - Automatic DPR-based srcset generation for crisp display on high-DPI devices (like Next.js Image)
+ * - Responsive width-based srcset when sizes prop is provided
+ * - Automatic format optimization (WebP, AVIF)
+ * - Lazy loading with Intersection Observer
+ * - Network-aware quality adjustment
  *
  * @example
  * ```tsx
- * // Basic usage
+ * // Basic usage with DPR-based srcset (1x, 2x, 3x)
  * <Image
  *   src="path/to/image.jpg"
  *   alt="Description"
@@ -43,24 +33,20 @@ import {
  *   height={600}
  * />
  *
- * // With organization and custom transforms
+ * // Responsive layout with width-based srcset
  * <Image
  *   src="path/to/image.jpg"
  *   alt="Description"
  *   width={800}
  *   height={600}
- *   organizationName="my-org"
- *   quality={90}
- *   transforms={{ blur: 20 }}
- *   priority={true}
+ *   sizes="(max-width: 768px) 100vw, 50vw"
  * />
  *
- * // Fill mode with responsive sizes
+ * // Fill mode for container-based sizing
  * <Image
  *   src="path/to/image.jpg"
  *   alt="Description"
  *   fill={true}
- *   sizes="(max-width: 768px) 100vw, 50vw"
  *   className="object-cover"
  * />
  * ```
@@ -76,8 +62,6 @@ export const Image = forwardRef<HTMLImageElement, SnapkitImageProps>(
       sizes,
       quality,
       priority = false,
-      placeholder = 'empty',
-      blurDataURL,
       loading,
       organizationName,
       baseUrl,
@@ -91,170 +75,119 @@ export const Image = forwardRef<HTMLImageElement, SnapkitImageProps>(
     },
     ref,
   ) => {
-    const config = useSnapkitConfig();
-    const [isLoaded, setIsLoaded] = useState(false);
-    const [hasError, setHasError] = useState(false);
-    // Next.js Image style: Determine eager loading
-    const shouldLoadEager = shouldLoadEagerly(priority, loading);
-    const [isVisible, setIsVisible] = useState(shouldLoadEager);
-    const imgRef = useRef<HTMLImageElement>(null);
 
-    // Merge configuration values
-    const { finalOrganizationName, finalBaseUrl, finalQuality } = mergeConfiguration(
-      { organizationName, baseUrl, quality },
-      config,
-    );
+    // Check if src is a string URL
+    const isUrlImageSource = typeof src === 'string';
 
-    // Adjust quality based on network conditions
-    const adjustedQuality = adjustQualityForConnection(finalQuality);
+    // Image optimization hook
+    const {
+      imageUrl,
+      srcSet,
+      imageSize
+    } = useImageOptimization({
+      src: src as string,
+      width,
+      height,
+      fill,
+      sizes,
+      quality,
+      organizationName,
+      baseUrl,
+      transforms,
+      optimizeFormat
+    });
 
-    // Next.js Image style: Create reserved space for layout stability
+    // Lazy loading hook
+    const { isVisible, imgRef, shouldLoadEager } = useImageLazyLoading({
+      priority,
+      loading
+    });
+
+
+    // Preload hook for priority images
+    useImagePreload({
+      priority,
+      imageUrl,
+      sizes
+    });
+
+    // Create reserved space for layout stability
     const reservedSpace = useMemo(() =>
       createReservedSpace(fill, width, height),
       [fill, width, height]
     );
 
-    // Configure image transformation options
-    const baseTransforms = createFinalTransforms(
-      transforms,
-      adjustedQuality,
-      optimizeFormat,
-      config.defaultFormat,
+    // Style calculation with Next.js Image layout stability
+    const imageStyle = useMemo(() =>
+      createImageStyle(style, fill),
+      [style, fill]
     );
 
-    // Next.js Image style: Simplified fill mode without ResizeObserver
-    // For fill mode, we rely on CSS positioning instead of dynamic size detection
-    const imageSize = useMemo(() => {
-      if (fill) {
-        // In fill mode, use reasonable defaults for optimization
-        // The actual display size is handled by CSS
-        return {
-          width: 1200, // Default optimization width for fill mode
-          height: undefined,
-        };
+    const containerStyle = useMemo(() =>
+      createContainerStyle(fill, reservedSpace),
+      [fill, reservedSpace]
+    );
+
+
+
+    // Combined ref handling
+    const setRefs = (node: HTMLImageElement | null) => {
+      if (typeof ref === 'function') {
+        ref(node);
+      } else if (ref) {
+        ref.current = node;
       }
-      return { width, height };
-    }, [fill, width, height]);
-
-    // Add size information to final transformation settings
-    const finalTransforms = addSizeToTransforms(baseTransforms, imageSize, transforms);
-
-    // Create build options
-    const buildOptions = createBuildOptions(finalOrganizationName, finalBaseUrl);
-
-    // URL builder is automatically used inside buildImageUrl
-
-    // Main image URL
-    const imageUrl = buildImageUrl(src, finalTransforms, buildOptions);
-
-    // Generate srcset (responsive)
-    let srcSet = '';
-    if (sizes && imageSize.width && !fill) {
-      const responsiveWidths = generateResponsiveWidths(imageSize.width);
-      srcSet = generateResponsiveSrcSet(src, responsiveWidths, finalTransforms, buildOptions);
-    }
-
-    // Next.js Image style: Priority loading with preload hints
-    useEffect(() => {
-      if (!priority || !imageUrl) return;
-
-      // Create preload hint for priority images
-      const cleanup = createPreloadHint(imageUrl, sizes);
-      return cleanup;
-    }, [priority, imageUrl, sizes]);
-
-    // Enhanced lazy loading setup
-    useEffect(() => {
-      if (shouldLoadEager || isVisible) return;
-
-      const observer = createEnhancedLazyLoadObserver((entry) => {
-        setIsVisible(true);
-        observer?.unobserve(entry.target);
-      });
-
-      if (observer && imgRef.current) {
-        observer.observe(imgRef.current);
-      }
-
-      return () => observer?.disconnect();
-    }, [shouldLoadEager, isVisible]);
-
-    // Load event handler
-    const handleLoad: React.ReactEventHandler<HTMLImageElement> = (event) => {
-      setIsLoaded(true);
-      onLoad?.(event);
+      // @ts-expect-error - imgRef is managed internally
+      imgRef.current = node;
     };
 
-    const handleError: React.ReactEventHandler<HTMLImageElement> = (event) => {
-      setHasError(true);
-      handleImageError(event, onError);
-    };
-
-    // Style calculation with Next.js Image layout stability
-    const imageStyle = createImageStyle(style, fill);
-    const containerStyle = createContainerStyle(fill, reservedSpace);
-
-    // Next.js Image style blur placeholder handling
-    const showBlurPlaceholder = shouldShowBlurPlaceholder(placeholder, isLoaded, hasError);
-    const showPlaceholderOnError = shouldShowPlaceholderOnError(hasError, placeholder, isLoaded);
-    const placeholderTransforms = createPlaceholderTransforms(finalTransforms);
-    const generatedPlaceholderUrl = buildImageUrl(src, placeholderTransforms, buildOptions);
-    const placeholderUrl = getPlaceholderUrl(placeholder, blurDataURL, generatedPlaceholderUrl);
-
-    // Next.js Image style image visibility
-    const imageOpacity = getImageVisibility(isLoaded, hasError, showBlurPlaceholder);
-
-    const content = (
-      <>
-        {(showBlurPlaceholder || showPlaceholderOnError) && placeholderUrl && (
-          <img
-            src={placeholderUrl}
-            alt=""
-            style={createPlaceholderStyle(imageStyle, isLoaded && !hasError)}
-            aria-hidden="true"
-          />
-        )}
+    // Return basic image for non-string sources
+    if (!isUrlImageSource) {
+      return (
         <img
-          ref={(node) => {
-            if (typeof ref === 'function') {
-              ref(node);
-            } else if (ref) {
-              ref.current = node;
-            }
-            // @ts-expect-error - imgRef is managed internally
-            imgRef.current = node;
-          }}
-          src={isVisible ? imageUrl : undefined}
-          srcSet={isVisible && srcSet ? srcSet : undefined}
-          sizes={sizes}
+          ref={ref}
+          src={src as string}
           alt={alt}
           width={fill ? undefined : width}
           height={fill ? undefined : height}
-          loading={loading || (shouldLoadEager ? 'eager' : 'lazy')}
           className={className}
-          style={{
-            ...imageStyle,
-            opacity: imageOpacity,
-            transition: showBlurPlaceholder ? 'opacity 0.3s ease' : undefined,
-          }}
-          onLoad={handleLoad}
-          onError={handleError}
+          style={style}
+          loading={loading || 'lazy'}
           {...props}
         />
-      </>
+      );
+    }
+
+    // Main image content - Always render img element for IntersectionObserver to work
+    const content = (
+      <img
+        ref={setRefs}
+        src={isVisible ? imageUrl : undefined}
+        data-src={imageUrl} // Store actual URL for lazy loading
+        srcSet={isVisible ? (srcSet || undefined) : undefined}
+        sizes={sizes}
+        alt={alt}
+        width={fill ? undefined : imageSize.width}
+        height={fill ? undefined : imageSize.height}
+        loading={loading || (shouldLoadEager ? 'eager' : 'lazy')}
+        className={className}
+        style={imageStyle}
+        onLoad={onLoad}
+        onError={onError}
+        {...props}
+      />
     );
 
-    return fill ? (
-      <div style={containerStyle}>
-        {content}
-      </div>
-    ) : reservedSpace ? (
-      <div style={containerStyle}>
-        {content}
-      </div>
-    ) : (
-      content
-    );
+    // Return with appropriate wrapper based on layout mode
+    if (fill || reservedSpace) {
+      return (
+        <div style={containerStyle}>
+          {content}
+        </div>
+      );
+    }
+
+    return content;
   },
 );
 

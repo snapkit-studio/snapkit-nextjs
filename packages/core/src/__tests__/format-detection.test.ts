@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  estimateFormatSupportFromUA,
-  formatSupport,
-  getBestSupportedFormat,
-  getSupportedFormatsFromAcceptHeader,
-  preloadFormatSupport,
-  supportsImageFormat,
-} from '../src/format-detection';
+    estimateFormatSupportFromUA,
+    formatSupport,
+    getBestSupportedFormat,
+    getSupportedFormatsFromAcceptHeader,
+    preloadFormatSupport,
+    supportsImageFormat,
+} from '../format-detection';
 
 // Canvas mocking
 const mockToDataURL = vi.fn();
@@ -160,7 +160,7 @@ describe('Format Detection Utils', () => {
     });
 
     it('Should return AVIF when AVIF is supported', () => {
-      // formatSupport 캐시를 먼저 정리
+      // Clear formatSupport cache first
       const formatSupport = (supportsImageFormat as any).formatSupport;
       if (formatSupport) {
         formatSupport.clear();

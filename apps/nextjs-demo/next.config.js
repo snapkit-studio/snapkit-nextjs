@@ -1,10 +1,16 @@
+const path = require("path");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    // Enable for potential performance improvements
-    turbo: true,
+  transpilePackages: ["@snapkit-studio/core", "@snapkit-studio/react", "@snapkit-studio/nextjs"],
+  images: {
+    remotePatterns: [
+      {
+        hostname: "snapkit-cdn.snapkit.studio",
+      },
+    ],
   },
-  transpilePackages: ['@snapkit-studio/core', '@snapkit-studio/react', '@snapkit-studio/nextjs'],
+  outputFileTracingRoot: path.join(__dirname, "../../"),
 };
 
 module.exports = nextConfig;

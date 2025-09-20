@@ -1,8 +1,8 @@
-# @snapkit-studio/nextjs에 기여하기
+# Snapkit Studio에 기여하기
 
 [![English](https://img.shields.io/badge/docs-English-blue)](./CONTRIBUTING.md) [![한국어](https://img.shields.io/badge/docs-한국어-blue)](./CONTRIBUTING-ko.md)
 
-여러분의 참여를 환영합니다! @snapkit-studio/nextjs에 기여하는 것을 최대한 쉽고 투명하게 만들고자 합니다.
+여러분의 참여를 환영합니다! Snapkit Studio monorepo에 기여하는 것을 최대한 쉽고 투명하게 만들고자 합니다.
 
 - 버그 신고
 - 코드 현황 논의
@@ -19,11 +19,11 @@
 ```bash
 # GitHub에서 저장소를 Fork하세요
 # 그 다음 fork를 clone하세요
-git clone https://github.com/YOUR_USERNAME/snapkit-nextjs.git
-cd snapkit-nextjs
+git clone https://github.com/YOUR_USERNAME/web.git
+cd web
 
 # upstream 원격 저장소 추가
-git remote add upstream https://github.com/snapkit/snapkit-nextjs.git
+git remote add upstream https://github.com/snapkit-studio/web.git
 ```
 
 ### 2. 의존성 설치
@@ -38,6 +38,24 @@ pnpm install
 git config commit.template .gitmessage
 ```
 
+## 프로젝트 구조
+
+이것은 Snapkit 이미지 최적화 생태계를 위한 여러 패키지를 포함하는 monorepo입니다:
+
+### 패키지
+- **`@snapkit-studio/core`**: 핵심 이미지 변환 및 URL 빌딩 유틸리티
+- **`@snapkit-studio/nextjs`**: App Router 지원을 포함한 Next.js Image 컴포넌트 통합
+- **`@snapkit-studio/react`**: 자동 최적화 기능을 가진 React 이미지 컴포넌트
+
+### 애플리케이션
+- **`apps/nextjs-demo`**: Next.js 통합을 보여주는 데모 애플리케이션
+- **`apps/react-demo`**: React 통합을 보여주는 데모 애플리케이션
+
+### 시스템 요구사항
+- Node.js >= 22.0.0
+- pnpm >= 10.0.0
+- Git >= 2.28.0
+
 ## 개발 워크플로우
 
 ### 로컬 환경 설정
@@ -47,22 +65,36 @@ git config commit.template .gitmessage
    pnpm install
    ```
 
-2. **테스트 실행**:
+2. **모든 패키지 빌드**:
    ```bash
+   pnpm build
+   ```
+
+3. **테스트 실행**:
+   ```bash
+   # 모든 테스트
    pnpm test
+
+   # 특정 패키지
+   pnpm --filter @snapkit-studio/core test
    ```
 
-3. **개발 시작**:
+4. **개발 시작**:
    ```bash
+   # 모든 개발 서버 시작
    pnpm dev
+
+   # 특정 데모 앱 시작
+   pnpm --filter react-demo dev
+   pnpm --filter nextjs-demo dev
    ```
 
-4. **타입 검사 실행**:
+5. **타입 검사 실행**:
    ```bash
    pnpm check-types
    ```
 
-5. **린팅 실행**:
+6. **린팅 실행**:
    ```bash
    pnpm lint
    ```
@@ -114,6 +146,7 @@ type[optional scope]: description
 - `refactor`: 버그를 수정하지도 기능을 추가하지도 않는 코드 변경
 - `perf`: 성능을 개선하는 코드 변경
 - `test`: 누락된 테스트를 추가하거나 기존 테스트를 수정
+- `chore`: 빌드 프로세스나 보조 도구에 대한 변경
 
 **예시:**
 ```bash
@@ -161,6 +194,26 @@ feat!: 기본 압축 품질을 80으로 변경
 - [ ] 문서 업데이트 (해당되는 경우)
 - [ ] Breaking changes 없음 (의도적이고 문서화된 경우 제외)
 - [ ] Conventional commit 메시지 사용
+
+## 패키지별 가이드라인
+
+### @snapkit-studio/core
+- 이미지 최적화를 위한 핵심 변환 로직
+- 브라우저 호환성 유틸리티
+- URL 빌딩 및 매개변수 관리
+- **테스팅**: 변환 정확성과 URL 생성에 중점
+
+### @snapkit-studio/nextjs
+- Next.js Image 컴포넌트 통합
+- App Router와 Pages Router 지원
+- SSR/SSG 호환성
+- **테스팅**: 두 라우터 타입이 올바르게 작동하는지 확인
+
+### @snapkit-studio/react
+- 순수 React 이미지 컴포넌트
+- 프레임워크에 구애받지 않는 구현
+- 클라이언트 측 최적화
+- **테스팅**: 브라우저 호환성과 React 버전 지원
 
 ## 코드 스타일 가이드라인
 
@@ -238,4 +291,4 @@ describe('Image component', () => {
 
 ---
 
-@snapkit-studio/nextjs에 기여해 주셔서 감사합니다! 🚀
+Snapkit Studio에 기여해 주셔서 감사합니다! 🚀

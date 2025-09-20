@@ -36,4 +36,10 @@ export const config = [
       "react/react-in-jsx-scope": "off",
     },
   },
+  {
+    files: ["**/__tests__/**/*", "**/*.test.*", "**/*.spec.*"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
 ];

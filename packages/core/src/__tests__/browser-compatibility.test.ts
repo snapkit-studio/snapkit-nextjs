@@ -1,13 +1,12 @@
-import { describe, expect, it, beforeEach, afterEach } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import {
-  parseBrowserInfo,
   checkAvifSupport,
   checkWebpSupport,
-  getFormatSupportFromUA,
   estimateFormatSupportFromUA,
-  type BrowserInfo,
-  type FormatSupport
-} from '../src/browser-compatibility';
+  getFormatSupportFromUA,
+  parseBrowserInfo,
+  type BrowserInfo
+} from '../browser-compatibility';
 
 describe('Browser Compatibility Utils', () => {
   describe('parseBrowserInfo function', () => {

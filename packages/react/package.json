@@ -21,11 +21,27 @@
   },
   "license": "MIT",
   "author": "Snapkit",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
+    },
+    "./image": {
+      "types": "./dist/image.d.ts",
+      "import": "./dist/image.mjs",
+      "require": "./dist/image.js"
+    },
+    "./hooks": {
+      "types": "./dist/hooks.d.ts",
+      "import": "./dist/hooks.mjs",
+      "require": "./dist/hooks.js"
+    },
+    "./utils": {
+      "types": "./dist/utils.d.ts",
+      "import": "./dist/utils.mjs",
+      "require": "./dist/utils.js"
     }
   },
   "main": "./dist/index.js",
@@ -36,9 +52,10 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+    "build": "tsup",
+    "build:analyze": "ANALYZE=true tsup",
     "check-types": "tsc --noEmit",
-    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "dev": "tsup --watch",
     "lint": "eslint src --ext .ts,.tsx",
     "test": "vitest --run",
     "version-info": "node -p \"'Package: @snapkit-studio/react, Current version: ' + require('./package.json').version\""
@@ -48,11 +65,12 @@
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
+    "@testing-library/react": "^14.3.1",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
+    "tsup": "8.5.0",
     "typescript": "^5.0.0",
-    "tsup": "^8.0.0",
-    "vitest": "^2.1.8"
+    "vitest": "3.2.4"
   },
   "peerDependencies": {
     "react": ">=18.0.0",

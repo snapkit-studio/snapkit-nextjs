@@ -58,6 +58,10 @@ export default [
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-non-null-assertion': 'warn',
+      '@typescript-eslint/no-unused-expressions': ['error', {
+        allowShortCircuit: true,
+        allowTernary: true
+      }],
 
       // React
       'react/react-in-jsx-scope': 'off',
@@ -101,6 +105,6 @@ export default [
       'e2e/test-app/.next/**',
     ],
   },
-  // Prettier config는 마지막에 와야 함 (다른 룰들을 override)
+  // Prettier config must come last (to override other rules)
   prettier,
 ];
