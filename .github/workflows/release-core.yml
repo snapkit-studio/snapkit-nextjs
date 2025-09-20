@@ -7,6 +7,27 @@ on:
       - completed
     branches: [main]
   workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deployment even without package changes'
+        required: false
+        default: false
+        type: boolean
+      version_bump:
+        description: 'Version bump type (auto analyzes commits, others override)'
+        required: false
+        default: 'auto'
+        type: choice
+        options:
+          - auto
+          - patch
+          - minor
+          - major
+      dry_run:
+        description: 'Dry run (simulate deployment without publishing to NPM)'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   release:
@@ -64,28 +85,83 @@ jobs:
             echo "✅ Last successful release: $LAST_SUCCESS_TAG (commit: $COMPARE_COMMIT)"
           fi
 
-          # Check for changes since last successful deployment
-          if git diff --quiet $COMPARE_COMMIT HEAD -- $PACKAGE_PATH; then
-            echo "⏭️ No changes in $PACKAGE_NAME package since last successful release"
-            echo "skip=true" >> $GITHUB_OUTPUT
-            echo "skip_reason=no_changes_since_last_success" >> $GITHUB_OUTPUT
+          # Smart deployment logic based on trigger type
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "🚀 Manual deployment triggered via workflow_dispatch"
+
+            # Check force_deploy input
+            if [ "${{ github.event.inputs.force_deploy }}" = "true" ]; then
+              echo "💪 Force deployment requested - skipping change checks"
+              echo "skip=false" >> $GITHUB_OUTPUT
+              echo "skip_reason=force_deploy_requested" >> $GITHUB_OUTPUT
+
+              # Get all commits since last success for versioning
+              ALL_COMMITS=$(git rev-list $COMPARE_COMMIT..HEAD --oneline)
+              COMMIT_COUNT=$(echo "$ALL_COMMITS" | wc -l | tr -d ' ')
+              echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+              echo "changed_commits<<EOF" >> $GITHUB_OUTPUT
+              echo "$ALL_COMMITS" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+
+            elif git diff --quiet $COMPARE_COMMIT HEAD -- $PACKAGE_PATH; then
+              # No package changes, but check if any commits exist since last success
+              TOTAL_COMMITS=$(git rev-list --count $COMPARE_COMMIT..HEAD)
+              if [ $TOTAL_COMMITS -gt 0 ]; then
+                echo "📦 Manual deployment: $TOTAL_COMMITS commits since last success (no package changes)"
+                echo "skip=false" >> $GITHUB_OUTPUT
+                echo "skip_reason=manual_deployment_with_commits" >> $GITHUB_OUTPUT
+
+                # Get all commits for context
+                ALL_COMMITS=$(git rev-list $COMPARE_COMMIT..HEAD --oneline)
+                echo "commit_count=$TOTAL_COMMITS" >> $GITHUB_OUTPUT
+                echo "changed_commits<<EOF" >> $GITHUB_OUTPUT
+                echo "$ALL_COMMITS" >> $GITHUB_OUTPUT
+                echo "EOF" >> $GITHUB_OUTPUT
+              else
+                echo "⏭️ Manual deployment: No commits since last successful release"
+                echo "skip=true" >> $GITHUB_OUTPUT
+                echo "skip_reason=no_commits_since_last_success" >> $GITHUB_OUTPUT
+              fi
+            else
+              echo "🎯 Manual deployment: Package changes detected since last successful release"
+              echo "skip=false" >> $GITHUB_OUTPUT
+              echo "skip_reason=package_changes_detected" >> $GITHUB_OUTPUT
+
+              # Get package-specific commits
+              CHANGED_COMMITS=$(git rev-list $COMPARE_COMMIT..HEAD --oneline -- $PACKAGE_PATH)
+              COMMIT_COUNT=$(echo "$CHANGED_COMMITS" | wc -l | tr -d ' ')
+              echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+              echo "changed_commits<<EOF" >> $GITHUB_OUTPUT
+              echo "$CHANGED_COMMITS" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+            fi
           else
-            echo "🎯 Changes detected in $PACKAGE_NAME package since last successful release"
-            echo "skip=false" >> $GITHUB_OUTPUT
+            # Automatic deployment (workflow_run) - original logic
+            echo "🤖 Automatic deployment triggered via workflow_run"
 
-            # Get list of commits with changes
-            CHANGED_COMMITS=$(git rev-list $COMPARE_COMMIT..HEAD --oneline -- $PACKAGE_PATH)
-            echo "📝 Commits with changes:"
-            echo "$CHANGED_COMMITS"
+            if git diff --quiet $COMPARE_COMMIT HEAD -- $PACKAGE_PATH; then
+              echo "⏭️ No changes in $PACKAGE_NAME package since last successful release"
+              echo "skip=true" >> $GITHUB_OUTPUT
+              echo "skip_reason=no_changes_since_last_success" >> $GITHUB_OUTPUT
+            else
+              echo "🎯 Changes detected in $PACKAGE_NAME package since last successful release"
+              echo "skip=false" >> $GITHUB_OUTPUT
+              echo "skip_reason=package_changes_detected" >> $GITHUB_OUTPUT
 
-            # Store commit count for version bump logic
-            COMMIT_COUNT=$(echo "$CHANGED_COMMITS" | wc -l | tr -d ' ')
-            echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+              # Get list of commits with changes
+              CHANGED_COMMITS=$(git rev-list $COMPARE_COMMIT..HEAD --oneline -- $PACKAGE_PATH)
+              echo "📝 Commits with changes:"
+              echo "$CHANGED_COMMITS"
 
-            # Store changed commits for Slack notification
-            echo "changed_commits<<EOF" >> $GITHUB_OUTPUT
-            echo "$CHANGED_COMMITS" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
+              # Store commit count for version bump logic
+              COMMIT_COUNT=$(echo "$CHANGED_COMMITS" | wc -l | tr -d ' ')
+              echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+
+              # Store changed commits for Slack notification
+              echo "changed_commits<<EOF" >> $GITHUB_OUTPUT
+              echo "$CHANGED_COMMITS" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+            fi
           fi
 
       - name: Build package
@@ -102,40 +178,78 @@ jobs:
           CURRENT_VERSION=$(node -p "require('./package.json').version")
           echo "Current version: $CURRENT_VERSION"
 
-          # Get commits since last commit for this package (recent changes only)
-          COMMITS=$(git log --oneline -10 -- packages/core/)
-          echo "Recent commits affecting core package:"
-          echo "$COMMITS"
+          # Check if manual version override is requested
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.version_bump }}" != "auto" ]; then
+            echo "🎯 Manual version override: ${{ github.event.inputs.version_bump }}"
+            VERSION_TYPE="${{ github.event.inputs.version_bump }}"
 
-          # Determine version bump based on commit messages
-          if echo "$COMMITS" | grep -q "BREAKING CHANGE\|feat!\|fix!\|chore!"; then
-            # Major version bump
-            NEXT_VERSION=$(node -p "
-              const v = require('./package.json').version.split('.');
-              \`\${parseInt(v[0]) + 1}.0.0\`
-            ")
-            echo "Major version bump detected (BREAKING CHANGE)"
-          elif echo "$COMMITS" | grep -q "feat(\|feat:"; then
-            # Minor version bump
-            NEXT_VERSION=$(node -p "
-              const v = require('./package.json').version.split('.');
-              \`\${v[0]}.\${parseInt(v[1]) + 1}.0\`
-            ")
-            echo "Minor version bump detected (feat)"
-          elif echo "$COMMITS" | grep -q "fix(\|fix:\|perf(\|perf:"; then
-            # Patch version bump
-            NEXT_VERSION=$(node -p "
-              const v = require('./package.json').version.split('.');
-              \`\${v[0]}.\${v[1]}.\${parseInt(v[2]) + 1}\`
-            ")
-            echo "Patch version bump detected (fix/perf)"
+            case $VERSION_TYPE in
+              "major")
+                NEXT_VERSION=$(node -p "
+                  const v = require('./package.json').version.split('.');
+                  \`\${parseInt(v[0]) + 1}.0.0\`
+                ")
+                echo "Manual major version bump: $NEXT_VERSION"
+                ;;
+              "minor")
+                NEXT_VERSION=$(node -p "
+                  const v = require('./package.json').version.split('.');
+                  \`\${v[0]}.\${parseInt(v[1]) + 1}.0\`
+                ")
+                echo "Manual minor version bump: $NEXT_VERSION"
+                ;;
+              "patch")
+                NEXT_VERSION=$(node -p "
+                  const v = require('./package.json').version.split('.');
+                  \`\${v[0]}.\${v[1]}.\${parseInt(v[2]) + 1}\`
+                ")
+                echo "Manual patch version bump: $NEXT_VERSION"
+                ;;
+            esac
           else
-            # Default to patch bump for any other changes
-            NEXT_VERSION=$(node -p "
-              const v = require('./package.json').version.split('.');
-              \`\${v[0]}.\${v[1]}.\${parseInt(v[2]) + 1}\`
-            ")
-            echo "Default patch version bump (other changes)"
+            # Automatic version determination based on commits
+            echo "🤖 Analyzing commits for automatic version determination"
+
+            # Use commits from change detection (either package-specific or all commits)
+            COMMITS="${{ steps.changes.outputs.changed_commits }}"
+            if [ -z "$COMMITS" ]; then
+              # Fallback to recent commits
+              COMMITS=$(git log --oneline -10 -- packages/core/)
+            fi
+
+            echo "Analyzing commits:"
+            echo "$COMMITS"
+
+            # Determine version bump based on commit messages
+            if echo "$COMMITS" | grep -q "BREAKING CHANGE\|feat!\|fix!\|chore!"; then
+              # Major version bump
+              NEXT_VERSION=$(node -p "
+                const v = require('./package.json').version.split('.');
+                \`\${parseInt(v[0]) + 1}.0.0\`
+              ")
+              echo "Major version bump detected (BREAKING CHANGE)"
+            elif echo "$COMMITS" | grep -q "feat(\|feat:"; then
+              # Minor version bump
+              NEXT_VERSION=$(node -p "
+                const v = require('./package.json').version.split('.');
+                \`\${v[0]}.\${parseInt(v[1]) + 1}.0\`
+              ")
+              echo "Minor version bump detected (feat)"
+            elif echo "$COMMITS" | grep -q "fix(\|fix:\|perf(\|perf:"; then
+              # Patch version bump
+              NEXT_VERSION=$(node -p "
+                const v = require('./package.json').version.split('.');
+                \`\${v[0]}.\${v[1]}.\${parseInt(v[2]) + 1}\`
+              ")
+              echo "Patch version bump detected (fix/perf)"
+            else
+              # Default to patch bump for any other changes
+              NEXT_VERSION=$(node -p "
+                const v = require('./package.json').version.split('.');
+                \`\${v[0]}.\${v[1]}.\${parseInt(v[2]) + 1}\`
+              ")
+              echo "Default patch version bump (other changes)"
+            fi
           fi
 
           echo "Next version: $NEXT_VERSION"
@@ -165,15 +279,36 @@ jobs:
           fi
 
       - name: Publish to NPM
-        if: steps.changes.outputs.skip != 'true' && steps.version.outputs.skip != 'true' && steps.npm_check.outputs.exists != 'true'
+        if: steps.changes.outputs.skip != 'true' && steps.version.outputs.skip != 'true' && steps.npm_check.outputs.exists != 'true' && github.event.inputs.dry_run != 'true'
         run: |
           cd packages/core
           npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Dry Run Summary
+        if: github.event.inputs.dry_run == 'true' && steps.changes.outputs.skip != 'true' && steps.version.outputs.skip != 'true'
+        run: |
+          echo "🎭 DRY RUN SUMMARY"
+          echo "=================="
+          echo "Package: @snapkit-studio/core"
+          echo "Current version: $(cd packages/core && node -p "require('./package.json').version")"
+          echo "Next version: ${{ steps.version.outputs.version }}"
+          echo "Tag: ${{ steps.version.outputs.tag }}"
+          echo "Skip reason: ${{ steps.changes.outputs.skip_reason }}"
+          echo "Commit count: ${{ steps.changes.outputs.commit_count }}"
+          echo ""
+          echo "Actions that WOULD be performed:"
+          echo "- Update package.json version to ${{ steps.version.outputs.version }}"
+          echo "- Publish @snapkit-studio/core@${{ steps.version.outputs.version }} to NPM"
+          echo "- Create git tag: ${{ steps.version.outputs.tag }}"
+          echo "- Create GitHub release"
+          echo "- Send Slack notification"
+          echo ""
+          echo "⚠️  This was a DRY RUN - no actual changes were made"
+
       - name: Create git tag and commit
-        if: steps.changes.outputs.skip != 'true' && steps.version.outputs.skip != 'true' && steps.npm_check.outputs.exists != 'true'
+        if: steps.changes.outputs.skip != 'true' && steps.version.outputs.skip != 'true' && steps.npm_check.outputs.exists != 'true' && github.event.inputs.dry_run != 'true'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
@@ -208,7 +343,7 @@ jobs:
           done
 
       - name: Create GitHub Release
-        if: steps.changes.outputs.skip != 'true' && steps.version.outputs.skip != 'true' && steps.npm_check.outputs.exists != 'true'
+        if: steps.changes.outputs.skip != 'true' && steps.version.outputs.skip != 'true' && steps.npm_check.outputs.exists != 'true' && github.event.inputs.dry_run != 'true'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -230,7 +365,7 @@ jobs:
 
       # Slack Notifications
       - name: Notify Slack - Success
-        if: steps.changes.outputs.skip != 'true' && steps.version.outputs.skip != 'true' && steps.npm_check.outputs.exists != 'true'
+        if: steps.changes.outputs.skip != 'true' && steps.version.outputs.skip != 'true' && steps.npm_check.outputs.exists != 'true' && github.event.inputs.dry_run != 'true'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         uses: slackapi/slack-github-action@v2.1.0
@@ -344,8 +479,71 @@ jobs:
               ]
             }
 
+      - name: Notify Slack - Dry Run
+        if: github.event.inputs.dry_run == 'true' && steps.changes.outputs.skip != 'true' && steps.version.outputs.skip != 'true'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          payload: |
+            {
+              "text": "🎭 @snapkit-studio/core v${{ steps.version.outputs.version }} dry run completed",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "🎭 *@snapkit-studio/core v${{ steps.version.outputs.version }} dry run completed*"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Package:*\n@snapkit-studio/core"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Would-be version:*\nv${{ steps.version.outputs.version }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Trigger:*\nManual deployment (dry run)"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Commits analyzed:*\n${{ steps.changes.outputs.commit_count || 1 }} commits"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*⚠️ This was a simulation - no actual changes were made*"
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "🔍 View Dry Run Logs"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ]
+                }
+              ]
+            }
+
       - name: Notify Slack - Failed
-        if: failure()
+        if: failure() && github.event.inputs.dry_run != 'true'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         uses: slackapi/slack-github-action@v2.1.0
