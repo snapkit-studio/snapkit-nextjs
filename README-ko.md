@@ -78,13 +78,13 @@ npm install @snapkit-studio/core
 pnpm install
 
 # 개발 시작
-pnpm dev
+pnpm exec turbo dev
 
 # 테스트 실행
-pnpm test
+pnpm exec turbo test
 
 # 패키지 빌드
-pnpm build
+pnpm exec turbo build
 ```
 
 ## 기여하기

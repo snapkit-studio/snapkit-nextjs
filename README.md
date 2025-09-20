@@ -89,13 +89,13 @@ npm install @snapkit-studio/core
 pnpm install
 
 # Start development
-pnpm dev
+pnpm exec turbo dev
 
 # Run tests
-pnpm test
+pnpm exec turbo test
 
 # Build packages
-pnpm build
+pnpm exec turbo build
 ```
 
 ## Contributing
