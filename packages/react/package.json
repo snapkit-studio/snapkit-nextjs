@@ -1,6 +1,6 @@
 {
   "name": "@snapkit-studio/react",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "description": "React components for Snapkit image optimization",
   "keywords": [
     "react",
