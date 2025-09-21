@@ -122,3 +122,5 @@ temp/
 CLAUDE.md
 .claude
 .serena/
+# Workflow backups
+.github/workflows/*.backup
