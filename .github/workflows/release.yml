@@ -10,6 +10,11 @@ on:
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
 jobs:
   release:
     name: Release
@@ -82,24 +87,28 @@ jobs:
         run: |
           echo "📦 Publishing to GitHub Package Registry in dependency order..."
 
-          # Configure npm for GitHub registry
-          echo "@snapkit-studio:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          # Configure npm for GitHub registry with proper authentication
+          echo "@snapkit-studio:registry=https://npm.pkg.github.com/" >> ~/.npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "registry=https://npm.pkg.github.com/" >> ~/.npmrc
+
+          # Verify authentication
+          npm whoami --registry=https://npm.pkg.github.com || echo "Authentication check failed"
 
           # Publish in dependency order: core → react → nextjs
           echo "1️⃣ Publishing core package..."
           cd packages/core
-          npm publish --registry=https://npm.pkg.github.com --access=public && echo "✅ Core published" || echo "❌ Core failed"
+          npm publish --access=public && echo "✅ Core published" || echo "❌ Core failed"
           cd ../..
 
           echo "2️⃣ Publishing react package..."
           cd packages/react
-          npm publish --registry=https://npm.pkg.github.com --access=public && echo "✅ React published" || echo "❌ React failed"
+          npm publish --access=public && echo "✅ React published" || echo "❌ React failed"
           cd ../..
 
           echo "3️⃣ Publishing nextjs package..."
           cd packages/nextjs
-          npm publish --registry=https://npm.pkg.github.com --access=public && echo "✅ NextJS published" || echo "❌ NextJS failed"
+          npm publish --access=public && echo "✅ NextJS published" || echo "❌ NextJS failed"
           cd ../..
 
           echo "🎉 GitHub Package Registry publishing completed!"
