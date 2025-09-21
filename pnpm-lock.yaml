@@ -56,9 +56,6 @@ importers:
       eslint-plugin-react-hooks:
         specifier: ^5.2.0
         version: 5.2.0(eslint@9.34.0(jiti@2.5.1))
-      husky:
-        specifier: ^9.1.6
-        version: 9.1.7
       jsdom:
         specifier: ^25.0.1
         version: 25.0.1
@@ -221,8 +218,8 @@ importers:
   packages/nextjs:
     dependencies:
       '@snapkit-studio/core':
-        specifier: ^1.6.0
-        version: 1.6.1
+        specifier: workspace:*
+        version: link:../core
       next:
         specifier: '>=13.0.0'
         version: 15.5.3(@playwright/test@1.55.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -231,8 +228,8 @@ importers:
         specifier: workspace:*
         version: link:../eslint-config
       '@snapkit-studio/react':
-        specifier: ^1.6.2
-        version: 1.6.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^1.6.5
+        version: link:../react
       '@testing-library/jest-dom':
         specifier: ^6.1.4
         version: 6.8.0
@@ -1234,15 +1231,6 @@ packages:
 
   '@shikijs/vscode-textmate@10.0.2':
     resolution: {integrity: sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg==}
-
-  '@snapkit-studio/core@1.6.1':
-    resolution: {integrity: sha512-01AUQGVUTkn+pS0N5tbFDrONqn7WMsVeGAG+q4yEWPlFVtwq9gO5jQ/e6ygujlMZhdQk8uo2wzKL+WkZeoe/rQ==}
-
-  '@snapkit-studio/react@1.6.2':
-    resolution: {integrity: sha512-pSmkQSj5OJ2g6v/UN+3DOvP0fHGjXGv6JOa1EIkaLCBrZCf5jqeBqkvrB2wNEkKzHG/1Bg2Osx+g/pnvfHRUCw==}
-    peerDependencies:
-      react: '>=18.0.0'
-      react-dom: '>=18.0.0'
 
   '@swc/helpers@0.5.15':
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
@@ -2380,11 +2368,6 @@ packages:
   https-proxy-agent@7.0.6:
     resolution: {integrity: sha512-vK9P5/iUfdl95AI+JVyUuIcVtd4ofvtrOr3HNtM2yxC9bnMbEdp3x01OhQNnjb8IJYi38VlTE3mBXwcfvywuSw==}
     engines: {node: '>= 14'}
-
-  husky@9.1.7:
-    resolution: {integrity: sha512-5gs5ytaNjBrh5Ow3zrvdUUY+0VxIuWVL4i9irt6friV+BqdCfmV11CQTWMiBYWHbXhco+J1kHfTOUkePhCDvMA==}
-    engines: {node: '>=18'}
-    hasBin: true
 
   iconv-lite@0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
@@ -4772,14 +4755,6 @@ snapshots:
 
   '@shikijs/vscode-textmate@10.0.2': {}
 
-  '@snapkit-studio/core@1.6.1': {}
-
-  '@snapkit-studio/react@1.6.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@snapkit-studio/core': link:packages/core
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-
   '@swc/helpers@0.5.15':
     dependencies:
       tslib: 2.8.1
@@ -6241,8 +6216,6 @@ snapshots:
       debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
-
-  husky@9.1.7: {}
 
   iconv-lite@0.4.24:
     dependencies:
