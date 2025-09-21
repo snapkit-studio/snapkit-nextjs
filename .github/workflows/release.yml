@@ -99,6 +99,7 @@ jobs:
           echo "🎉 GitHub Package Registry publishing completed!"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Send Slack notification on success
         if: steps.changesets.outputs.hasChangesets == 'false'
