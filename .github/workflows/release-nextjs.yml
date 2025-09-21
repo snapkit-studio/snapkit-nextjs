@@ -7,6 +7,27 @@ on:
       - completed
     branches: [main]
   workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deployment even without package changes'
+        required: false
+        default: false
+        type: boolean
+      version_bump:
+        description: 'Version bump type (auto analyzes commits, others override)'
+        required: false
+        default: 'auto'
+        type: choice
+        options:
+          - auto
+          - patch
+          - minor
+          - major
+      dry_run:
+        description: 'Dry run (simulate deployment without publishing)'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   release:
@@ -44,182 +65,67 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Check for changes (Enhanced with failed deployment tracking)
+      # Step 1: Detect changes
+      - name: Detect package changes
         id: changes
-        run: |
-          PACKAGE_NAME="nextjs"
-          PACKAGE_PATH="packages/nextjs/"
+        uses: ./.github/actions/detect-package-changes
+        with:
+          package-name: nextjs
+          package-path: packages/nextjs/
+          force-deploy: ${{ github.event.inputs.force_deploy }}
+          event-name: ${{ github.event_name }}
 
-          echo "🔍 Enhanced change detection for $PACKAGE_NAME package"
-
-          # Find the last successful release tag for this package
-          LAST_SUCCESS_TAG=$(git tag -l "nextjs-v*" --sort=-version:refname | head -1)
-
-          if [ -z "$LAST_SUCCESS_TAG" ]; then
-            echo "📦 No previous successful release found for $PACKAGE_NAME"
-            # For first release, check against parent of current commit
-            COMPARE_COMMIT=$(git rev-parse HEAD^)
-            echo "🔄 Comparing against parent commit: $COMPARE_COMMIT"
-          else
-            COMPARE_COMMIT=$(git rev-list -n 1 $LAST_SUCCESS_TAG)
-            echo "✅ Last successful release: $LAST_SUCCESS_TAG (commit: $COMPARE_COMMIT)"
-          fi
-
-          # Check for changes since last successful deployment
-          if git diff --quiet $COMPARE_COMMIT HEAD -- $PACKAGE_PATH; then
-            echo "⏭️ No changes in $PACKAGE_NAME package since last successful release"
-            echo "skip=true" >> $GITHUB_OUTPUT
-            echo "skip_reason=no_changes_since_last_success" >> $GITHUB_OUTPUT
-          else
-            echo "🎯 Changes detected in $PACKAGE_NAME package since last successful release"
-            echo "skip=false" >> $GITHUB_OUTPUT
-
-            # Get list of commits with changes
-            CHANGED_COMMITS=$(git rev-list $COMPARE_COMMIT..HEAD --oneline -- $PACKAGE_PATH)
-            echo "📝 Commits with changes:"
-            echo "$CHANGED_COMMITS"
-
-            # Store commit count for version bump logic
-            COMMIT_COUNT=$(echo "$CHANGED_COMMITS" | wc -l | tr -d ' ')
-            echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
-
-            # Store changed commits for Slack notification
-            echo "changed_commits<<EOF" >> $GITHUB_OUTPUT
-            echo "$CHANGED_COMMITS" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-          fi
+      # Step 2: Build if changes detected
       - name: Build package
         if: steps.changes.outputs.skip != 'true'
         run: pnpm exec turbo build --filter @snapkit-studio/nextjs
 
-      - name: Determine next version
+      # Step 3: Determine version
+      - name: Determine version
         if: steps.changes.outputs.skip != 'true'
         id: version
-        run: |
-          cd packages/nextjs
+        uses: ./.github/actions/determine-package-version
+        with:
+          package-name: nextjs
+          package-path: packages/nextjs/
+          version-bump-type: ${{ github.event.inputs.version_bump }}
+          event-name: ${{ github.event_name }}
+          changed-commits: ${{ steps.changes.outputs.changed-commits }}
 
-          # Get current version
-          CURRENT_VERSION=$(node -p "require('./package.json').version")
-          echo "Current version: $CURRENT_VERSION"
+      # Step 4: Publish package (to NPM and GitHub Packages)
+      - name: Publish package
+        if: steps.changes.outputs.skip != 'true'
+        id: publish
+        uses: ./.github/actions/publish-npm-package
+        with:
+          package-name: "@snapkit-studio/nextjs"
+          package-path: packages/nextjs/
+          version: ${{ steps.version.outputs.version }}
+          tag: ${{ steps.version.outputs.tag }}
+          dry-run: ${{ github.event.inputs.dry_run }}
+          npm-token: ${{ secrets.NPM_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          gh-token: ${{ secrets.GH_TOKEN }}
 
-          # Get commits since last commit for this package (recent changes only)
-          COMMITS=$(git log --oneline -10 -- packages/nextjs/)
-          echo "Recent commits affecting nextjs package:"
-          echo "$COMMITS"
+      # Step 5: Send notifications
+      - name: Notify Slack - Success
+        if: steps.changes.outputs.skip != 'true' && github.event.inputs.dry_run != 'true' && steps.publish.outputs.version-exists != 'true'
+        uses: ./.github/actions/notify-slack-deployment
+        with:
+          status: success
+          package-name: "@snapkit-studio/nextjs"
+          package-short-name: nextjs
+          version: ${{ steps.version.outputs.version }}
+          commit-count: ${{ steps.changes.outputs.commit-count }}
+          changed-commits: ${{ steps.changes.outputs.changed-commits }}
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-          # Determine version bump based on commit messages
-          if echo "$COMMITS" | grep -q "BREAKING CHANGE\|feat!\|fix!\|chore!"; then
-            # Major version bump
-            NEXT_VERSION=$(node -p "
-              const v = require('./package.json').version.split('.');
-              \`\${parseInt(v[0]) + 1}.0.0\`
-            ")
-            echo "Major version bump detected (BREAKING CHANGE)"
-          elif echo "$COMMITS" | grep -q "feat(\|feat:"; then
-            # Minor version bump
-            NEXT_VERSION=$(node -p "
-              const v = require('./package.json').version.split('.');
-              \`\${v[0]}.\${parseInt(v[1]) + 1}.0\`
-            ")
-            echo "Minor version bump detected (feat)"
-          elif echo "$COMMITS" | grep -q "fix(\|fix:\|perf(\|perf:"; then
-            # Patch version bump
-            NEXT_VERSION=$(node -p "
-              const v = require('./package.json').version.split('.');
-              \`\${v[0]}.\${v[1]}.\${parseInt(v[2]) + 1}\`
-            ")
-            echo "Patch version bump detected (fix/perf)"
-          else
-            # Default to patch bump for any other changes
-            NEXT_VERSION=$(node -p "
-              const v = require('./package.json').version.split('.');
-              \`\${v[0]}.\${v[1]}.\${parseInt(v[2]) + 1}\`
-            ")
-            echo "Default patch version bump (other changes)"
-          fi
-
-          echo "Next version: $NEXT_VERSION"
-          echo "version=$NEXT_VERSION" >> $GITHUB_OUTPUT
-          echo "tag=nextjs-v$NEXT_VERSION" >> $GITHUB_OUTPUT
-
-      - name: Update package version
-        if: steps.changes.outputs.skip != 'true' && steps.version.outputs.skip != 'true'
-        run: |
-          cd packages/nextjs
-          npm version ${{ steps.version.outputs.version }} --no-git-tag-version
-
-          # Update root package.json if needed
-          cd ../..
-          git add packages/nextjs/package.json
-
-      - name: Check if version already exists on NPM
-        if: steps.changes.outputs.skip != 'true' && steps.version.outputs.skip != 'true'
-        id: npm_check
-        run: |
-          if npm view "@snapkit-studio/nextjs@${{ steps.version.outputs.version }}" version &>/dev/null; then
-            echo "Version ${{ steps.version.outputs.version }} already exists on NPM"
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "Version ${{ steps.version.outputs.version }} does not exist on NPM"
-            echo "exists=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Publish to NPM
-        if: steps.changes.outputs.skip != 'true' && steps.version.outputs.skip != 'true' && steps.npm_check.outputs.exists != 'true'
-        run: |
-          cd packages/nextjs
-          npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Create git tag and commit
-        if: steps.changes.outputs.skip != 'true' && steps.version.outputs.skip != 'true' && steps.npm_check.outputs.exists != 'true'
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-
-          git commit -m "chore(nextjs): release v${{ steps.version.outputs.version }} [skip ci]"
-          git tag "${{ steps.version.outputs.tag }}" -m "Release @snapkit-studio/nextjs@${{ steps.version.outputs.version }}"
-
-          # Push with retry logic to handle concurrent releases
-          for i in {1..5}; do
-            echo "Attempt $i to push changes..."
-
-            # Pull latest changes first
-            if git pull --rebase origin main; then
-              echo "Successfully pulled latest changes"
-            else
-              echo "Pull failed, continuing with push attempt..."
-            fi
-
-            # Try to push
-            if git push origin main && git push origin "${{ steps.version.outputs.tag }}"; then
-              echo "Successfully pushed changes and tag"
-              break
-            else
-              echo "Push failed, waiting 10 seconds before retry..."
-              sleep 10
-
-              if [ $i -eq 5 ]; then
-                echo "Failed to push after 5 attempts"
-                exit 1
-              fi
-            fi
-          done
-
-      - name: Create GitHub Release
-        if: steps.changes.outputs.skip != 'true' && steps.version.outputs.skip != 'true' && steps.npm_check.outputs.exists != 'true'
-        run: |
-          gh release create "${{ steps.version.outputs.tag }}" \
-            --title "@snapkit-studio/nextjs v${{ steps.version.outputs.version }}" \
-            --notes "## @snapkit-studio/nextjs v${{ steps.version.outputs.version }}
-
-          ### Changes
-          - Published to NPM: https://www.npmjs.com/package/@snapkit-studio/nextjs/v/${{ steps.version.outputs.version }}
-
-          ### Installation
-          \`\`\`bash
-          npm install @snapkit-studio/nextjs@${{ steps.version.outputs.version }}
-          \`\`\`"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: Notify Slack - Skipped
+        if: steps.changes.outputs.skip == 'true' || steps.publish.outputs.version-exists == 'true'
+        uses: ./.github/actions/notify-slack-deployment
+        with:
+          status: skipped
+          package-name: "@snapkit-studio/nextjs"
+          package-short-name: nextjs
+          skip-reason: ${{ steps.changes.outputs.skip-reason }}
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
