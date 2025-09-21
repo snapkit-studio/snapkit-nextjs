@@ -2,8 +2,13 @@
  * Detect browser support for image formats
  */
 
+import { estimateFormatSupportFromUA } from './browser-compatibility';
+
 // Format support cache (exported for test access)
 export const formatSupport = new Map<string, boolean>();
+
+// Re-export from browser-compatibility for backward compatibility
+export { estimateFormatSupportFromUA };
 
 /**
  * Check support for specific image format
@@ -127,39 +132,3 @@ export function preloadFormatSupport(): void {
   });
 }
 
-/**
- * Estimate rough format support based on User Agent (fallback)
- */
-export function estimateFormatSupportFromUA(): {
-  avif: boolean;
-  webp: boolean;
-} {
-  if (typeof window === 'undefined' || typeof navigator === 'undefined' || !navigator?.userAgent) {
-    return { avif: false, webp: false };
-  }
-
-  const ua = navigator.userAgent;
-
-  // Chrome 85+ supports AVIF
-  const chromeMatch = ua.match(/Chrome\/(\d+)/);
-  const chromeVersion = chromeMatch ? parseInt(chromeMatch[1]) : 0;
-  const supportsAvif = chromeVersion >= 85;
-
-  // Chrome 23+, Firefox 65+, Safari 14+ support WebP
-  const firefoxMatch = ua.match(/Firefox\/(\d+)/);
-  const firefoxVersion = firefoxMatch ? parseInt(firefoxMatch[1]) : 0;
-
-  const safariMatch = ua.match(/Version\/(\d+).*Safari/);
-  const safariVersion = safariMatch ? parseInt(safariMatch[1]) : 0;
-
-  const supportsWebp =
-    chromeVersion >= 23 ||
-    firefoxVersion >= 65 ||
-    safariVersion >= 14 ||
-    ua.includes('Edge/');
-
-  return {
-    avif: supportsAvif,
-    webp: supportsWebp,
-  };
-}

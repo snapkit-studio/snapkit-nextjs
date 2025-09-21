@@ -132,14 +132,14 @@ describe('Browser Compatibility Utils', () => {
       expect(checkAvifSupport(browserInfo)).toBe(true);
     });
 
-    it('Should not support AVIF in Edge 120', () => {
+    it('Should support AVIF in Edge 120', () => {
       const browserInfo: BrowserInfo = {
         name: 'edge',
         version: 120,
         platform: 'desktop'
       };
 
-      expect(checkAvifSupport(browserInfo)).toBe(false);
+      expect(checkAvifSupport(browserInfo)).toBe(true);
     });
 
     it('Should not support AVIF on iOS 16.0-16.3 even with Chrome', () => {

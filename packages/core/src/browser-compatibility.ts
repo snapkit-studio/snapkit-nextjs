@@ -42,13 +42,14 @@ export function parseBrowserInfo(userAgent: string): BrowserInfo {
   const iosChromeMatch = ua.match(/CriOS\/(\d+)/);
   const firefoxMatch = ua.match(/Firefox\/(\d+)/);
   const edgeMatch = ua.match(/Edg\/(\d+)/);
+  const legacyEdgeMatch = ua.match(/Edge\/(\d+)/);
   const safariMatch = ua.match(/Version\/(\d+).*Safari/);
 
   // Edge detection should come before Chrome since Edge also contains Chrome in UA
-  if (edgeMatch || ua.includes('Edge/')) {
+  if (edgeMatch || legacyEdgeMatch) {
     return {
       name: 'edge',
-      version: edgeMatch ? parseInt(edgeMatch[1]) : 0,
+      version: edgeMatch ? parseInt(edgeMatch[1]) : (legacyEdgeMatch ? parseInt(legacyEdgeMatch[1]) : 0),
       platform,
       iosVersion
     };
@@ -103,7 +104,8 @@ export function checkAvifSupport(browserInfo: BrowserInfo): boolean {
       return browserInfo.version >= 93;
 
     case 'edge':
-      return browserInfo.version >= 121;
+      // Edge is Chromium-based, same support as Chrome
+      return browserInfo.version >= 85;
 
     case 'safari':
       // Safari on iOS/macOS 16.4+ supports AVIF fully
