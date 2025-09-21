@@ -16,7 +16,8 @@
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
-    "access": "public"
+    "access": "public",
+    "@snapkit-studio:registry": "https://npm.pkg.github.com"
   },
   "license": "MIT",
   "author": "Snapkit",

@@ -83,17 +83,17 @@ jobs:
           # Publish in dependency order: core → react → nextjs
           echo "1️⃣ Publishing core package..."
           cd packages/core
-          npm publish --registry=https://npm.pkg.github.com && echo "✅ Core published" || echo "❌ Core failed"
+          npm publish --registry=https://npm.pkg.github.com --access=public && echo "✅ Core published" || echo "❌ Core failed"
           cd ../..
 
           echo "2️⃣ Publishing react package..."
           cd packages/react
-          npm publish --registry=https://npm.pkg.github.com && echo "✅ React published" || echo "❌ React failed"
+          npm publish --registry=https://npm.pkg.github.com --access=public && echo "✅ React published" || echo "❌ React failed"
           cd ../..
 
           echo "3️⃣ Publishing nextjs package..."
           cd packages/nextjs
-          npm publish --registry=https://npm.pkg.github.com && echo "✅ NextJS published" || echo "❌ NextJS failed"
+          npm publish --registry=https://npm.pkg.github.com --access=public && echo "✅ NextJS published" || echo "❌ NextJS failed"
           cd ../..
 
           echo "🎉 GitHub Package Registry publishing completed!"
