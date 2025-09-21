@@ -2,14 +2,19 @@
 
 const fs = require('fs');
 const path = require('path');
+const { exec } = require('child_process');
+const { promisify } = require('util');
+
+const execAsync = promisify(exec);
 
 /**
- * Release Preparation Script
+ * Enhanced Release Preparation Script with Changesets Integration
  *
- * This script prepares packages for npm publication by:
+ * This script enhances Changesets workflow by:
  * 1. Removing @repo/ dependencies completely during release
- * 2. Converting workspace:* to latest published versions
- * 3. Creating release-ready package.json files
+ * 2. Converting workspace:* to actual published versions (not local versions)
+ * 3. Integrating with Changesets for safe dependency management
+ * 4. Supporting both development (workspace:*) and release modes
  */
 
 const PUBLISHABLE_PACKAGES = [
@@ -28,9 +33,22 @@ const PUBLISHABLE_PACKAGES = [
 ];
 
 /**
- * Get the latest version of a package from its package.json
+ * Get the latest published version of a package from npm registry
  */
-function getLatestVersion(packageDirectory) {
+async function getLatestPublishedVersion(packageName) {
+  try {
+    const { stdout } = await execAsync(`npm view ${packageName} version`);
+    return stdout.trim();
+  } catch (error) {
+    console.warn(`⚠️  Could not fetch published version for ${packageName}, using local version`);
+    return null;
+  }
+}
+
+/**
+ * Get the current local version of a package from its package.json
+ */
+function getLocalVersion(packageDirectory) {
   const packagePath = path.join(packageDirectory, 'package.json');
   const packageContent = fs.readFileSync(packagePath, 'utf8');
   const packageData = JSON.parse(packageContent);
@@ -38,16 +56,29 @@ function getLatestVersion(packageDirectory) {
 }
 
 /**
- * Build workspace dependency mapping with latest versions
+ * Build workspace dependency mapping with published versions (safer for releases)
  */
-function buildWorkspaceDependencyMapping() {
+async function buildWorkspaceDependencyMapping() {
   const mapping = {};
 
-  PUBLISHABLE_PACKAGES.forEach(pkg => {
-    const version = getLatestVersion(pkg.directory);
-    mapping[pkg.name] = `^${version}`;
-    console.log(`📋 Mapped ${pkg.name} → ^${version}`);
-  });
+  for (const pkg of PUBLISHABLE_PACKAGES) {
+    const publishedVersion = await getLatestPublishedVersion(pkg.name);
+    const localVersion = getLocalVersion(pkg.directory);
+
+    if (publishedVersion) {
+      // Use published version for safety
+      mapping[pkg.name] = `^${publishedVersion}`;
+      console.log(`📋 Mapped ${pkg.name} → ^${publishedVersion} (from npm registry)`);
+
+      if (localVersion !== publishedVersion) {
+        console.log(`   ℹ️  Local version ${localVersion} differs from published ${publishedVersion}`);
+      }
+    } else {
+      // Fallback to local version if npm lookup fails
+      mapping[pkg.name] = `^${localVersion}`;
+      console.log(`📋 Mapped ${pkg.name} → ^${localVersion} (from local package.json)`);
+    }
+  }
 
   return mapping;
 }
@@ -147,12 +178,12 @@ function transformPackageForRelease(packageData, workspaceMapping, packageInfo) 
 /**
  * Main function to prepare all packages for release
  */
-function prepareRelease() {
+async function prepareRelease() {
   console.log('🚀 Preparing packages for release...\n');
 
-  // Build workspace dependency mapping with latest versions
+  // Build workspace dependency mapping with published versions
   console.log('📋 Building workspace dependency mapping...');
-  const workspaceMapping = buildWorkspaceDependencyMapping();
+  const workspaceMapping = await buildWorkspaceDependencyMapping();
   console.log('');
 
   // Process each publishable package
@@ -212,21 +243,32 @@ if (require.main === module) {
   switch (command) {
     case 'prepare':
     case undefined:
-      prepareRelease();
+      prepareRelease().catch(error => {
+        console.error('❌ Release preparation failed:', error.message);
+        process.exit(1);
+      });
       break;
     case 'cleanup':
       restoreOriginalPackages();
       break;
     case 'help':
-      console.log('Release Preparation Script');
+      console.log('Enhanced Release Preparation Script with Changesets Integration');
       console.log('');
       console.log('Usage:');
       console.log('  node scripts/prepare-release.js [command]');
       console.log('');
       console.log('Commands:');
       console.log('  prepare   Prepare packages for release (default)');
+      console.log('            - Removes @repo/ dependencies');
+      console.log('            - Converts workspace:* to published versions from npm');
+      console.log('            - Creates .release.json files for safe publishing');
       console.log('  cleanup   Remove .release.json files');
       console.log('  help      Show this help message');
+      console.log('');
+      console.log('Integration with Changesets:');
+      console.log('  1. Use "changeset version" to update versions');
+      console.log('  2. Run this script to clean dependencies');
+      console.log('  3. Use "changeset publish" for safe deployment');
       break;
     default:
       console.error(`Unknown command: ${command}`);

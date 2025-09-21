@@ -19,6 +19,9 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "build": "turbo build",
+    "changeset": "changeset",
+    "changeset:version": "changeset version",
+    "changeset:publish": "changeset publish",
     "check-types": "turbo check-types",
     "commit": "git-cz",
     "commitlint": "commitlint --edit",
@@ -26,6 +29,7 @@
     "lint": "turbo lint",
     "prepare-release": "node scripts/prepare-release.js prepare",
     "publish:local": "bash ./scripts/publish-local.sh",
+    "release": "npm run build && npm run changeset:version && npm run prepare-release && npm run changeset:publish",
     "release-cleanup": "node scripts/prepare-release.js cleanup",
     "test": "turbo test",
     "test:coverage": "turbo test:coverage",
@@ -43,6 +47,7 @@
     "not IE 11"
   ],
   "devDependencies": {
+    "@changesets/cli": "^2.29.7",
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
     "@eslint/js": "^9.34.0",
