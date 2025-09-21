@@ -28,7 +28,6 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "prepare-release": "node scripts/prepare-release.js prepare",
-    "publish:local": "bash ./scripts/publish-local.sh",
     "release": "npm run build && npm run changeset:version && npm run prepare-release && npm run changeset:publish",
     "release-cleanup": "node scripts/prepare-release.js cleanup",
     "test": "turbo test",

@@ -1,10 +1,14 @@
 # Release Scripts
 
-이 디렉터리에는 Snapkit 패키지들의 릴리즈를 위한 스크립트들이 포함되어 있습니다.
+이 디렉터리에는 Changesets 기반 릴리즈 시스템을 지원하는 스크립트들이 포함되어 있습니다.
+
+## 🦋 **Changesets 통합 시스템**
+
+이제 **Changesets**를 메인 릴리즈 도구로 사용하며, 여기의 스크립트들은 보조 역할을 합니다.
 
 ## 🚀 prepare-release.js
 
-릴리즈를 위해 package.json을 정리하는 메인 스크립트입니다.
+Changesets와 통합된 릴리즈 준비 스크립트입니다.
 
 ### 주요 기능
 

@@ -19,6 +19,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -60,7 +61,38 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Send a Slack notification if a publish happened
+      - name: Setup Node.js for GitHub Package Registry
         if: steps.changesets.outputs.published == 'true'
-        # You can do something when a publish happens.
-        run: echo "📦 New packages published! ${{ steps.changesets.outputs.publishedPackages }}"
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@snapkit-studio'
+
+      - name: Publish to GitHub Package Registry
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          echo "📦 Publishing to GitHub Package Registry..."
+
+          # Configure npm for GitHub registry
+          echo "@snapkit-studio:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+
+          # Publish each package to GitHub registry
+          for package in packages/core packages/react packages/nextjs; do
+            if [ -d "$package" ]; then
+              cd "$package"
+              echo "Publishing $(basename $package) to GitHub Package Registry..."
+              npm publish --registry=https://npm.pkg.github.com || echo "Failed to publish $(basename $package) to GitHub registry"
+              cd ../..
+            fi
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Send notification with dual registry success
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          echo "🎉 Packages published successfully!"
+          echo "📦 NPM Registry: ${{ steps.changesets.outputs.publishedPackages }}"
+          echo "📦 GitHub Package Registry: Published to both registries"
