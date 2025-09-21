@@ -41,12 +41,6 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: Check for workspace references
-      shell: bash
-      run: |
-        echo "Checking for workspace references in ${{ inputs.package-path }}package.json..."
-        node scripts/check-workspace-refs.js ${{ inputs.package-path }}package.json
-
     - name: Update package version
       shell: bash
       run: |

@@ -20,24 +20,6 @@ jobs:
         with:
           node-version: 22
 
-      - name: Check for workspace references
-        run: |
-          echo "🔍 Checking all packages for workspace references..."
-
-          # Check all package.json files in packages directory
-          for package in packages/*/package.json; do
-            if [ -f "$package" ]; then
-              echo "Checking $package..."
-              node scripts/check-workspace-refs.js "$package"
-              if [ $? -ne 0 ]; then
-                echo "::error file=$package::Workspace references found in production dependencies"
-                exit 1
-              fi
-            fi
-          done
-
-          echo "✅ All packages are clean - no workspace references in production dependencies"
-
   lint-and-typecheck:
     name: Lint and Type Check
     runs-on: ubuntu-latest

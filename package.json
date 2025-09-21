@@ -24,7 +24,9 @@
     "commitlint": "commitlint --edit",
     "dev": "turbo dev",
     "lint": "turbo lint",
+    "prepare-release": "node scripts/prepare-release.js prepare",
     "publish:local": "bash ./scripts/publish-local.sh",
+    "release-cleanup": "node scripts/prepare-release.js cleanup",
     "test": "turbo test",
     "test:coverage": "turbo test:coverage",
     "type-check": "turbo check-types"

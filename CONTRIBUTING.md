@@ -132,27 +132,6 @@ We have multiple layers of protection to prevent workspace protocol issues:
 3. **PR Checks**: GitHub Actions validates all packages
 4. **Deployment Check**: Final validation before npm publish
 
-#### How to Fix Workspace References
-
-If you accidentally add a workspace reference to a production dependency:
-
-```json
-// ❌ Wrong
-"dependencies": {
-  "@snapkit-studio/core": "workspace:*"
-}
-
-// ✅ Correct
-"dependencies": {
-  "@snapkit-studio/core": "^1.6.0"
-}
-```
-
-Run the validation script manually:
-```bash
-node scripts/check-workspace-refs.js packages/*/package.json
-```
-
 ### Making Changes
 
 1. **Create a branch** from `main`:
