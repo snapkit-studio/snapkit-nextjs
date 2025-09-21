@@ -31,22 +31,14 @@ jobs:
         run: |
           echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
 
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Build packages
-        run: pnpm build
+        run: pnpm exec turbo build
 
       - name: Run tests
-        run: pnpm test
+        run: pnpm exec turbo test
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets
