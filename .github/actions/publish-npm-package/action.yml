@@ -1,0 +1,197 @@
+name: 'Publish NPM Package'
+description: 'Publishes package to NPM and GitHub Packages'
+inputs:
+  package-name:
+    description: 'Full package name (e.g., @snapkit-studio/core)'
+    required: true
+  package-path:
+    description: 'Path to the package directory (e.g., packages/core/)'
+    required: true
+  version:
+    description: 'Package version to publish'
+    required: true
+  tag:
+    description: 'Git tag for the release'
+    required: true
+  dry-run:
+    description: 'Whether this is a dry run'
+    required: false
+    default: 'false'
+  npm-token:
+    description: 'NPM authentication token'
+    required: true
+  github-token:
+    description: 'GitHub authentication token for packages'
+    required: true
+  gh-token:
+    description: 'GitHub token for creating releases'
+    required: true
+
+outputs:
+  npm-published:
+    description: 'Whether package was published to NPM'
+    value: ${{ steps.npm-publish.outputs.published }}
+  github-published:
+    description: 'Whether package was published to GitHub Packages'
+    value: ${{ steps.github-publish.outputs.published }}
+  version-exists:
+    description: 'Whether version already exists on NPM'
+    value: ${{ steps.npm-check.outputs.exists }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Update package version
+      shell: bash
+      run: |
+        cd ${{ inputs.package-path }}
+        npm version ${{ inputs.version }} --no-git-tag-version
+
+        # Update root package.json if needed
+        cd ../..
+        git add ${{ inputs.package-path }}/package.json
+
+    - name: Check if version already exists on NPM
+      id: npm-check
+      shell: bash
+      run: |
+        if npm view "${{ inputs.package-name }}@${{ inputs.version }}" version &>/dev/null; then
+          echo "Version ${{ inputs.version }} already exists on NPM"
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "Version ${{ inputs.version }} does not exist on NPM"
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Dry Run Summary
+      if: inputs.dry-run == 'true' && steps.npm-check.outputs.exists != 'true'
+      shell: bash
+      run: |
+        echo "🎭 DRY RUN SUMMARY"
+        echo "=================="
+        echo "Package: ${{ inputs.package-name }}"
+        echo "Version: ${{ inputs.version }}"
+        echo "Tag: ${{ inputs.tag }}"
+        echo ""
+        echo "Actions that WOULD be performed:"
+        echo "- Update package.json version to ${{ inputs.version }}"
+        echo "- Publish ${{ inputs.package-name }}@${{ inputs.version }} to NPM"
+        echo "- Publish ${{ inputs.package-name }}@${{ inputs.version }} to GitHub Packages"
+        echo "- Create git tag: ${{ inputs.tag }}"
+        echo "- Create GitHub release"
+        echo ""
+        echo "⚠️  This was a DRY RUN - no actual changes were made"
+
+    - name: Publish to NPM
+      if: inputs.dry-run != 'true' && steps.npm-check.outputs.exists != 'true'
+      id: npm-publish
+      shell: bash
+      run: |
+        cd ${{ inputs.package-path }}
+        npm publish --access public
+        echo "published=true" >> $GITHUB_OUTPUT
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.npm-token }}
+
+    - name: Setup Node.js for GitHub Packages
+      if: inputs.dry-run != 'true' && steps.npm-check.outputs.exists != 'true'
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        registry-url: "https://npm.pkg.github.com"
+        scope: "@snapkit-studio"
+
+    - name: Publish to GitHub Packages
+      if: inputs.dry-run != 'true' && steps.npm-check.outputs.exists != 'true'
+      id: github-publish
+      shell: bash
+      run: |
+        cd ${{ inputs.package-path }}
+
+        # Create a temporary .npmrc for GitHub Packages
+        echo "@snapkit-studio:registry=https://npm.pkg.github.com" > .npmrc
+        echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> .npmrc
+
+        # Try to publish to GitHub Packages
+        if npm publish --access public --registry https://npm.pkg.github.com; then
+          echo "✅ Successfully published to GitHub Packages"
+          echo "published=true" >> $GITHUB_OUTPUT
+        else
+          echo "⚠️ Failed to publish to GitHub Packages (may already exist)"
+          echo "published=false" >> $GITHUB_OUTPUT
+        fi
+
+        # Clean up
+        rm .npmrc
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.github-token }}
+
+    - name: Create git tag and commit
+      if: inputs.dry-run != 'true' && steps.npm-check.outputs.exists != 'true'
+      shell: bash
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+
+        # Extract package short name from tag (e.g., "core" from "core-v1.0.0")
+        PACKAGE_SHORT=$(echo "${{ inputs.tag }}" | cut -d'-' -f1)
+
+        git commit -m "chore($PACKAGE_SHORT): release v${{ inputs.version }} [skip ci]"
+        git tag "${{ inputs.tag }}" -m "Release ${{ inputs.package-name }}@${{ inputs.version }}"
+
+        # Push with retry logic to handle concurrent releases
+        for i in {1..5}; do
+          echo "Attempt $i to push changes..."
+
+          # Pull latest changes first
+          if git pull --rebase origin main; then
+            echo "Successfully pulled latest changes"
+          else
+            echo "Pull failed, continuing with push attempt..."
+          fi
+
+          # Try to push
+          if git push origin main && git push origin "${{ inputs.tag }}"; then
+            echo "Successfully pushed changes and tag"
+            break
+          else
+            echo "Push failed, waiting 10 seconds before retry..."
+            sleep 10
+
+            if [ $i -eq 5 ]; then
+              echo "Failed to push after 5 attempts"
+              exit 1
+            fi
+          fi
+        done
+
+    - name: Create GitHub Release
+      if: inputs.dry-run != 'true' && steps.npm-check.outputs.exists != 'true'
+      shell: bash
+      run: |
+        GITHUB_PACKAGES_NOTE=""
+        if [ "${{ steps.github-publish.outputs.published }}" = "true" ]; then
+          GITHUB_PACKAGES_NOTE="- Published to GitHub Packages: https://github.com/${{ github.repository }}/packages"
+        fi
+
+        gh release create "${{ inputs.tag }}" \
+          --title "${{ inputs.package-name }} v${{ inputs.version }}" \
+          --notes "## ${{ inputs.package-name }} v${{ inputs.version }}
+
+        ### Changes
+        - Published to NPM: https://www.npmjs.com/package/${{ inputs.package-name }}/v/${{ inputs.version }}
+        ${GITHUB_PACKAGES_NOTE}
+
+        ### Installation
+
+        From NPM:
+        \`\`\`bash
+        npm install ${{ inputs.package-name }}@${{ inputs.version }}
+        \`\`\`
+
+        From GitHub Packages:
+        \`\`\`bash
+        npm install ${{ inputs.package-name }}@${{ inputs.version }} --registry=https://npm.pkg.github.com
+        \`\`\`"
+      env:
+        GITHUB_TOKEN: ${{ inputs.gh-token }}

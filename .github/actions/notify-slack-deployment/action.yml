@@ -1,0 +1,164 @@
+name: 'Notify Slack Deployment'
+description: 'Sends deployment notifications to Slack'
+inputs:
+  status:
+    description: 'Deployment status (success, skipped)'
+    required: true
+  package-name:
+    description: 'Full package name (e.g., @snapkit-studio/core)'
+    required: true
+  package-short-name:
+    description: 'Short package name (e.g., core)'
+    required: true
+  version:
+    description: 'Package version'
+    required: false
+  skip-reason:
+    description: 'Reason for skipping deployment'
+    required: false
+  commit-count:
+    description: 'Number of commits'
+    required: false
+    default: '1'
+  changed-commits:
+    description: 'List of changed commits'
+    required: false
+  webhook-url:
+    description: 'Slack webhook URL'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Debug Slack notification inputs
+      shell: bash
+      run: |
+        echo "📢 Preparing Slack notification..."
+        echo "Status: ${{ inputs.status }}"
+        echo "Package: ${{ inputs.package-name }}"
+        echo "Version: ${{ inputs.version }}"
+        echo "Webhook URL exists: ${{ inputs.webhook-url != '' && 'yes' || 'no' }}"
+
+    - name: Send success notification
+      if: inputs.status == 'success'
+      uses: slackapi/slack-github-action@v2.1.0
+      with:
+        webhook: ${{ inputs.webhook-url }}
+        webhook-type: webhook-trigger
+        payload: |
+          {
+            "text": "✅ ${{ inputs.package-name }} v${{ inputs.version }} deployment successful",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "✅ *${{ inputs.package-name }} v${{ inputs.version }} deployment was successful*"
+                }
+              },
+              {
+                "type": "section",
+                "fields": [
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Package:*\n${{ inputs.package-name }}"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Version:*\nv${{ inputs.version }}"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Commit:*\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Changed commits:*\n${{ inputs.commit-count }} commits"
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "*Changed commits list:*\n```${{ inputs.changed-commits }}```"
+                }
+              },
+              {
+                "type": "actions",
+                "elements": [
+                  {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "📦 View on NPM"
+                    },
+                    "url": "https://www.npmjs.com/package/${{ inputs.package-name }}/v/${{ inputs.version }}",
+                    "style": "primary"
+                  },
+                  {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "🔍 View Action Logs"
+                    },
+                    "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  }
+                ]
+              }
+            ]
+          }
+
+    - name: Send skipped notification
+      if: inputs.status == 'skipped'
+      uses: slackapi/slack-github-action@v2.1.0
+      with:
+        webhook: ${{ inputs.webhook-url }}
+        webhook-type: webhook-trigger
+        payload: |
+          {
+            "text": "⏭️ ${{ inputs.package-name }} deployment skipped",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "⏭️ *${{ inputs.package-name }} package deployment was skipped*"
+                }
+              },
+              {
+                "type": "section",
+                "fields": [
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Package:*\n${{ inputs.package-name }}"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Skip Reason:*\n${{ inputs.skip-reason }}"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Commit:*\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Timestamp:*\n${{ github.event.head_commit && github.event.head_commit.timestamp || 'N/A' }}"
+                  }
+                ]
+              },
+              {
+                "type": "actions",
+                "elements": [
+                  {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "🔍 View Action Logs"
+                    },
+                    "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  }
+                ]
+              }
+            ]
+          }

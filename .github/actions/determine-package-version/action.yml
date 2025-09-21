@@ -1,0 +1,122 @@
+name: 'Determine Package Version'
+description: 'Determines the next version for a package based on commit messages or manual override'
+inputs:
+  package-name:
+    description: 'Name of the package (e.g., core, react, nextjs)'
+    required: true
+  package-path:
+    description: 'Path to the package directory (e.g., packages/core/)'
+    required: true
+  version-bump-type:
+    description: 'Manual version bump type (auto, patch, minor, major)'
+    required: false
+    default: 'auto'
+  event-name:
+    description: 'GitHub event name'
+    required: true
+  changed-commits:
+    description: 'List of commits to analyze'
+    required: false
+
+outputs:
+  version:
+    description: 'The next version'
+    value: ${{ steps.version.outputs.version }}
+  tag:
+    description: 'The git tag for the release'
+    value: ${{ steps.version.outputs.tag }}
+  current-version:
+    description: 'The current version'
+    value: ${{ steps.version.outputs.current_version }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Determine version
+      id: version
+      shell: bash
+      run: |
+        cd ${{ inputs.package-path }}
+
+        # Get current version
+        CURRENT_VERSION=$(node -p "require('./package.json').version")
+        echo "Current version: $CURRENT_VERSION"
+        echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+        # Check if manual version override is requested
+        if [ "${{ inputs.event-name }}" = "workflow_dispatch" ] && [ "${{ inputs.version-bump-type }}" != "auto" ]; then
+          echo "🎯 Manual version override: ${{ inputs.version-bump-type }}"
+          VERSION_TYPE="${{ inputs.version-bump-type }}"
+
+          case $VERSION_TYPE in
+            "major")
+              NEXT_VERSION=$(node -p "
+                const v = require('./package.json').version.split('.');
+                \`\${parseInt(v[0]) + 1}.0.0\`
+              ")
+              echo "Manual major version bump: $NEXT_VERSION"
+              ;;
+            "minor")
+              NEXT_VERSION=$(node -p "
+                const v = require('./package.json').version.split('.');
+                \`\${v[0]}.\${parseInt(v[1]) + 1}.0\`
+              ")
+              echo "Manual minor version bump: $NEXT_VERSION"
+              ;;
+            "patch")
+              NEXT_VERSION=$(node -p "
+                const v = require('./package.json').version.split('.');
+                \`\${v[0]}.\${v[1]}.\${parseInt(v[2]) + 1}\`
+              ")
+              echo "Manual patch version bump: $NEXT_VERSION"
+              ;;
+          esac
+        else
+          # Automatic version determination based on commits
+          echo "🤖 Analyzing commits for automatic version determination"
+
+          # Use commits from change detection (either package-specific or all commits)
+          COMMITS="${{ inputs.changed-commits }}"
+          if [ -z "$COMMITS" ]; then
+            # Fallback to recent commits
+            COMMITS=$(git log --oneline -10 -- ${{ inputs.package-path }})
+          fi
+
+          echo "Analyzing commits:"
+          echo "$COMMITS"
+
+          # Determine version bump based on commit messages
+          if echo "$COMMITS" | grep -q "BREAKING CHANGE\|feat!\|fix!\|chore!"; then
+            # Major version bump
+            NEXT_VERSION=$(node -p "
+              const v = require('./package.json').version.split('.');
+              \`\${parseInt(v[0]) + 1}.0.0\`
+            ")
+            echo "Major version bump detected (BREAKING CHANGE)"
+          elif echo "$COMMITS" | grep -q "feat(\|feat:"; then
+            # Minor version bump
+            NEXT_VERSION=$(node -p "
+              const v = require('./package.json').version.split('.');
+              \`\${v[0]}.\${parseInt(v[1]) + 1}.0\`
+            ")
+            echo "Minor version bump detected (feat)"
+          elif echo "$COMMITS" | grep -q "fix(\|fix:\|perf(\|perf:"; then
+            # Patch version bump
+            NEXT_VERSION=$(node -p "
+              const v = require('./package.json').version.split('.');
+              \`\${v[0]}.\${v[1]}.\${parseInt(v[2]) + 1}\`
+            ")
+            echo "Patch version bump detected (fix/perf)"
+          else
+            # Default to patch bump for any other changes
+            NEXT_VERSION=$(node -p "
+              const v = require('./package.json').version.split('.');
+              \`\${v[0]}.\${v[1]}.\${parseInt(v[2]) + 1}\`
+            ")
+            echo "Default patch version bump (other changes)"
+          fi
+        fi
+
+        echo "Next version: $NEXT_VERSION"
+        echo "version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+        echo "tag=${{ inputs.package-name }}-v$NEXT_VERSION" >> $GITHUB_OUTPUT

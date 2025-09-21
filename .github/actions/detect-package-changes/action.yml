@@ -1,0 +1,134 @@
+name: 'Detect Package Changes'
+description: 'Detects changes in a package since the last successful release'
+inputs:
+  package-name:
+    description: 'Name of the package (e.g., core, react, nextjs)'
+    required: true
+  package-path:
+    description: 'Path to the package directory (e.g., packages/core/)'
+    required: true
+  force-deploy:
+    description: 'Force deployment even without package changes'
+    required: false
+    default: 'false'
+  event-name:
+    description: 'GitHub event name'
+    required: true
+
+outputs:
+  skip:
+    description: 'Whether to skip deployment'
+    value: ${{ steps.changes.outputs.skip }}
+  skip-reason:
+    description: 'Reason for skipping or not skipping'
+    value: ${{ steps.changes.outputs.skip_reason }}
+  commit-count:
+    description: 'Number of commits with changes'
+    value: ${{ steps.changes.outputs.commit_count }}
+  changed-commits:
+    description: 'List of commits with changes'
+    value: ${{ steps.changes.outputs.changed_commits }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Check for changes
+      id: changes
+      shell: bash
+      run: |
+        PACKAGE_NAME="${{ inputs.package-name }}"
+        PACKAGE_PATH="${{ inputs.package-path }}"
+
+        echo "🔍 Enhanced change detection for $PACKAGE_NAME package"
+
+        # Find the last successful release tag for this package
+        LAST_SUCCESS_TAG=$(git tag -l "${PACKAGE_NAME}-v*" --sort=-version:refname | head -1)
+
+        if [ -z "$LAST_SUCCESS_TAG" ]; then
+          echo "📦 No previous successful release found for $PACKAGE_NAME"
+          # For first release, check against parent of current commit
+          COMPARE_COMMIT=$(git rev-parse HEAD^)
+          echo "🔄 Comparing against parent commit: $COMPARE_COMMIT"
+        else
+          COMPARE_COMMIT=$(git rev-list -n 1 $LAST_SUCCESS_TAG)
+          echo "✅ Last successful release: $LAST_SUCCESS_TAG (commit: $COMPARE_COMMIT)"
+        fi
+
+        # Smart deployment logic based on trigger type
+        if [ "${{ inputs.event-name }}" = "workflow_dispatch" ]; then
+          echo "🚀 Manual deployment triggered via workflow_dispatch"
+
+          # Check force_deploy input
+          if [ "${{ inputs.force-deploy }}" = "true" ]; then
+            echo "💪 Force deployment requested - skipping change checks"
+            echo "skip=false" >> $GITHUB_OUTPUT
+            echo "skip_reason=force_deploy_requested" >> $GITHUB_OUTPUT
+
+            # Get all commits since last success for versioning
+            ALL_COMMITS=$(git rev-list $COMPARE_COMMIT..HEAD --oneline)
+            COMMIT_COUNT=$(echo "$ALL_COMMITS" | wc -l | tr -d ' ')
+            echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+            echo "changed_commits<<EOF" >> $GITHUB_OUTPUT
+            echo "$ALL_COMMITS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+
+          elif git diff --quiet $COMPARE_COMMIT HEAD -- $PACKAGE_PATH; then
+            # No package changes, but check if any commits exist since last success
+            TOTAL_COMMITS=$(git rev-list --count $COMPARE_COMMIT..HEAD)
+            if [ $TOTAL_COMMITS -gt 0 ]; then
+              echo "📦 Manual deployment: $TOTAL_COMMITS commits since last success (no package changes)"
+              echo "skip=false" >> $GITHUB_OUTPUT
+              echo "skip_reason=manual_deployment_with_commits" >> $GITHUB_OUTPUT
+
+              # Get all commits for context
+              ALL_COMMITS=$(git rev-list $COMPARE_COMMIT..HEAD --oneline)
+              echo "commit_count=$TOTAL_COMMITS" >> $GITHUB_OUTPUT
+              echo "changed_commits<<EOF" >> $GITHUB_OUTPUT
+              echo "$ALL_COMMITS" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+            else
+              echo "⏭️ Manual deployment: No commits since last successful release"
+              echo "skip=true" >> $GITHUB_OUTPUT
+              echo "skip_reason=no_commits_since_last_success" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "🎯 Manual deployment: Package changes detected since last successful release"
+            echo "skip=false" >> $GITHUB_OUTPUT
+            echo "skip_reason=package_changes_detected" >> $GITHUB_OUTPUT
+
+            # Get package-specific commits
+            CHANGED_COMMITS=$(git rev-list $COMPARE_COMMIT..HEAD --oneline -- $PACKAGE_PATH)
+            COMMIT_COUNT=$(echo "$CHANGED_COMMITS" | wc -l | tr -d ' ')
+            echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+            echo "changed_commits<<EOF" >> $GITHUB_OUTPUT
+            echo "$CHANGED_COMMITS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
+        else
+          # Automatic deployment (workflow_run) - original logic
+          echo "🤖 Automatic deployment triggered via workflow_run"
+
+          if git diff --quiet $COMPARE_COMMIT HEAD -- $PACKAGE_PATH; then
+            echo "⏭️ No changes in $PACKAGE_NAME package since last successful release"
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "skip_reason=no_changes_since_last_success" >> $GITHUB_OUTPUT
+          else
+            echo "🎯 Changes detected in $PACKAGE_NAME package since last successful release"
+            echo "skip=false" >> $GITHUB_OUTPUT
+            echo "skip_reason=package_changes_detected" >> $GITHUB_OUTPUT
+
+            # Get list of commits with changes
+            CHANGED_COMMITS=$(git rev-list $COMPARE_COMMIT..HEAD --oneline -- $PACKAGE_PATH)
+            echo "📝 Commits with changes:"
+            echo "$CHANGED_COMMITS"
+
+            # Store commit count for version bump logic
+            COMMIT_COUNT=$(echo "$CHANGED_COMMITS" | wc -l | tr -d ' ')
+            echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+
+            # Store changed commits for Slack notification
+            echo "changed_commits<<EOF" >> $GITHUB_OUTPUT
+            echo "$CHANGED_COMMITS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
+        fi
