@@ -90,9 +90,85 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Send notification with dual registry success
+      - name: Send Slack notification on success
         if: steps.changesets.outputs.published == 'true'
-        run: |
-          echo "🎉 Packages published successfully!"
-          echo "📦 NPM Registry: ${{ steps.changesets.outputs.publishedPackages }}"
-          echo "📦 GitHub Package Registry: Published to both registries"
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          payload: |
+            {
+              "channel": "#releases",
+              "username": "SnapKit Release Bot",
+              "icon_emoji": ":rocket:",
+              "attachments": [
+                {
+                  "color": "good",
+                  "title": "🎉 Release Success!",
+                  "fields": [
+                    {
+                      "title": "📦 NPM Registry",
+                      "value": "${{ steps.changesets.outputs.publishedPackages }}",
+                      "short": false
+                    },
+                    {
+                      "title": "📦 GitHub Package Registry",
+                      "value": "Published successfully",
+                      "short": true
+                    },
+                    {
+                      "title": "👤 Author",
+                      "value": "${{ github.actor }}",
+                      "short": true
+                    }
+                  ],
+                  "footer": "SnapKit Release System",
+                  "footer_icon": "https://github.com/snapkit-studio.png",
+                  "ts": ${{ github.event.head_commit.timestamp }}
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Send Slack notification on failure
+        if: failure()
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          payload: |
+            {
+              "channel": "#releases",
+              "username": "SnapKit Release Bot",
+              "icon_emoji": ":x:",
+              "attachments": [
+                {
+                  "color": "danger",
+                  "title": "❌ Release Failed!",
+                  "fields": [
+                    {
+                      "title": "🚫 Workflow",
+                      "value": "${{ github.workflow }}",
+                      "short": true
+                    },
+                    {
+                      "title": "👤 Author",
+                      "value": "${{ github.actor }}",
+                      "short": true
+                    },
+                    {
+                      "title": "🔗 Action Run",
+                      "value": "<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Details>",
+                      "short": false
+                    },
+                    {
+                      "title": "🔗 Commit",
+                      "value": "<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>",
+                      "short": false
+                    }
+                  ],
+                  "footer": "Please check the workflow logs and fix any issues.",
+                  "footer_icon": "https://github.com/snapkit-studio.png",
+                  "ts": ${{ github.event.head_commit.timestamp }}
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
