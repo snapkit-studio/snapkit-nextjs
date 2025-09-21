@@ -12,8 +12,8 @@ const execAsync = promisify(exec);
  *
  * This script enhances Changesets workflow by:
  * 1. Removing @repo/ dependencies completely during release
- * 2. Converting workspace:* to actual published versions (not local versions)
- * 3. Integrating with Changesets for safe dependency management
+ * 2. Preserving Changesets-managed internal dependencies (DO NOT override!)
+ * 3. Respecting Changesets dependency updates for proper version resolution
  * 4. Supporting both development (workspace:*) and release modes
  */
 
@@ -32,56 +32,7 @@ const PUBLISHABLE_PACKAGES = [
   }
 ];
 
-/**
- * Get the latest published version of a package from npm registry
- */
-async function getLatestPublishedVersion(packageName) {
-  try {
-    const { stdout } = await execAsync(`npm view ${packageName} version`);
-    return stdout.trim();
-  } catch (error) {
-    console.warn(`⚠️  Could not fetch published version for ${packageName}, using local version`);
-    return null;
-  }
-}
-
-/**
- * Get the current local version of a package from its package.json
- */
-function getLocalVersion(packageDirectory) {
-  const packagePath = path.join(packageDirectory, 'package.json');
-  const packageContent = fs.readFileSync(packagePath, 'utf8');
-  const packageData = JSON.parse(packageContent);
-  return packageData.version;
-}
-
-/**
- * Build workspace dependency mapping with published versions (safer for releases)
- */
-async function buildWorkspaceDependencyMapping() {
-  const mapping = {};
-
-  for (const pkg of PUBLISHABLE_PACKAGES) {
-    const publishedVersion = await getLatestPublishedVersion(pkg.name);
-    const localVersion = getLocalVersion(pkg.directory);
-
-    if (publishedVersion) {
-      // Use published version for safety
-      mapping[pkg.name] = `^${publishedVersion}`;
-      console.log(`📋 Mapped ${pkg.name} → ^${publishedVersion} (from npm registry)`);
-
-      if (localVersion !== publishedVersion) {
-        console.log(`   ℹ️  Local version ${localVersion} differs from published ${publishedVersion}`);
-      }
-    } else {
-      // Fallback to local version if npm lookup fails
-      mapping[pkg.name] = `^${localVersion}`;
-      console.log(`📋 Mapped ${pkg.name} → ^${localVersion} (from local package.json)`);
-    }
-  }
-
-  return mapping;
-}
+// Removed workspace dependency mapping functions - Changesets handles this!
 
 /**
  * Read package.json from a directory
@@ -122,46 +73,24 @@ function removeRepoDependencies(deps) {
   return removedCount > 0 ? cleaned : deps;
 }
 
-/**
- * Transform workspace:* dependencies to latest versions
- */
-function transformWorkspaceDependencies(deps, workspaceMapping) {
-  if (!deps) return deps;
-
-  const transformed = { ...deps };
-  let transformedCount = 0;
-
-  Object.keys(transformed).forEach(dep => {
-    if (transformed[dep] === 'workspace:*' && workspaceMapping[dep]) {
-      const newVersion = workspaceMapping[dep];
-      transformed[dep] = newVersion;
-      transformedCount++;
-      console.log(`   📦 Transformed ${dep}: workspace:* → ${newVersion}`);
-    }
-  });
-
-  return transformedCount > 0 ? transformed : deps;
-}
+// Removed workspace transformation - Changesets handles internal dependencies!
 
 /**
- * Transform package for release
+ * Transform package for release - ONLY removes @repo/ dependencies
+ * Changesets handles all internal dependency updates correctly!
  */
-function transformPackageForRelease(packageData, workspaceMapping, packageInfo) {
+function transformPackageForRelease(packageData, packageInfo) {
   const transformed = { ...packageData };
 
   console.log(`\n🔄 Preparing ${packageInfo.name} for release...`);
+  console.log(`   ℹ️  Changesets has already updated internal dependencies correctly`);
 
-  // 1. Remove @repo/ dependencies from all dependency types
+  // ONLY remove @repo/ dependencies - preserve everything else!
   transformed.dependencies = removeRepoDependencies(transformed.dependencies);
   transformed.devDependencies = removeRepoDependencies(transformed.devDependencies);
   transformed.peerDependencies = removeRepoDependencies(transformed.peerDependencies);
 
-  // 2. Transform workspace:* to latest versions
-  transformed.dependencies = transformWorkspaceDependencies(transformed.dependencies, workspaceMapping);
-  transformed.devDependencies = transformWorkspaceDependencies(transformed.devDependencies, workspaceMapping);
-  transformed.peerDependencies = transformWorkspaceDependencies(transformed.peerDependencies, workspaceMapping);
-
-  // 3. Clean up empty dependency objects
+  // Clean up empty dependency objects
   if (transformed.dependencies && Object.keys(transformed.dependencies).length === 0) {
     delete transformed.dependencies;
   }
@@ -180,11 +109,8 @@ function transformPackageForRelease(packageData, workspaceMapping, packageInfo) 
  */
 async function prepareRelease() {
   console.log('🚀 Preparing packages for release...\n');
-
-  // Build workspace dependency mapping with published versions
-  console.log('📋 Building workspace dependency mapping...');
-  const workspaceMapping = await buildWorkspaceDependencyMapping();
-  console.log('');
+  console.log('📋 Changesets has already handled internal dependency updates');
+  console.log('📋 We only need to remove @repo/ dependencies\n');
 
   // Process each publishable package
   PUBLISHABLE_PACKAGES.forEach(packageInfo => {
@@ -192,8 +118,8 @@ async function prepareRelease() {
       // Read original package.json
       const originalPackage = readPackageJson(packageInfo.directory);
 
-      // Transform for release
-      const releasePackage = transformPackageForRelease(originalPackage, workspaceMapping, packageInfo);
+      // Transform for release (only remove @repo/ deps)
+      const releasePackage = transformPackageForRelease(originalPackage, packageInfo);
 
       // Write release package.json
       writePackageJson(packageInfo.directory, releasePackage, '.release');
@@ -259,16 +185,16 @@ if (require.main === module) {
       console.log('');
       console.log('Commands:');
       console.log('  prepare   Prepare packages for release (default)');
-      console.log('            - Removes @repo/ dependencies');
-      console.log('            - Converts workspace:* to published versions from npm');
+      console.log('            - Removes @repo/ dependencies only');
+      console.log('            - Preserves Changesets internal dependency updates');
       console.log('            - Creates .release.json files for safe publishing');
       console.log('  cleanup   Remove .release.json files');
       console.log('  help      Show this help message');
       console.log('');
       console.log('Integration with Changesets:');
-      console.log('  1. Use "changeset version" to update versions');
-      console.log('  2. Run this script to clean dependencies');
-      console.log('  3. Use "changeset publish" for safe deployment');
+      console.log('  1. Use "changeset version" to update versions and internal deps');
+      console.log('  2. Run this script to clean @repo/ dependencies only');
+      console.log('  3. Use "changeset publish" for dependency-ordered deployment');
       break;
     default:
       console.error(`Unknown command: ${command}`);
@@ -281,6 +207,5 @@ module.exports = {
   prepareRelease,
   restoreOriginalPackages,
   transformPackageForRelease,
-  buildWorkspaceDependencyMapping,
   PUBLISHABLE_PACKAGES
 };

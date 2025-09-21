@@ -40,50 +40,70 @@ jobs:
       - name: Run tests
         run: pnpm exec turbo test
 
-      - name: Create Release Pull Request or Publish to npm
+      - name: Create Release Pull Request or Update Versions
         id: changesets
         uses: changesets/action@v1
         with:
-          # This expects you to have a script called release which does a build before calling changeset publish
-          publish: pnpm changeset:publish
           version: pnpm changeset:version
           commit: "chore: release packages"
           title: "chore: release packages"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare packages for release (clean dependencies)
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: |
+          echo "🧹 Cleaning dependencies for release..."
+          pnpm prepare-release
+          echo "✅ Dependencies cleaned successfully"
+
+      - name: Publish to NPM Registry (with dependency order)
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: |
+          echo "📦 Publishing to NPM with Changesets (dependency order guaranteed)..."
+          pnpm changeset:publish
+        env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Setup Node.js for GitHub Package Registry
-        if: steps.changesets.outputs.published == 'true'
+        if: steps.changesets.outputs.hasChangesets == 'false'
         uses: actions/setup-node@v4
         with:
           node-version: 18
           registry-url: 'https://npm.pkg.github.com'
           scope: '@snapkit-studio'
 
-      - name: Publish to GitHub Package Registry
-        if: steps.changesets.outputs.published == 'true'
+      - name: Publish to GitHub Package Registry (sequential order)
+        if: steps.changesets.outputs.hasChangesets == 'false'
         run: |
-          echo "📦 Publishing to GitHub Package Registry..."
+          echo "📦 Publishing to GitHub Package Registry in dependency order..."
 
           # Configure npm for GitHub registry
           echo "@snapkit-studio:registry=https://npm.pkg.github.com" >> ~/.npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
 
-          # Publish each package to GitHub registry
-          for package in packages/core packages/react packages/nextjs; do
-            if [ -d "$package" ]; then
-              cd "$package"
-              echo "Publishing $(basename $package) to GitHub Package Registry..."
-              npm publish --registry=https://npm.pkg.github.com || echo "Failed to publish $(basename $package) to GitHub registry"
-              cd ../..
-            fi
-          done
+          # Publish in dependency order: core → react → nextjs
+          echo "1️⃣ Publishing core package..."
+          cd packages/core
+          npm publish --registry=https://npm.pkg.github.com && echo "✅ Core published" || echo "❌ Core failed"
+          cd ../..
+
+          echo "2️⃣ Publishing react package..."
+          cd packages/react
+          npm publish --registry=https://npm.pkg.github.com && echo "✅ React published" || echo "❌ React failed"
+          cd ../..
+
+          echo "3️⃣ Publishing nextjs package..."
+          cd packages/nextjs
+          npm publish --registry=https://npm.pkg.github.com && echo "✅ NextJS published" || echo "❌ NextJS failed"
+          cd ../..
+
+          echo "🎉 GitHub Package Registry publishing completed!"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Send Slack notification on success
-        if: steps.changesets.outputs.published == 'true'
+        if: steps.changesets.outputs.hasChangesets == 'false'
         uses: slackapi/slack-github-action@v2.1.0
         with:
           payload: |
