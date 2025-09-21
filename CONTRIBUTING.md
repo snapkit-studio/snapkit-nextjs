@@ -99,6 +99,60 @@ This is a monorepo containing multiple packages for the Snapkit image optimizati
    pnpm lint
    ```
 
+### Workspace Protocol Guidelines
+
+#### ⚠️ Important: Package Dependencies
+
+When working with package dependencies in our monorepo, it's crucial to understand the difference between development and production dependencies:
+
+1. **Development Dependencies (devDependencies)**
+   - ✅ CAN use `workspace:*` protocol for internal packages
+   - Example: `"@repo/eslint-config": "workspace:*"`
+   - These are NOT included when the package is published to npm
+
+2. **Production Dependencies (dependencies, peerDependencies, optionalDependencies)**
+   - ❌ MUST NOT use `workspace:*` protocol
+   - ✅ MUST use specific version numbers
+   - Example: `"@snapkit-studio/core": "^1.6.0"` (NOT `"workspace:*"`)
+
+#### Why This Matters
+
+When packages are published to npm with `workspace:*` references in production dependencies, external users will encounter the error:
+```
+npm error code EUNSUPPORTEDPROTOCOL
+npm error Unsupported URL Type "workspace:": workspace:*
+```
+
+#### Automatic Validation
+
+We have multiple layers of protection to prevent workspace protocol issues:
+
+1. **Pre-commit Hook**: Validates package.json files before commit
+2. **Build-time Check**: tsup validates during package build
+3. **PR Checks**: GitHub Actions validates all packages
+4. **Deployment Check**: Final validation before npm publish
+
+#### How to Fix Workspace References
+
+If you accidentally add a workspace reference to a production dependency:
+
+```json
+// ❌ Wrong
+"dependencies": {
+  "@snapkit-studio/core": "workspace:*"
+}
+
+// ✅ Correct
+"dependencies": {
+  "@snapkit-studio/core": "^1.6.0"
+}
+```
+
+Run the validation script manually:
+```bash
+node scripts/check-workspace-refs.js packages/*/package.json
+```
+
 ### Making Changes
 
 1. **Create a branch** from `main`:

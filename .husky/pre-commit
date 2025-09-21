@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+
+# Check for workspace references in package.json files
+echo "🔍 Checking for workspace references in production dependencies..."
+
+# Get list of changed package.json files
+changed_packages=$(git diff --cached --name-only | grep "package.json$")
+
+if [ -n "$changed_packages" ]; then
+  for package in $changed_packages; do
+    if [ -f "$package" ]; then
+      echo "Checking $package..."
+
+      # Run the workspace reference check
+      node scripts/check-workspace-refs.js "$package"
+
+      if [ $? -ne 0 ]; then
+        echo "❌ Pre-commit check failed: workspace references found in production dependencies"
+        echo "Please update the dependencies to use specific versions instead of workspace:*"
+        exit 1
+      fi
+    fi
+  done
+
+  echo "✅ All package.json files are clean"
+fi
