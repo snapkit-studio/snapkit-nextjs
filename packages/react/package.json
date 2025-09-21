@@ -61,7 +61,7 @@
     "version-info": "node -p \"'Package: @snapkit-studio/react, Current version: ' + require('./package.json').version\""
   },
   "dependencies": {
-    "@snapkit-studio/core": "^1.6.0"
+    "@snapkit-studio/core": "workspace:*"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
