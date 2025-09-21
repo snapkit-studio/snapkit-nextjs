@@ -4,7 +4,6 @@ export default defineConfig({
   entry: {
     index: 'src/index.ts',
     image: 'src/image.ts',
-    hooks: 'src/hooks.ts',
     utils: 'src/utils.ts'
   },
   format: ['cjs', 'esm'],
