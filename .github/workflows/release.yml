@@ -102,6 +102,7 @@ jobs:
         if: steps.changesets.outputs.hasChangesets == 'false'
         uses: slackapi/slack-github-action@v2.1.0
         with:
+          webhook-type: incoming-webhook
           payload: |
             {
               "channel": "#releases",
@@ -130,7 +131,7 @@ jobs:
                   ],
                   "footer": "SnapKit Release System",
                   "footer_icon": "https://github.com/snapkit-studio.png",
-                  "ts": ${{ github.event.head_commit.timestamp }}
+                  "ts": "${{ github.event.head_commit.timestamp }}"
                 }
               ]
             }
@@ -141,6 +142,7 @@ jobs:
         if: failure()
         uses: slackapi/slack-github-action@v2.1.0
         with:
+          webhook-type: incoming-webhook
           payload: |
             {
               "channel": "#releases",
@@ -174,7 +176,7 @@ jobs:
                   ],
                   "footer": "Please check the workflow logs and fix any issues.",
                   "footer_icon": "https://github.com/snapkit-studio.png",
-                  "ts": ${{ github.event.head_commit.timestamp }}
+                  "ts": "${{ github.event.repository.pushed_at }}"
                 }
               ]
             }
