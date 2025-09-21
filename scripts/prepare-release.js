@@ -76,16 +76,43 @@ function removeRepoDependencies(deps) {
 // Removed workspace transformation - Changesets handles internal dependencies!
 
 /**
- * Transform package for release - ONLY removes @repo/ dependencies
+ * Replace workspace protocol with latest version for internal packages
+ */
+function replaceWorkspaceWithLatest(deps) {
+  if (!deps) return deps;
+
+  const updated = { ...deps };
+  let updatedCount = 0;
+
+  Object.keys(updated).forEach(dep => {
+    if ((dep === '@snapkit-studio/core' || dep === '@snapkit-studio/react') &&
+        (updated[dep].startsWith('workspace:') || updated[dep].startsWith('workspace'))) {
+      const oldValue = updated[dep];
+      updated[dep] = 'latest';
+      updatedCount++;
+      console.log(`   📦 Updated ${dep}: ${oldValue} → latest`);
+    }
+  });
+
+  return updatedCount > 0 ? updated : deps;
+}
+
+/**
+ * Transform package for release - removes @repo/ dependencies and updates internal deps
  * Changesets handles all internal dependency updates correctly!
  */
 function transformPackageForRelease(packageData, packageInfo) {
   const transformed = { ...packageData };
 
   console.log(`\n🔄 Preparing ${packageInfo.name} for release...`);
-  console.log(`   ℹ️  Changesets has already updated internal dependencies correctly`);
+  console.log(`   ℹ️  Processing dependencies for npm publication`);
 
-  // ONLY remove @repo/ dependencies - preserve everything else!
+  // First, replace workspace protocol with latest for internal packages
+  transformed.dependencies = replaceWorkspaceWithLatest(transformed.dependencies);
+  transformed.devDependencies = replaceWorkspaceWithLatest(transformed.devDependencies);
+  transformed.peerDependencies = replaceWorkspaceWithLatest(transformed.peerDependencies);
+
+  // Then remove @repo/ dependencies
   transformed.dependencies = removeRepoDependencies(transformed.dependencies);
   transformed.devDependencies = removeRepoDependencies(transformed.devDependencies);
   transformed.peerDependencies = removeRepoDependencies(transformed.peerDependencies);
