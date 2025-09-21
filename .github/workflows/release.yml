@@ -58,6 +58,12 @@ jobs:
         if: steps.changesets.outputs.hasChangesets == 'false'
         run: |
           echo "📦 Publishing to NPM with Changesets (dependency order guaranteed)..."
+
+          # Configure .npmrc for Changesets to use correct registries
+          echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
+          echo "@snapkit-studio:registry=https://registry.npmjs.org/" >> ~/.npmrc
+
           pnpm changeset:publish
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
