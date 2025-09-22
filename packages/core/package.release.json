@@ -40,7 +40,6 @@
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "lint": "eslint src --ext .ts",
     "test": "vitest --run",
-    "test:coverage": "vitest run --coverage",
     "version-info": "node -p \"'Package: @snapkit-studio/core, Current version: ' + require('./package.json').version\""
   },
   "devDependencies": {

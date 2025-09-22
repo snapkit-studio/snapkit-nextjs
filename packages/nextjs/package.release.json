@@ -1,6 +1,6 @@
 {
   "name": "@snapkit-studio/nextjs",
-  "version": "1.7.0-canary.7",
+  "version": "1.7.0-canary.0",
   "description": "Next.js image loader for Snapkit image optimization",
   "keywords": [
     "nextjs",
@@ -44,8 +44,8 @@
     "version-info": "node -p \"'Package: @snapkit-studio/nextjs, Current version: ' + require('./package.json').version\""
   },
   "dependencies": {
-    "@snapkit-studio/core": "latest",
-    "@snapkit-studio/react": "latest"
+    "@snapkit-studio/core": "1.9.0-canary.0",
+    "@snapkit-studio/react": "1.7.0-canary.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.1.4",
