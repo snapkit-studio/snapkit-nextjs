@@ -14,10 +14,6 @@ const nextConfig = {
       {
         hostname: "snapkit-cdn.snapkit.studio",
       },
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
     ],
   },
   outputFileTracingRoot: path.join(__dirname, "../../"),

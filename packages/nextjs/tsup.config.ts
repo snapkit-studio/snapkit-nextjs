@@ -21,6 +21,7 @@ export default defineConfig({
     'next/navigation',
 
     // Other workspace packages that should remain external
+    '@snapkit-studio/core',
     '@snapkit-studio/react',
 
     // Node.js built-ins
@@ -33,6 +34,11 @@ export default defineConfig({
   // Ensure JSX is preserved for React
   esbuildOptions(options) {
     options.jsx = 'automatic';
+    // Preserve 'use client' directives by keeping them as strings
+    options.banner = {};
   },
+
+  // Keep function names
+  keepNames: true,
 
 });
