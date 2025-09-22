@@ -1,4 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { createImageUrl } from '../createImageUrl';
 
 // Mock @snapkit-studio/core
@@ -13,7 +14,9 @@ vi.mock('@snapkit-studio/core', () => ({
 describe('createImageUrl', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockBuildTransformedUrl.mockReturnValue('https://demo-cdn.snapkit.studio/test-image.jpg?w=400');
+    mockBuildTransformedUrl.mockReturnValue(
+      'https://demo-cdn.snapkit.studio/test-image.jpg?w=400',
+    );
   });
 
   it('should create image URL with basic options', () => {

@@ -1,14 +1,11 @@
-import { exec } from 'child_process';
 import { defineConfig } from 'tsup';
-import { promisify } from 'util';
-
-const execAsync = promisify(exec);
 
 export default defineConfig({
   entry: ['src/index.ts'],
   format: ['cjs', 'esm'],
   dts: true,
   clean: true,
+  splitting: false,
   external: [
     // React and React DOM should be external (peer dependencies)
     'react',
@@ -32,8 +29,10 @@ export default defineConfig({
     'url',
     'querystring',
   ],
+
   // Ensure JSX is preserved for React
   esbuildOptions(options) {
     options.jsx = 'automatic';
   },
+
 });

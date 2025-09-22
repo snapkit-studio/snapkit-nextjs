@@ -1,6 +1,6 @@
 import { exec } from 'child_process';
-import { defineConfig } from 'tsup';
 import { promisify } from 'util';
+import { defineConfig } from 'tsup';
 
 const execAsync = promisify(exec);
 

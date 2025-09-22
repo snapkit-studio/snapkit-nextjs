@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import type {
   ImageTransforms,
   NextImageProps,
@@ -6,7 +7,6 @@ import type {
   ProcessedImageUrl,
   SnapkitConfig,
   SnapkitImageProps,
-  SnapkitPictureProps,
 } from '../types';
 
 // This file provides compile-time tests to verify the correctness of type definitions.
@@ -89,7 +89,6 @@ describe('Type definition validation', () => {
       expect(transform.extract?.width).toBe(100);
       expect(transform.extract?.height).toBe(150);
     });
-
   });
 
   describe('NextImageProps interface', () => {
@@ -139,13 +138,10 @@ describe('Type definition validation', () => {
         alt: 'Test image',
         width: 800,
         height: 600,
-        organizationName: 'test-org',
-        baseUrl: 'https://test.com',
         transforms: {
           blur: 20,
           grayscale: true,
         },
-        optimizeFormat: 'webp',
         // Next.js props
         priority: true,
         loading: 'eager',
@@ -153,14 +149,11 @@ describe('Type definition validation', () => {
         onClick: () => {},
       };
 
-      expect(props.organizationName).toBe('test-org');
-      expect(props.baseUrl).toBe('https://test.com');
-      expect(props.optimizeFormat).toBe('webp');
       expect(props.transforms?.blur).toBe(20);
     });
 
     it('should allow valid optimizeFormat values', () => {
-      const formatOptions: SnapkitImageProps['optimizeFormat'][] = [
+      const formatOptions: ImageTransforms['format'][] = [
         'avif',
         'webp',
         'auto',
@@ -171,10 +164,12 @@ describe('Type definition validation', () => {
         const props: SnapkitImageProps = {
           src: 'test.jpg',
           alt: 'Test',
-          optimizeFormat: format,
+          transforms: {
+            format: format,
+          },
         };
 
-        expect(props.optimizeFormat).toBe(format);
+        expect(props.transforms?.format).toBe(format);
       });
     });
   });
@@ -207,53 +202,23 @@ describe('Type definition validation', () => {
     });
   });
 
-  describe('SnapkitPictureProps interface', () => {
-    it('should define properties needed for Picture component', () => {
-      const props: SnapkitPictureProps = {
-        sources: [
-          {
-            media: '(max-width: 768px)',
-            src: 'mobile.jpg',
-            width: 400,
-            height: 300,
-          },
-          {
-            media: '(min-width: 769px)',
-            src: 'desktop.jpg',
-            width: 1200,
-            height: 800,
-          },
-        ],
-        src: 'fallback.jpg',
-        alt: 'Test image',
-        organizationName: 'test-org',
-        baseUrl: 'https://test.com',
-        quality: 90,
-        optimizeFormat: 'avif',
-        className: 'picture-class',
-        onClick: () => {},
-      };
-
-      expect(props.sources).toHaveLength(2);
-      expect(props.src).toBe('fallback.jpg');
-      expect(props.alt).toBe('Test image');
-      expect(props.quality).toBe(90);
-    });
-  });
-
   describe('SnapkitConfig interface', () => {
-    it('should make all config options optional', () => {
-      const emptyConfig: SnapkitConfig = {};
-      expect(emptyConfig).toBeDefined();
+    it('should require organizationName, defaultQuality and defaultFormat', () => {
+      const minimalConfig: SnapkitConfig = {
+        organizationName: 'test-org',
+        defaultQuality: 85,
+        defaultFormat: 'auto',
+      };
+      expect(minimalConfig.organizationName).toBe('test-org');
+      expect(minimalConfig.defaultQuality).toBe(85);
+      expect(minimalConfig.defaultFormat).toBe('auto');
 
       const fullConfig: SnapkitConfig = {
-        baseUrl: 'https://test.com',
         organizationName: 'test-org',
         defaultQuality: 85,
         defaultFormat: 'auto',
       };
 
-      expect(fullConfig.baseUrl).toBe('https://test.com');
       expect(fullConfig.organizationName).toBe('test-org');
       expect(fullConfig.defaultQuality).toBe(85);
       expect(fullConfig.defaultFormat).toBe('auto');
@@ -268,7 +233,11 @@ describe('Type definition validation', () => {
       ];
 
       formats.forEach((format) => {
-        const config: SnapkitConfig = { defaultFormat: format };
+        const config: SnapkitConfig = {
+          organizationName: 'test-org',
+          defaultQuality: 85,
+          defaultFormat: format,
+        };
         expect(config.defaultFormat).toBe(format);
       });
     });
@@ -327,7 +296,6 @@ describe('Type definition validation', () => {
       const propsWithoutSrc: PicturePropsWithoutSrc = {
         alt: 'Test',
         width: 800,
-        organizationName: 'test-org',
       };
 
       expect(propsWithoutSrc.alt).toBe('Test');

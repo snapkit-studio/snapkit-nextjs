@@ -1,4 +1,4 @@
-import { ImageTransforms } from "./types";
+import { ImageTransforms } from './types';
 
 export class SnapkitTransformBuilder {
   build(src: string, transforms: ImageTransforms): string {

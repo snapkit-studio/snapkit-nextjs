@@ -1,6 +1,7 @@
-import { CodeBlock } from "apps/nextjs-demo/app/components/CodeBlock";
-import { SnapkitImageExample } from "apps/nextjs-demo/app/examples/SnapkitImageExample";
-import { SnapkitImageLoaderExample } from "apps/nextjs-demo/app/examples/SnapkitImageLoaderExample";
+import { DPROptimizationExample } from 'apps/nextjs-demo/app/examples/DPROptimizationExample';
+import { ReactServerComponentExample } from 'apps/nextjs-demo/app/examples/ReactServerComponentExample';
+import ServerClientImageExample from 'apps/nextjs-demo/app/examples/ServerClientImageExample';
+import { SnapkitImageExample } from 'apps/nextjs-demo/app/examples/SnapkitImageExample';
 
 export default function Home() {
   return (
@@ -8,64 +9,44 @@ export default function Home() {
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm">
         <h1 className="mb-8 text-4xl font-bold">Snapkit Next.js Demo</h1>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-          <div>
-            <h2 className="mb-4 text-2xl font-semibold">{`Image Component`}</h2>
-            <SnapkitImageExample />
-            <CodeBlock language="tsx">
-              {`import { Image } from "@snapkit-studio/nextjs";
+        {/* Navigation */}
+        <nav className="mb-8 flex gap-4">
+          <a href="#basic" className="text-blue-500 hover:underline">
+            Basic Usage
+          </a>
+          <a href="#server-client" className="text-blue-500 hover:underline">
+            Next.js Server/Client
+          </a>
+          <a
+            href="#react-server-client"
+            className="text-blue-500 hover:underline"
+          >
+            React Server/Client
+          </a>
+          <a href="#dpr" className="text-blue-500 hover:underline">
+            DPR Optimization
+          </a>
+        </nav>
 
-export function SnapkitImageExample() {
-  return (
-    <Image
-      src="/landing-page/fox.jpg"
-      alt="fox image with grayscale and flop"
-      width={400}
-      height={300}
-      className="object-contain"
-      transforms={{
-        grayscale: true,
-        flop: true,
-      }}
-    />
-  );
-}`}
-            </CodeBlock>
-          </div>
-          <div>
-            <h2 className="mb-4 text-2xl font-semibold">next/image with Custom Loader</h2>
-            <SnapkitImageLoaderExample />
-            <CodeBlock language="tsx">
-              {`"use client";
+        {/* Basic Image Component */}
+        <div id="basic" className="mb-16">
+          <h2 className="mb-4 text-2xl font-semibold">Basic Image Component</h2>
+          <SnapkitImageExample />
+        </div>
 
-import Image from "next/image";
-import { SnapkitTransformBuilder } from "@snapkit-studio/core";
-import { createSnapkitLoader } from "@snapkit-studio/nextjs";
+        {/* Next.js Server/Client Component Demo */}
+        <div id="server-client" className="mt-16 w-full">
+          <ServerClientImageExample />
+        </div>
 
-export function SnapkitImageLoaderExample() {
-  const loader = createSnapkitLoader({ organizationName: "snapkit" });
-  const src = new SnapkitTransformBuilder().build("/landing-page/fox.jpg", {
-    grayscale: true,
-    flop: true,
-  });
+        {/* React Package Server/Client Component Demo */}
+        <div id="react-server-client" className="mt-16 w-full">
+          <ReactServerComponentExample />
+        </div>
 
-  return (
-    <Image
-      src={src}
-      alt="fox image with grayscale and flop"
-      width={400}
-      height={300}
-      style={{
-        width: 400,
-        height: 300,
-      }}
-      className="object-contain"
-      loader={loader}
-    />
-  );
-}`}
-            </CodeBlock>
-          </div>
+        {/* DPR Optimization Demo */}
+        <div id="dpr" className="mt-16 w-full">
+          <DPROptimizationExample />
         </div>
       </div>
     </main>

@@ -22,10 +22,12 @@ export function parseBrowserInfo(userAgent: string): BrowserInfo {
 
   // iOS version detection
   const iosMatch = ua.match(/OS (\d+)_(\d+)/);
-  const iosVersion = iosMatch ? {
-    major: parseInt(iosMatch[1]),
-    minor: parseInt(iosMatch[2])
-  } : undefined;
+  const iosVersion = iosMatch
+    ? {
+        major: parseInt(iosMatch[1]),
+        minor: parseInt(iosMatch[2]),
+      }
+    : undefined;
 
   // Platform detection
   let platform: BrowserInfo['platform'] = 'unknown';
@@ -33,7 +35,11 @@ export function parseBrowserInfo(userAgent: string): BrowserInfo {
     platform = 'ios';
   } else if (ua.includes('Android')) {
     platform = 'android';
-  } else if (ua.includes('Windows') || ua.includes('Macintosh') || ua.includes('Linux')) {
+  } else if (
+    ua.includes('Windows') ||
+    ua.includes('Macintosh') ||
+    ua.includes('Linux')
+  ) {
     platform = 'desktop';
   }
 
@@ -49,30 +55,36 @@ export function parseBrowserInfo(userAgent: string): BrowserInfo {
   if (edgeMatch || legacyEdgeMatch) {
     return {
       name: 'edge',
-      version: edgeMatch ? parseInt(edgeMatch[1]) : (legacyEdgeMatch ? parseInt(legacyEdgeMatch[1]) : 0),
+      version: edgeMatch
+        ? parseInt(edgeMatch[1])
+        : legacyEdgeMatch
+          ? parseInt(legacyEdgeMatch[1])
+          : 0,
       platform,
-      iosVersion
+      iosVersion,
     };
   } else if (chromeMatch || iosChromeMatch) {
     return {
       name: 'chrome',
-      version: chromeMatch ? parseInt(chromeMatch[1]) : parseInt(iosChromeMatch![1]),
+      version: chromeMatch
+        ? parseInt(chromeMatch[1])
+        : parseInt(iosChromeMatch![1]),
       platform,
-      iosVersion
+      iosVersion,
     };
   } else if (firefoxMatch) {
     return {
       name: 'firefox',
       version: parseInt(firefoxMatch[1]),
       platform,
-      iosVersion
+      iosVersion,
     };
   } else if (safariMatch || platform === 'ios') {
     return {
       name: 'safari',
       version: safariMatch ? parseInt(safariMatch[1]) : 0,
       platform,
-      iosVersion
+      iosVersion,
     };
   }
 
@@ -80,7 +92,7 @@ export function parseBrowserInfo(userAgent: string): BrowserInfo {
     name: 'unknown',
     version: 0,
     platform,
-    iosVersion
+    iosVersion,
   };
 }
 
@@ -156,7 +168,7 @@ export function getFormatSupportFromUA(userAgent: string): FormatSupport {
 
   return {
     avif: checkAvifSupport(browserInfo),
-    webp: checkWebpSupport(browserInfo)
+    webp: checkWebpSupport(browserInfo),
   };
 }
 

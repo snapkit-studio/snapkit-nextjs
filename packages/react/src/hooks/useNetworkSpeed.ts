@@ -1,14 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { NetworkSpeed, detectNetworkSpeed } from '@snapkit-studio/core';
+//
+import { detectNetworkSpeed, NetworkSpeed } from '@snapkit-studio/core';
 
 /**
  * Hook to detect and monitor network speed changes
  * @returns Current network speed type
  */
 export function useNetworkSpeed(): NetworkSpeed {
-  const [networkSpeed, setNetworkSpeed] = useState<NetworkSpeed>(detectNetworkSpeed());
+  const [networkSpeed, setNetworkSpeed] =
+    useState<NetworkSpeed>(detectNetworkSpeed());
 
   useEffect(() => {
     const updateNetworkSpeed = () => {
@@ -17,6 +19,7 @@ export function useNetworkSpeed(): NetworkSpeed {
 
     // Listen for network changes
     if ('connection' in navigator) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const connection = (navigator as any).connection;
       connection?.addEventListener('change', updateNetworkSpeed);
 

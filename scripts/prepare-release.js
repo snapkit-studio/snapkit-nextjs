@@ -20,16 +20,16 @@ const execAsync = promisify(exec);
 const PUBLISHABLE_PACKAGES = [
   {
     name: '@snapkit-studio/core',
-    directory: 'packages/core'
+    directory: 'packages/core',
   },
   {
     name: '@snapkit-studio/react',
-    directory: 'packages/react'
+    directory: 'packages/react',
   },
   {
     name: '@snapkit-studio/nextjs',
-    directory: 'packages/nextjs'
-  }
+    directory: 'packages/nextjs',
+  },
 ];
 
 // Removed workspace dependency mapping functions - Changesets handles this!
@@ -62,7 +62,7 @@ function removeRepoDependencies(deps) {
   const cleaned = { ...deps };
   let removedCount = 0;
 
-  Object.keys(cleaned).forEach(dep => {
+  Object.keys(cleaned).forEach((dep) => {
     if (dep.startsWith('@repo/')) {
       delete cleaned[dep];
       removedCount++;
@@ -84,9 +84,12 @@ function replaceWorkspaceWithLatest(deps) {
   const updated = { ...deps };
   let updatedCount = 0;
 
-  Object.keys(updated).forEach(dep => {
-    if ((dep === '@snapkit-studio/core' || dep === '@snapkit-studio/react') &&
-        (updated[dep].startsWith('workspace:') || updated[dep].startsWith('workspace'))) {
+  Object.keys(updated).forEach((dep) => {
+    if (
+      (dep === '@snapkit-studio/core' || dep === '@snapkit-studio/react') &&
+      (updated[dep].startsWith('workspace:') ||
+        updated[dep].startsWith('workspace'))
+    ) {
       const oldValue = updated[dep];
       updated[dep] = 'latest';
       updatedCount++;
@@ -108,23 +111,42 @@ function transformPackageForRelease(packageData, packageInfo) {
   console.log(`   ℹ️  Processing dependencies for npm publication`);
 
   // First, replace workspace protocol with latest for internal packages
-  transformed.dependencies = replaceWorkspaceWithLatest(transformed.dependencies);
-  transformed.devDependencies = replaceWorkspaceWithLatest(transformed.devDependencies);
-  transformed.peerDependencies = replaceWorkspaceWithLatest(transformed.peerDependencies);
+  transformed.dependencies = replaceWorkspaceWithLatest(
+    transformed.dependencies,
+  );
+  transformed.devDependencies = replaceWorkspaceWithLatest(
+    transformed.devDependencies,
+  );
+  transformed.peerDependencies = replaceWorkspaceWithLatest(
+    transformed.peerDependencies,
+  );
 
   // Then remove @repo/ dependencies
   transformed.dependencies = removeRepoDependencies(transformed.dependencies);
-  transformed.devDependencies = removeRepoDependencies(transformed.devDependencies);
-  transformed.peerDependencies = removeRepoDependencies(transformed.peerDependencies);
+  transformed.devDependencies = removeRepoDependencies(
+    transformed.devDependencies,
+  );
+  transformed.peerDependencies = removeRepoDependencies(
+    transformed.peerDependencies,
+  );
 
   // Clean up empty dependency objects
-  if (transformed.dependencies && Object.keys(transformed.dependencies).length === 0) {
+  if (
+    transformed.dependencies &&
+    Object.keys(transformed.dependencies).length === 0
+  ) {
     delete transformed.dependencies;
   }
-  if (transformed.devDependencies && Object.keys(transformed.devDependencies).length === 0) {
+  if (
+    transformed.devDependencies &&
+    Object.keys(transformed.devDependencies).length === 0
+  ) {
     delete transformed.devDependencies;
   }
-  if (transformed.peerDependencies && Object.keys(transformed.peerDependencies).length === 0) {
+  if (
+    transformed.peerDependencies &&
+    Object.keys(transformed.peerDependencies).length === 0
+  ) {
     delete transformed.peerDependencies;
   }
 
@@ -140,17 +162,19 @@ async function prepareRelease() {
   console.log('📋 We only need to remove @repo/ dependencies\n');
 
   // Process each publishable package
-  PUBLISHABLE_PACKAGES.forEach(packageInfo => {
+  PUBLISHABLE_PACKAGES.forEach((packageInfo) => {
     try {
       // Read original package.json
       const originalPackage = readPackageJson(packageInfo.directory);
 
       // Transform for release (only remove @repo/ deps)
-      const releasePackage = transformPackageForRelease(originalPackage, packageInfo);
+      const releasePackage = transformPackageForRelease(
+        originalPackage,
+        packageInfo,
+      );
 
       // Write release package.json
       writePackageJson(packageInfo.directory, releasePackage, '.release');
-
     } catch (error) {
       console.error(`❌ Error processing ${packageInfo.name}:`, error.message);
       process.exit(1);
@@ -159,7 +183,7 @@ async function prepareRelease() {
 
   console.log('\n✅ All release packages prepared successfully!');
   console.log('\n📋 Release-ready files created:');
-  PUBLISHABLE_PACKAGES.forEach(pkg => {
+  PUBLISHABLE_PACKAGES.forEach((pkg) => {
     console.log(`   - ${pkg.directory}/package.release.json`);
   });
 
@@ -176,8 +200,11 @@ async function prepareRelease() {
 function restoreOriginalPackages() {
   console.log('🔄 Restoring original package.json files...\n');
 
-  PUBLISHABLE_PACKAGES.forEach(packageInfo => {
-    const releaseFile = path.join(packageInfo.directory, 'package.release.json');
+  PUBLISHABLE_PACKAGES.forEach((packageInfo) => {
+    const releaseFile = path.join(
+      packageInfo.directory,
+      'package.release.json',
+    );
 
     // Remove release file if it exists
     if (fs.existsSync(releaseFile)) {
@@ -196,7 +223,7 @@ if (require.main === module) {
   switch (command) {
     case 'prepare':
     case undefined:
-      prepareRelease().catch(error => {
+      prepareRelease().catch((error) => {
         console.error('❌ Release preparation failed:', error.message);
         process.exit(1);
       });
@@ -205,7 +232,9 @@ if (require.main === module) {
       restoreOriginalPackages();
       break;
     case 'help':
-      console.log('Enhanced Release Preparation Script with Changesets Integration');
+      console.log(
+        'Enhanced Release Preparation Script with Changesets Integration',
+      );
       console.log('');
       console.log('Usage:');
       console.log('  node scripts/prepare-release.js [command]');
@@ -213,19 +242,29 @@ if (require.main === module) {
       console.log('Commands:');
       console.log('  prepare   Prepare packages for release (default)');
       console.log('            - Removes @repo/ dependencies only');
-      console.log('            - Preserves Changesets internal dependency updates');
-      console.log('            - Creates .release.json files for safe publishing');
+      console.log(
+        '            - Preserves Changesets internal dependency updates',
+      );
+      console.log(
+        '            - Creates .release.json files for safe publishing',
+      );
       console.log('  cleanup   Remove .release.json files');
       console.log('  help      Show this help message');
       console.log('');
       console.log('Integration with Changesets:');
-      console.log('  1. Use "changeset version" to update versions and internal deps');
+      console.log(
+        '  1. Use "changeset version" to update versions and internal deps',
+      );
       console.log('  2. Run this script to clean @repo/ dependencies only');
-      console.log('  3. Use "changeset publish" for dependency-ordered deployment');
+      console.log(
+        '  3. Use "changeset publish" for dependency-ordered deployment',
+      );
       break;
     default:
       console.error(`Unknown command: ${command}`);
-      console.error('Run "node scripts/prepare-release.js help" for usage information');
+      console.error(
+        'Run "node scripts/prepare-release.js help" for usage information',
+      );
       process.exit(1);
   }
 }
@@ -234,5 +273,5 @@ module.exports = {
   prepareRelease,
   restoreOriginalPackages,
   transformPackageForRelease,
-  PUBLISHABLE_PACKAGES
+  PUBLISHABLE_PACKAGES,
 };

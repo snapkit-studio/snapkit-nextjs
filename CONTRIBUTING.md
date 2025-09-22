@@ -43,15 +43,18 @@ git config commit.template .gitmessage
 This is a monorepo containing multiple packages for the Snapkit image optimization ecosystem:
 
 ### Packages
+
 - **`@snapkit-studio/core`**: Core image transformation and URL building utilities
 - **`@snapkit-studio/nextjs`**: Next.js Image component integration with App Router support
 - **`@snapkit-studio/react`**: React image components with automatic optimization
 
 ### Applications
+
 - **`apps/nextjs-demo`**: Demo application showcasing Next.js integration
 - **`apps/react-demo`**: Demo application showcasing React integration
 
 ### System Requirements
+
 - Node.js >= 22.0.0
 - pnpm >= 10.0.0
 - Git >= 2.28.0
@@ -61,16 +64,19 @@ This is a monorepo containing multiple packages for the Snapkit image optimizati
 ### Setting Up Your Local Environment
 
 1. **Install dependencies**:
+
    ```bash
    pnpm install
    ```
 
 2. **Build all packages**:
+
    ```bash
    pnpm build
    ```
 
 3. **Run tests**:
+
    ```bash
    # All tests
    pnpm test
@@ -80,6 +86,7 @@ This is a monorepo containing multiple packages for the Snapkit image optimizati
    ```
 
 4. **Start development**:
+
    ```bash
    # Start all dev servers
    pnpm dev
@@ -90,6 +97,7 @@ This is a monorepo containing multiple packages for the Snapkit image optimizati
    ```
 
 5. **Run type checking**:
+
    ```bash
    pnpm check-types
    ```
@@ -118,6 +126,7 @@ When working with package dependencies in our monorepo, it's crucial to understa
 #### Why This Matters
 
 When packages are published to npm with `workspace:*` references in production dependencies, external users will encounter the error:
+
 ```
 npm error code EUNSUPPORTEDPROTOCOL
 npm error Unsupported URL Type "workspace:": workspace:*
@@ -135,6 +144,7 @@ We have multiple layers of protection to prevent workspace protocol issues:
 ### Making Changes
 
 1. **Create a branch** from `main`:
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -172,6 +182,7 @@ type[optional scope]: description
 ```
 
 **Types:**
+
 - `feat`: A new feature
 - `fix`: A bug fix
 - `docs`: Documentation only changes
@@ -182,6 +193,7 @@ type[optional scope]: description
 - `chore`: Changes to the build process or auxiliary tools
 
 **Examples:**
+
 ```bash
 feat: add image compression options
 fix: resolve TypeScript compilation errors
@@ -199,6 +211,7 @@ feat!: change default compression quality to 80
 ## Pull Request Process
 
 1. **Update your fork**:
+
    ```bash
    git checkout main
    git pull upstream main
@@ -207,6 +220,7 @@ feat!: change default compression quality to 80
    ```
 
 2. **Push your changes**:
+
    ```bash
    git push origin your-branch
    ```
@@ -231,18 +245,21 @@ feat!: change default compression quality to 80
 ## Package-Specific Guidelines
 
 ### @snapkit-studio/core
+
 - Core transformation logic for image optimization
 - Browser compatibility utilities
 - URL building and parameter management
 - **Testing**: Focus on transformation accuracy and URL generation
 
 ### @snapkit-studio/nextjs
+
 - Next.js Image component integration
 - App Router and Pages Router support
 - SSR/SSG compatibility
 - **Testing**: Ensure both router types work correctly
 
 ### @snapkit-studio/react
+
 - Pure React image components
 - Framework-agnostic implementation
 - Client-side optimization
@@ -273,6 +290,7 @@ feat!: change default compression quality to 80
 - Use Vitest for testing
 
 Example:
+
 ```typescript
 describe('Image component', () => {
   it('should render with correct src attribute', () => {

@@ -5,12 +5,14 @@
 ## 🎯 **핵심 개선사항**
 
 ### ✅ **해결된 문제들**
+
 - **동시 배포 이슈**: 의존성 그래프 기반 순차 배포
 - **@repo/ 의존성**: 릴리즈 시 자동 제거
-- **workspace:* 변환**: npm 레지스트리의 실제 버전 사용
+- **workspace:\* 변환**: npm 레지스트리의 실제 버전 사용
 - **배포 안전성**: 실패 시 자동 롤백
 
 ### 🔄 **개발 vs 릴리즈 전략**
+
 ```
 개발 모드: workspace:* 사용 (빠른 로컬 개발)
 릴리즈 모드: npm 레지스트리 버전 사용 (안전성)
@@ -19,6 +21,7 @@
 ## 📋 **워크플로우**
 
 ### **1. 변경사항 기록 (개발자)**
+
 ```bash
 # 기능 개발 완료 후 changeset 생성
 pnpm changeset
@@ -30,11 +33,13 @@ pnpm changeset
 ```
 
 ### **2. PR 생성 및 리뷰**
+
 - changeset 파일이 PR에 포함됨
 - 팀원들이 변경사항과 버전 영향도 검토
 - CI에서 빌드/테스트 자동 실행
 
 ### **3. 자동 릴리즈 (main 브랜치 머지 후)**
+
 ```bash
 # GitHub Actions이 자동으로 실행:
 1. 빌드 및 테스트
@@ -47,12 +52,14 @@ pnpm changeset
 ## 🛠 **수동 릴리즈 (로컬)**
 
 ### **전체 릴리즈 프로세스**
+
 ```bash
 # 한 번에 모든 과정 실행
 pnpm release
 ```
 
 ### **단계별 실행**
+
 ```bash
 # 1. 빌드
 pnpm build
@@ -83,28 +90,32 @@ Changesets가 자동으로 계산하는 안전한 배포 순서:
 ## 🔧 **설정 파일들**
 
 ### **.changeset/config.json**
+
 ```json
 {
-  "access": "public",           // npm public 패키지
-  "baseBranch": "main",        // 기본 브랜치
+  "access": "public", // npm public 패키지
+  "baseBranch": "main", // 기본 브랜치
   "updateInternalDependencies": "patch", // 내부 의존성 자동 업데이트
-  "ignore": ["@repo/eslint-config"]      // workspace 전용 패키지 제외
+  "ignore": ["@repo/eslint-config"] // workspace 전용 패키지 제외
 }
 ```
 
 ### **scripts/prepare-release.js**
+
 - npm 레지스트리에서 실제 버전 조회
-- workspace:* → ^1.8.0 (실제 배포된 버전)
+- workspace:\* → ^1.8.0 (실제 배포된 버전)
 - @repo/ 의존성 완전 제거
 
 ## 🚨 **주의사항**
 
 ### **개발 시**
+
 - `workspace:*` 그대로 유지 (로컬 개발 최적화)
 - changeset 파일 꼼꼼히 작성
 - 버전 타입 신중히 선택 (breaking change → major)
 
 ### **릴리즈 시**
+
 - main 브랜치 푸시 전 충분한 테스트
 - CI 실패 시 즉시 확인 및 수정
 - npm 배포 실패 시 자동 롤백 확인
@@ -112,10 +123,12 @@ Changesets가 자동으로 계산하는 안전한 배포 순서:
 ## 📊 **모니터링**
 
 ### **GitHub Actions**
+
 - `.github/workflows/release.yml`에서 배포 과정 모니터링
 - 실패 시 Slack 알림 (설정 가능)
 
 ### **npm 배포 확인**
+
 ```bash
 # 배포된 버전 확인
 npm view @snapkit-studio/core version
@@ -126,10 +139,12 @@ npm view @snapkit-studio/nextjs version
 ## 🔄 **롤백 전략**
 
 ### **자동 롤백**
+
 - 배포 실패 시 Changesets가 자동으로 중단
 - 의존성 불일치 감지 시 배포 취소
 
 ### **수동 롤백**
+
 ```bash
 # 특정 버전으로 롤백
 npm unpublish @snapkit-studio/react@1.7.0

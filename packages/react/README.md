@@ -20,7 +20,7 @@ pnpm add @snapkit-studio/react
 ## Features
 
 - **React Image Component** - Drop-in replacement for HTML img with optimization
-- **SnapkitProvider** - Global configuration context
+- **Provider-less Architecture** - Direct component usage without wrappers
 - **Next.js Compatible** - Same API as Next.js Image component
 - **Automatic Format Detection** - AVIF, WebP, JPEG fallback
 - **Responsive Images** - Automatic srcset generation
@@ -37,18 +37,17 @@ Import only what you need for optimal bundle size:
 
 ```typescript
 // Image component only (~9 KB)
-import { Image } from '@snapkit-studio/react/image';
 
 // Specific hooks only (~8 KB)
 import {
+  useImageLazyLoading,
   useImageOptimization,
-  useImageLazyLoading
 } from '@snapkit-studio/react/hooks';
-
+import { Image } from '@snapkit-studio/react/image';
 // Utility functions only (~5 KB)
 import {
   createImageStyle,
-  mergeConfiguration
+  mergeConfiguration,
 } from '@snapkit-studio/react/utils';
 ```
 
@@ -57,47 +56,33 @@ import {
 Import everything from the main bundle (larger bundle size):
 
 ```typescript
-import {
-  Image,
-  SnapkitProvider,
-  useImageRefresh
-} from '@snapkit-studio/react';
+import { Image, SnapkitProvider, useImageRefresh } from '@snapkit-studio/react';
 ```
 
 ### Bundle Size Comparison
 
-| Import Method | Bundle Size | Use Case |
-|--------------|-------------|----------|
-| `@snapkit-studio/react/image` | ~9 KB | Image component only |
-| `@snapkit-studio/react/hooks` | ~8 KB | Custom implementations |
-| `@snapkit-studio/react/utils` | ~5 KB | Utility functions |
-| `@snapkit-studio/react` | ~22 KB | Full bundle |
+| Import Method                 | Bundle Size | Use Case               |
+| ----------------------------- | ----------- | ---------------------- |
+| `@snapkit-studio/react/image` | ~9 KB       | Image component only   |
+| `@snapkit-studio/react/hooks` | ~8 KB       | Custom implementations |
+| `@snapkit-studio/react/utils` | ~5 KB       | Utility functions      |
+| `@snapkit-studio/react`       | ~22 KB      | Full bundle            |
 
 ## Quick Start
 
-### 1. Provider Setup
+### 1. Environment Setup
 
-```tsx
-import { SnapkitProvider } from '@snapkit-studio/react';
-
-function App() {
-  return (
-    <SnapkitProvider
-      baseUrl="https://snapkit-cdn.snapkit.studio"
-      organizationName="your-org"
-      defaultQuality={85}
-      defaultFormat="auto"
-    >
-      <YourApp />
-    </SnapkitProvider>
-  );
-}
+```bash
+# .env (Vite/CRA) - All available environment variables
+VITE_SNAPKIT_ORGANIZATION_NAME=your-organization-name  # Required
+VITE_SNAPKIT_DEFAULT_QUALITY=85                       # Optional (default: 85)
+VITE_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT=auto             # Optional (default: auto)
 ```
 
-### 2. Basic Image Usage
+### 2. Basic Image Usage (Provider-less)
 
 ```tsx
-import { Image } from '@snapkit-studio/react';
+import { Image } from '@snapkit-studio/react/image';
 
 function MyComponent() {
   return (
@@ -107,6 +92,7 @@ function MyComponent() {
       width={800}
       height={600}
       priority
+      transforms={{ format: 'auto' }}
     />
   );
 }
@@ -137,74 +123,80 @@ import { Image } from '@snapkit-studio/react';
   transforms={{
     blur: 20,
     grayscale: true,
-    fit: "cover",
+    fit: 'cover',
   }}
   // Event handlers
   onLoad={() => console.log('Loaded')}
   onError={() => console.log('Error')}
-/>
+/>;
 ```
 
 #### Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `src` | `string` | - | Image path (required) |
-| `alt` | `string` | - | Alt text (required) |
-| `width` | `number` | - | Image width |
-| `height` | `number` | - | Image height |
-| `fill` | `boolean` | `false` | Fill parent container |
-| `sizes` | `string` | - | Responsive size settings |
-| `quality` | `number` | `85` | Image quality (1-100) |
-| `priority` | `boolean` | `false` | Priority loading |
-| `loading` | `'lazy' \| 'eager'` | `'lazy'` | Loading method |
-| `optimizeFormat` | `'auto' \| 'avif' \| 'webp' \| 'off'` | `'auto'` | Format optimization |
-| `transforms` | `ImageTransforms` | `{}` | Image transformation options |
-| `organizationName` | `string` | - | Override organization name |
-| `baseUrl` | `string` | - | Override base URL |
+| Prop               | Type                                  | Default  | Description                  |
+| ------------------ | ------------------------------------- | -------- | ---------------------------- |
+| `src`              | `string`                              | -        | Image path (required)        |
+| `alt`              | `string`                              | -        | Alt text (required)          |
+| `width`            | `number`                              | -        | Image width                  |
+| `height`           | `number`                              | -        | Image height                 |
+| `fill`             | `boolean`                             | `false`  | Fill parent container        |
+| `sizes`            | `string`                              | -        | Responsive size settings     |
+| `quality`          | `number`                              | `85`     | Image quality (1-100)        |
+| `priority`         | `boolean`                             | `false`  | Priority loading             |
+| `loading`          | `'lazy' \| 'eager'`                   | `'lazy'` | Loading method               |
+| `optimizeFormat`   | `'auto' \| 'avif' \| 'webp' \| 'off'` | `'auto'` | Format optimization          |
+| `transforms`       | `ImageTransforms`                     | `{}`     | Image transformation options |
+| `organizationName` | `string`                              | -        | Override organization name   |
+| `baseUrl`          | `string`                              | -        | Override base URL            |
 
-### SnapkitProvider
+### Environment Configuration
 
-Global configuration provider for all Snapkit components.
+Configuration through environment variables (recommended for most use cases).
 
-```tsx
-import { SnapkitProvider } from '@snapkit-studio/react';
+```bash
+# .env (Vite/CRA) - All available variables
+VITE_SNAPKIT_ORGANIZATION_NAME=your-organization-name  # Required
+VITE_SNAPKIT_DEFAULT_QUALITY=85                       # Optional (1-100, default: 85)
+VITE_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT=auto             # Optional (auto|avif|webp|off, default: auto)
 
-<SnapkitProvider
-  baseUrl="https://snapkit-cdn.snapkit.studio"
-  organizationName="your-org"
-  defaultQuality={85}
-  defaultFormat="auto"
->
-  {children}
-</SnapkitProvider>
+# .env.local (Next.js) - If using React package in Next.js
+NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME=your-organization-name
+NEXT_PUBLIC_SNAPKIT_DEFAULT_QUALITY=85
+NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT=auto
 ```
 
-#### SnapkitProvider Props
+#### Environment Variables Reference
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `baseUrl` | `string` | - | Image proxy server URL |
-| `organizationName` | `string` | - | Organization name |
-| `defaultQuality` | `number` | `85` | Default image quality |
-| `defaultFormat` | `'auto' \| 'avif' \| 'webp'` | `'auto'` | Default format |
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `VITE_SNAPKIT_ORGANIZATION_NAME` | Yes | - | Your Snapkit organization identifier |
+| `VITE_SNAPKIT_DEFAULT_QUALITY` | No | `85` | Default image quality (1-100) |
+| `VITE_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT` | No | `auto` | Format optimization strategy |
 
-### useSnapkitConfig Hook
+**Format Options:**
+- `auto`: Automatically select best format based on browser support
+- `avif`: Use AVIF format if supported, fallback to WebP/JPEG
+- `webp`: Use WebP format if supported, fallback to JPEG
+- `off`: Disable format optimization
 
-Access Snapkit configuration in any component.
+### Component Props Override
+
+Override environment settings on individual components when needed.
 
 ```tsx
-import { useSnapkitConfig } from '@snapkit-studio/react';
+import { Image } from '@snapkit-studio/react/image';
 
 function MyComponent() {
-  const config = useSnapkitConfig();
-
   return (
-    <div>
-      <p>Base URL: {config.baseUrl}</p>
-      <p>Organization: {config.organizationName}</p>
-      <p>Default Quality: {config.defaultQuality}</p>
-    </div>
+    <Image
+      src="/special-image.jpg"
+      alt="Special image"
+      width={800}
+      height={600}
+      organizationName="custom-org"  // Override env var
+      quality={95}                   // Override default quality
+      transforms={{ format: 'avif' }} // Override default format
+    />
   );
 }
 ```
@@ -457,7 +449,7 @@ function OptimizedGallery() {
           width={300}
           height={300}
           quality={75}
-          transforms={{ fit: "cover" }}
+          transforms={{ fit: 'cover' }}
           sizes="(max-width: 768px) 50vw, 25vw"
         />
       ))}
@@ -626,8 +618,9 @@ npm run lint
 ### Basic Gallery
 
 ```tsx
-import { SnapkitProvider, Image } from '@snapkit-studio/react';
+import { Image } from '@snapkit-studio/react/image';
 
+// .env: VITE_SNAPKIT_ORGANIZATION_NAME=gallery-app
 function Gallery() {
   const images = [
     { id: 1, src: '/gallery/1.jpg', alt: 'Photo 1' },
@@ -636,25 +629,19 @@ function Gallery() {
   ];
 
   return (
-    <SnapkitProvider
-      baseUrl="https://cdn.example.com"
-      organizationName="gallery-app"
-      defaultQuality={85}
-    >
-      <div className="grid grid-cols-3 gap-4">
-        {images.map((image) => (
-          <Image
-            key={image.id}
-            src={image.src}
-            alt={image.alt}
-            width={400}
-            height={300}
-            transforms={{ fit: 'cover' }}
-            sizes="(max-width: 768px) 100vw, 33vw"
-          />
-        ))}
-      </div>
-    </SnapkitProvider>
+    <div className="grid grid-cols-3 gap-4">
+      {images.map((image) => (
+        <Image
+          key={image.id}
+          src={image.src}
+          alt={image.alt}
+          width={400}
+          height={300}
+          transforms={{ fit: 'cover' }}
+          sizes="(max-width: 768px) 100vw, 33vw"
+        />
+      ))}
+    </div>
   );
 }
 ```
@@ -688,7 +675,7 @@ function HeroSection() {
 ```tsx
 function ProductCard({ product }) {
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+    <div className="overflow-hidden rounded-lg bg-white shadow-md">
       <div className="relative aspect-square">
         <Image
           src={product.image}
@@ -713,6 +700,89 @@ function ProductCard({ product }) {
 ## Contributing
 
 See the main [repository README](../../README.md) for contribution guidelines.
+
+## 🤖 AI Integration Prompts
+
+Copy-paste these prompts for AI coding assistants (Copilot, Cursor, Claude):
+
+### Basic Setup - No Provider Required
+```
+Add Snapkit image optimization to React component.
+Import from @snapkit-studio/react/image for 9KB bundle.
+No Provider needed - direct component usage.
+Set VITE_SNAPKIT_ORGANIZATION_NAME=your-org in .env
+or pass organizationName prop to each Image.
+<Image src="/photo.jpg" alt="Photo" width={800} height={600} />
+```
+
+### Vite Environment Setup
+```
+Configure Snapkit for Vite React app:
+1. npm install @snapkit-studio/react
+2. Create .env: VITE_SNAPKIT_ORGANIZATION_NAME=your-org
+3. Optional: VITE_SNAPKIT_DEFAULT_QUALITY=85
+4. Import: import { Image } from '@snapkit-studio/react/image'
+No Provider or wrapper components needed.
+```
+
+### Responsive Gallery - Provider-less
+```
+Build image gallery with @snapkit-studio/react/image:
+import { Image } from '@snapkit-studio/react/image';
+// No Provider wrapper needed
+{images.map(img => (
+  <Image
+    key={img.id}
+    src={img.src}
+    alt={img.alt}
+    width={400}
+    height={300}
+    transforms={{ fit: 'cover' }}
+    sizes="(max-width: 768px) 100vw, 33vw"
+  />
+))}
+```
+
+### E-commerce Product Images
+```
+Product gallery without Provider setup:
+import { Image } from '@snapkit-studio/react/image';
+Main: <Image src={mainImg} priority width={800} height={800} />
+Thumbs: <Image src={thumb} width={100} height={100} transforms={{ fit: 'cover' }} />
+Each Image works independently - no context needed.
+Pass organizationName or use VITE env var.
+```
+
+### Blog Images with Optimization
+```
+Optimize blog images - no Provider required:
+import { Image } from '@snapkit-studio/react/image';
+<Image
+  src="/blog/hero.jpg"
+  alt="Article"
+  width={1200}
+  height={630}
+  sizes="(max-width: 768px) 100vw, 768px"
+  quality={75}
+  transforms={{ format: 'auto' }}
+/>
+Works standalone without SnapkitProvider.
+```
+
+### Migration: Provider to Provider-less
+```
+Migrate from SnapkitProvider to direct usage:
+// OLD with Provider
+import { SnapkitProvider, Image } from '@snapkit-studio/react';
+<SnapkitProvider organizationName="org">
+  <Image src="/img.jpg" />
+</SnapkitProvider>
+
+// NEW without Provider (9KB smaller)
+import { Image } from '@snapkit-studio/react/image';
+<Image src="/img.jpg" organizationName="org" />
+// Or use env: VITE_SNAPKIT_ORGANIZATION_NAME
+```
 
 ## License
 

@@ -2,20 +2,11 @@
 export {
   createContainerStyle,
   createImageStyle,
-  createReservedSpace
+  createReservedSpace,
 } from './utils/styleCalculators';
-
-export {
-  mergeConfiguration
-} from './utils/configMerger';
-
-export {
-  addSizeToTransforms,
-  createFinalTransforms
-} from './utils/imageTransformUtils';
 
 export {
   createEnhancedLazyLoadObserver,
   shouldLoadEagerly,
-  createPreloadHint
+  createPreloadHint,
 } from './utils/loadingOptimization';

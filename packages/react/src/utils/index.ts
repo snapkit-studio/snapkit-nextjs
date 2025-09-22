@@ -1,8 +1,8 @@
-// Configuration utilities
-export * from './configMerger';
+// Environment configuration utilities
+export * from './env-config';
 
-// Image transform utilities
-export * from './imageTransformUtils';
+// URL creation utilities
+export * from './createImageUrl';
 
 // Style calculation utilities
 export * from './styleCalculators';

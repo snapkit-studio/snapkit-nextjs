@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { calculateEnhancedStyle } from '../utils';
 
 describe('Image Component - Aspect Ratio Logic', () => {
@@ -35,7 +36,7 @@ describe('Image Component - Aspect Ratio Logic', () => {
         height: undefined,
         width: 300,
         border: '1px solid red',
-        margin: '10px'
+        margin: '10px',
       });
     });
 
@@ -54,7 +55,7 @@ describe('Image Component - Aspect Ratio Logic', () => {
       expect(result).toEqual({
         width: 'auto',
         height: 200,
-        border: '2px solid blue'
+        border: '2px solid blue',
       });
     });
 

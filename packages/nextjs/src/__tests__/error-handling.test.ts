@@ -1,10 +1,51 @@
 import { SnapkitUrlBuilder } from '@snapkit-studio/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { createSnapkitLoader, snapkitLoader } from '../image-loader';
+
+// Mock utils/env-config module
+vi.mock('../utils/env-config', () => ({
+  parseEnvConfig: vi.fn(() => ({
+    organizationName: 'test-org',
+    defaultQuality: 85,
+    defaultFormat: 'auto',
+  })),
+  validateEnvConfig: vi.fn(() => ({
+    isValid: true,
+    errors: [],
+    warnings: [],
+  })),
+}));
 
 // Mock @snapkit-studio/core module
 vi.mock('@snapkit-studio/core', () => ({
   SnapkitUrlBuilder: vi.fn(),
+  environmentStrategies: [
+    { name: 'nextjs-only', getEnvVar: vi.fn() },
+    { name: 'universal', getEnvVar: vi.fn() },
+  ],
+  SnapkitImageEngine: vi.fn().mockImplementation(() => ({
+    createNextJsLoader: vi
+      .fn()
+      .mockReturnValue(
+        vi.fn().mockReturnValue('https://mocked-url.com/test.jpg'),
+      ),
+  })),
+  getEnvConfig: vi.fn(() => ({
+    SNAPKIT_ORGANIZATION_NAME:
+      process.env.NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME,
+    SNAPKIT_DEFAULT_QUALITY: process.env.NEXT_PUBLIC_SNAPKIT_DEFAULT_QUALITY
+      ? parseInt(process.env.NEXT_PUBLIC_SNAPKIT_DEFAULT_QUALITY)
+      : undefined,
+    SNAPKIT_DEFAULT_OPTIMIZE_FORMAT:
+      process.env.NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT,
+  })),
+  validateEnvConfig: vi.fn(() => ({
+    isValid: true,
+    errors: [],
+    warnings: [],
+  })),
+  mergeConfigWithEnv: vi.fn(),
 }));
 
 describe('Enhanced Error Handling', () => {
@@ -18,6 +59,10 @@ describe('Enhanced Error Handling', () => {
     vi.clearAllMocks();
     // Reset environment variables
     process.env = { ...originalEnv };
+    // Set up NEXT_PUBLIC environment variables for testing
+    process.env.NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME = 'test-org';
+    process.env.NEXT_PUBLIC_SNAPKIT_DEFAULT_QUALITY = '80';
+    process.env.NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT = 'auto';
   });
 
   afterEach(() => {
@@ -29,49 +74,73 @@ describe('Enhanced Error Handling', () => {
     it('should throw descriptive error for empty src', () => {
       expect(() => {
         snapkitLoader({ src: '', width: 800, quality: 85 });
-      }).toThrow('Invalid image source: src must be a non-empty string. Received: ""');
+      }).toThrow(
+        'Invalid image source: src must be a non-empty string. Received: ""',
+      );
     });
 
     it('should throw descriptive error for non-string src', () => {
       expect(() => {
         snapkitLoader({ src: null as any, width: 800, quality: 85 });
-      }).toThrow('Invalid image source: src must be a non-empty string. Received: object');
+      }).toThrow(
+        'Invalid image source: src must be a non-empty string. Received: object',
+      );
 
       expect(() => {
         snapkitLoader({ src: 123 as any, width: 800, quality: 85 });
-      }).toThrow('Invalid image source: src must be a non-empty string. Received: number');
+      }).toThrow(
+        'Invalid image source: src must be a non-empty string. Received: number',
+      );
     });
 
     it('should throw descriptive error for invalid width', () => {
       expect(() => {
         snapkitLoader({ src: '/test.jpg', width: 0, quality: 85 });
-      }).toThrow('Invalid width parameter: width must be a positive number. Received: 0 (type: number)');
+      }).toThrow(
+        'Invalid width parameter: width must be a positive number. Received: 0 (type: number)',
+      );
 
       expect(() => {
         snapkitLoader({ src: '/test.jpg', width: -100, quality: 85 });
-      }).toThrow('Invalid width parameter: width must be a positive number. Received: -100 (type: number)');
+      }).toThrow(
+        'Invalid width parameter: width must be a positive number. Received: -100 (type: number)',
+      );
 
       expect(() => {
-        snapkitLoader({ src: '/test.jpg', width: 'invalid' as any, quality: 85 });
-      }).toThrow('Invalid width parameter: width must be a positive number. Received: invalid (type: string)');
+        snapkitLoader({
+          src: '/test.jpg',
+          width: 'invalid' as any,
+          quality: 85,
+        });
+      }).toThrow(
+        'Invalid width parameter: width must be a positive number. Received: invalid (type: string)',
+      );
 
       expect(() => {
         snapkitLoader({ src: '/test.jpg', width: Infinity, quality: 85 });
-      }).toThrow('Invalid width parameter: width must be a positive number. Received: Infinity (type: number)');
+      }).toThrow(
+        'Invalid width parameter: width must be a positive number. Received: Infinity (type: number)',
+      );
     });
 
     it('should throw descriptive error for invalid quality', () => {
       expect(() => {
         snapkitLoader({ src: '/test.jpg', width: 800, quality: 0 });
-      }).toThrow('Invalid quality parameter: quality must be a number between 1 and 100. Received: 0 (type: number)');
+      }).toThrow(
+        'Invalid quality parameter: quality must be a number between 1 and 100. Received: 0 (type: number)',
+      );
 
       expect(() => {
         snapkitLoader({ src: '/test.jpg', width: 800, quality: 101 });
-      }).toThrow('Invalid quality parameter: quality must be a number between 1 and 100. Received: 101 (type: number)');
+      }).toThrow(
+        'Invalid quality parameter: quality must be a number between 1 and 100. Received: 101 (type: number)',
+      );
 
       expect(() => {
         snapkitLoader({ src: '/test.jpg', width: 800, quality: 'high' as any });
-      }).toThrow('Invalid quality parameter: quality must be a number between 1 and 100. Received: high (type: string)');
+      }).toThrow(
+        'Invalid quality parameter: quality must be a number between 1 and 100. Received: high (type: string)',
+      );
     });
 
     it('should throw error when URL builder fails', () => {
@@ -85,7 +154,7 @@ describe('Enhanced Error Handling', () => {
       expect(() => {
         snapkitLoader({ src: '/test.jpg', width: 800, quality: 85 });
       }).toThrow(
-        'Failed to generate optimized URL: URL generation failed. Please check your organization name and image source path.'
+        'Failed to generate optimized URL: URL generation failed. Please check your organization name and image source path.',
       );
     });
 
@@ -100,7 +169,7 @@ describe('Enhanced Error Handling', () => {
       expect(() => {
         snapkitLoader({ src: '/test.jpg', width: 800, quality: 85 });
       }).toThrow(
-        'Failed to generate optimized URL: Network error. Please check your organization name and image source path.'
+        'Failed to generate optimized URL: Network error. Please check your organization name and image source path.',
       );
     });
   });
@@ -114,50 +183,62 @@ describe('Enhanced Error Handling', () => {
 
     it('should throw descriptive error for missing organization name', () => {
       expect(() => {
-        createSnapkitLoader({ organizationName: undefined as any });
-      }).toThrow('Invalid organization name: organizationName must be a non-empty string. Received: undefined. Please provide your Snapkit organization name from your dashboard.');
+        createSnapkitLoader();
+      }).toThrow(
+        'Invalid organization name: organizationName must be a non-empty string. Received: undefined. Please provide your Snapkit organization name from your dashboard.',
+      );
 
       expect(() => {
-        createSnapkitLoader({ organizationName: null as any });
-      }).toThrow('Invalid organization name: organizationName must be a non-empty string. Received: object. Please provide your Snapkit organization name from your dashboard.');
+        createSnapkitLoader();
+      }).toThrow(
+        'Invalid organization name: organizationName must be a non-empty string. Received: object. Please provide your Snapkit organization name from your dashboard.',
+      );
 
       expect(() => {
-        createSnapkitLoader({ organizationName: '' });
-      }).toThrow('Invalid organization name: organizationName must be a non-empty string. Received: "". Please provide your Snapkit organization name from your dashboard.');
+        createSnapkitLoader();
+      }).toThrow(
+        'Invalid organization name: organizationName must be a non-empty string. Received: "". Please provide your Snapkit organization name from your dashboard.',
+      );
 
       expect(() => {
-        createSnapkitLoader({ organizationName: '   ' });
-      }).toThrow('Invalid organization name: organizationName cannot be empty or whitespace only. Please provide your Snapkit organization name from your dashboard.');
+        createSnapkitLoader();
+      }).toThrow(
+        'Invalid organization name: organizationName cannot be empty or whitespace only. Please provide your Snapkit organization name from your dashboard.',
+      );
     });
 
     it('should throw descriptive error for invalid options type', () => {
       expect(() => {
-        createSnapkitLoader(null as any);
-      }).toThrow('Invalid loader options: options must be an object. Received: null');
+        createSnapkitLoader();
+      }).toThrow(
+        'Invalid loader options: options must be an object. Received: null',
+      );
 
       expect(() => {
-        createSnapkitLoader(undefined as any);
-      }).toThrow('Invalid loader options: options must be an object. Received: undefined');
+        createSnapkitLoader();
+      }).toThrow(
+        'Invalid loader options: options must be an object. Received: undefined',
+      );
 
       expect(() => {
-        createSnapkitLoader('string' as any);
-      }).toThrow('Invalid loader options: options must be an object. Received: string');
+        createSnapkitLoader();
+      }).toThrow(
+        'Invalid loader options: options must be an object. Received: string',
+      );
     });
 
     it('should throw descriptive error for invalid unoptimizedFormat', () => {
       expect(() => {
-        createSnapkitLoader({
-          organizationName: 'test-org',
-          unoptimizedFormat: 'invalid' as any,
-        });
-      }).toThrow('Invalid unoptimizedFormat option: must be a boolean value. Received: invalid (type: string)');
+        createSnapkitLoader();
+      }).toThrow(
+        'Invalid unoptimizedFormat option: must be a boolean value. Received: invalid (type: string)',
+      );
 
       expect(() => {
-        createSnapkitLoader({
-          organizationName: 'test-org',
-          unoptimizedFormat: 1 as any,
-        });
-      }).toThrow('Invalid unoptimizedFormat option: must be a boolean value. Received: 1 (type: number)');
+        createSnapkitLoader();
+      }).toThrow(
+        'Invalid unoptimizedFormat option: must be a boolean value. Received: 1 (type: number)',
+      );
     });
 
     it('should wrap URL builder creation errors', () => {
@@ -166,24 +247,32 @@ describe('Enhanced Error Handling', () => {
       });
 
       expect(() => {
-        createSnapkitLoader({ organizationName: 'invalid-org' });
-      }).toThrow('Failed to create URL builder: Invalid organization configuration. Please verify your organization name is correct.');
+        createSnapkitLoader();
+      }).toThrow(
+        'Failed to create URL builder: Invalid organization configuration. Please verify your organization name is correct.',
+      );
     });
 
     it('should handle runtime parameter validation in custom loader', () => {
-      const customLoader = createSnapkitLoader({ organizationName: 'test-org' });
+      const customLoader = createSnapkitLoader();
 
       expect(() => {
         customLoader({ src: '', width: 800, quality: 85 });
-      }).toThrow('Invalid image source: src must be a non-empty string. Received: ""');
+      }).toThrow(
+        'Invalid image source: src must be a non-empty string. Received: ""',
+      );
 
       expect(() => {
         customLoader({ src: '/test.jpg', width: 0, quality: 85 });
-      }).toThrow('Invalid width parameter: width must be a positive number. Received: 0 (type: number)');
+      }).toThrow(
+        'Invalid width parameter: width must be a positive number. Received: 0 (type: number)',
+      );
 
       expect(() => {
         customLoader({ src: '/test.jpg', width: 800, quality: 0 });
-      }).toThrow('Invalid quality parameter: quality must be a number between 1 and 100. Received: 0 (type: number)');
+      }).toThrow(
+        'Invalid quality parameter: quality must be a number between 1 and 100. Received: 0 (type: number)',
+      );
     });
 
     it('should wrap URL generation errors in custom loader', () => {
@@ -191,11 +280,13 @@ describe('Enhanced Error Handling', () => {
         throw new Error('Transform error');
       });
 
-      const customLoader = createSnapkitLoader({ organizationName: 'test-org' });
+      const customLoader = createSnapkitLoader();
 
       expect(() => {
         customLoader({ src: '/test.jpg', width: 800, quality: 85 });
-      }).toThrow('Failed to generate optimized URL: Transform error. Please check your organization name and image source path.');
+      }).toThrow(
+        'Failed to generate optimized URL: Transform error. Please check your organization name and image source path.',
+      );
     });
   });
 
@@ -203,16 +294,18 @@ describe('Enhanced Error Handling', () => {
     it('should handle special character organization names', () => {
       const MockSnapkitUrlBuilder = vi.mocked(SnapkitUrlBuilder);
       MockSnapkitUrlBuilder.mockImplementation(() => mockUrlBuilder as any);
-      mockUrlBuilder.buildTransformedUrl.mockReturnValue('https://special.com/test.jpg');
+      mockUrlBuilder.buildTransformedUrl.mockReturnValue(
+        'https://special.com/test.jpg',
+      );
 
       // Should not throw for valid special characters
       expect(() => {
-        const loader = createSnapkitLoader({ organizationName: 'test-org-123' });
+        const loader = createSnapkitLoader();
         loader({ src: '/test.jpg', width: 800 });
       }).not.toThrow();
 
       expect(() => {
-        const loader = createSnapkitLoader({ organizationName: 'test_org' });
+        const loader = createSnapkitLoader();
         loader({ src: '/test.jpg', width: 800 });
       }).not.toThrow();
     });
@@ -220,8 +313,10 @@ describe('Enhanced Error Handling', () => {
     it('should maintain error message consistency', () => {
       const expectedMessages = {
         invalidSrc: 'Invalid image source: src must be a non-empty string.',
-        invalidWidth: 'Invalid width parameter: width must be a positive number.',
-        invalidQuality: 'Invalid quality parameter: quality must be a number between 1 and 100.',
+        invalidWidth:
+          'Invalid width parameter: width must be a positive number.',
+        invalidQuality:
+          'Invalid quality parameter: quality must be a number between 1 and 100.',
         urlGenerationFailed: 'Failed to generate optimized URL:',
       };
 
@@ -235,13 +330,17 @@ describe('Enhanced Error Handling', () => {
       try {
         snapkitLoader({ src: '/test.jpg', width: 0 });
       } catch (error) {
-        expect((error as Error).message).toContain(expectedMessages.invalidWidth);
+        expect((error as Error).message).toContain(
+          expectedMessages.invalidWidth,
+        );
       }
 
       try {
         snapkitLoader({ src: '/test.jpg', width: 800, quality: 0 });
       } catch (error) {
-        expect((error as Error).message).toContain(expectedMessages.invalidQuality);
+        expect((error as Error).message).toContain(
+          expectedMessages.invalidQuality,
+        );
       }
     });
   });

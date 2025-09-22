@@ -1,14 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import {
-    DEFAULT_BREAKPOINTS,
-    adjustQualityForConnection,
-    calculateImageSizes,
-    calculateOptimalImageSize,
-    createLazyLoadObserver,
-    determineImagePriority,
-    generateResponsiveWidths,
-    getDeviceCharacteristics,
-    parseImageSizes,
+  adjustQualityForConnection,
+  calculateImageSizes,
+  calculateOptimalImageSize,
+  createLazyLoadObserver,
+  DEFAULT_BREAKPOINTS,
+  determineImagePriority,
+  generateResponsiveWidths,
+  getDeviceCharacteristics,
+  parseImageSizes,
 } from '../responsive';
 
 describe('Default Breakpoints Constants', () => {
@@ -114,7 +115,7 @@ describe('parseImageSizes function', () => {
       const result = parseImageSizes('25vw 50vw');
 
       expect(result.length).toBeGreaterThan(5); // at least 10 (2 * 5 viewports)
-      expect(result).toContain(94);  // 375 * 0.25
+      expect(result).toContain(94); // 375 * 0.25
       expect(result).toContain(480); // 960 (1920 * 0.5)
     });
   });
@@ -164,10 +165,10 @@ describe('generateResponsiveWidths function', () => {
       const result = generateResponsiveWidths(800);
 
       // Default multipliers: [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2]
-      expect(result).toContain(200);  // 800 * 0.25
-      expect(result).toContain(400);  // 800 * 0.5
-      expect(result).toContain(600);  // 800 * 0.75
-      expect(result).toContain(800);  // 800 * 1
+      expect(result).toContain(200); // 800 * 0.25
+      expect(result).toContain(400); // 800 * 0.5
+      expect(result).toContain(600); // 800 * 0.75
+      expect(result).toContain(800); // 800 * 1
       expect(result).toContain(1000); // 800 * 1.25
       expect(result).toContain(1200); // 800 * 1.5
       expect(result).toContain(1600); // 800 * 2
@@ -201,8 +202,8 @@ describe('generateResponsiveWidths function', () => {
       // 80 (0.1 * 800)and 4000 (5 * 800)should be excluded
       expect(result).not.toContain(80);
       expect(result).not.toContain(4000);
-      expect(result).toContain(400);  // 0.5 * 800
-      expect(result).toContain(800);  // 1 * 800
+      expect(result).toContain(400); // 0.5 * 800
+      expect(result).toContain(800); // 1 * 800
       // 1600 (2 * 800)exceeds maxWidth 1500 so excluded
       expect(result).not.toContain(1600);
     });
@@ -283,7 +284,7 @@ describe('calculateOptimalImageSize function', () => {
     it('Should round up to integer', () => {
       const result = calculateOptimalImageSize(333, 250, 1.5);
 
-      expect(result.width).toBe(500);  // Math.ceil(333 * 1.5) = 500
+      expect(result.width).toBe(500); // Math.ceil(333 * 1.5) = 500
       expect(result.height).toBe(375); // Math.ceil(250 * 1.5) = 375
     });
   });

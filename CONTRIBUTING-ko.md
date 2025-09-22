@@ -43,15 +43,18 @@ git config commit.template .gitmessage
 이것은 Snapkit 이미지 최적화 생태계를 위한 여러 패키지를 포함하는 monorepo입니다:
 
 ### 패키지
+
 - **`@snapkit-studio/core`**: 핵심 이미지 변환 및 URL 빌딩 유틸리티
 - **`@snapkit-studio/nextjs`**: App Router 지원을 포함한 Next.js Image 컴포넌트 통합
 - **`@snapkit-studio/react`**: 자동 최적화 기능을 가진 React 이미지 컴포넌트
 
 ### 애플리케이션
+
 - **`apps/nextjs-demo`**: Next.js 통합을 보여주는 데모 애플리케이션
 - **`apps/react-demo`**: React 통합을 보여주는 데모 애플리케이션
 
 ### 시스템 요구사항
+
 - Node.js >= 22.0.0
 - pnpm >= 10.0.0
 - Git >= 2.28.0
@@ -61,16 +64,19 @@ git config commit.template .gitmessage
 ### 로컬 환경 설정
 
 1. **의존성 설치**:
+
    ```bash
    pnpm install
    ```
 
 2. **모든 패키지 빌드**:
+
    ```bash
    pnpm build
    ```
 
 3. **테스트 실행**:
+
    ```bash
    # 모든 테스트
    pnpm test
@@ -80,6 +86,7 @@ git config commit.template .gitmessage
    ```
 
 4. **개발 시작**:
+
    ```bash
    # 모든 개발 서버 시작
    pnpm dev
@@ -90,6 +97,7 @@ git config commit.template .gitmessage
    ```
 
 5. **타입 검사 실행**:
+
    ```bash
    pnpm check-types
    ```
@@ -102,6 +110,7 @@ git config commit.template .gitmessage
 ### 변경사항 만들기
 
 1. **브랜치 생성** `main`에서:
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -139,6 +148,7 @@ type[optional scope]: description
 ```
 
 **타입:**
+
 - `feat`: 새로운 기능
 - `fix`: 버그 수정
 - `docs`: 문서만 변경
@@ -149,6 +159,7 @@ type[optional scope]: description
 - `chore`: 빌드 프로세스나 보조 도구에 대한 변경
 
 **예시:**
+
 ```bash
 feat: 이미지 압축 옵션 추가
 fix: TypeScript 컴파일 오류 해결
@@ -166,6 +177,7 @@ feat!: 기본 압축 품질을 80으로 변경
 ## 풀 리퀘스트 프로세스
 
 1. **fork 업데이트**:
+
    ```bash
    git checkout main
    git pull upstream main
@@ -174,6 +186,7 @@ feat!: 기본 압축 품질을 80으로 변경
    ```
 
 2. **변경사항 푸시**:
+
    ```bash
    git push origin your-branch
    ```
@@ -198,18 +211,21 @@ feat!: 기본 압축 품질을 80으로 변경
 ## 패키지별 가이드라인
 
 ### @snapkit-studio/core
+
 - 이미지 최적화를 위한 핵심 변환 로직
 - 브라우저 호환성 유틸리티
 - URL 빌딩 및 매개변수 관리
 - **테스팅**: 변환 정확성과 URL 생성에 중점
 
 ### @snapkit-studio/nextjs
+
 - Next.js Image 컴포넌트 통합
 - App Router와 Pages Router 지원
 - SSR/SSG 호환성
 - **테스팅**: 두 라우터 타입이 올바르게 작동하는지 확인
 
 ### @snapkit-studio/react
+
 - 순수 React 이미지 컴포넌트
 - 프레임워크에 구애받지 않는 구현
 - 클라이언트 측 최적화
@@ -240,6 +256,7 @@ feat!: 기본 압축 품질을 80으로 변경
 - 테스팅에 Vitest 사용
 
 예시:
+
 ```typescript
 describe('Image component', () => {
   it('should render with correct src attribute', () => {

@@ -1,8 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import {
-  createImageStyle,
-  createContainerStyle,
-} from '../styleCalculators';
+import { describe, expect, it } from 'vitest';
+
+import { createContainerStyle, createImageStyle } from '../styleCalculators';
 
 describe('styleCalculators', () => {
   describe('createImageStyle', () => {
@@ -74,5 +72,4 @@ describe('styleCalculators', () => {
       expect(result).toEqual({});
     });
   });
-
 });

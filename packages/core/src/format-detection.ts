@@ -131,4 +131,3 @@ export function preloadFormatSupport(): void {
     setTimeout(() => supportsImageFormat(format), 10);
   });
 }
-

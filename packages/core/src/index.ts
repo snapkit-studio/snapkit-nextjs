@@ -1,34 +1,73 @@
 // Type definitions
-export type {
-    ImageTransforms,
-    NextImageProps, PictureSource, ProcessedImageUrl, SnapkitConfig, SnapkitImageProps, SnapkitLoaderOptions, SnapkitPictureProps
-} from './types';
 export type { NetworkSpeed } from './responsive';
+export type {
+  ImageTransforms,
+  NextImageProps,
+  PictureSource,
+  ProcessedImageUrl,
+  SnapkitConfig,
+  SnapkitEnvConfig,
+  SnapkitImageProps,
+} from './types';
 
 // URL Builder
 export { SnapkitUrlBuilder } from './url-builder';
+export { UrlBuilderFactory } from './url-builder-factory';
 
 // Format Detection
 export {
-    estimateFormatSupportFromUA, formatSupport, getBestSupportedFormat,
-    getSupportedFormatsFromAcceptHeader,
-    preloadFormatSupport, supportsImageFormat
+  estimateFormatSupportFromUA,
+  formatSupport,
+  getBestSupportedFormat,
+  getSupportedFormatsFromAcceptHeader,
+  preloadFormatSupport,
+  supportsImageFormat,
 } from './format-detection';
 
 // Responsive Utilities
 export {
-    DEFAULT_BREAKPOINTS, adjustQualityForConnection,
-    calculateImageSizes,
-    calculateOptimalImageSize,
-    createLazyLoadObserver, determineImagePriority,
-    detectNetworkSpeed,
-    generateResponsiveWidths,
-    getDeviceCharacteristics,
-    parseImageSizes
+  adjustQualityForConnection,
+  calculateImageSizes,
+  calculateOptimalImageSize,
+  createLazyLoadObserver,
+  DEFAULT_BREAKPOINTS,
+  detectNetworkSpeed,
+  determineImagePriority,
+  generateResponsiveWidths,
+  getDeviceCharacteristics,
+  parseImageSizes,
 } from './responsive';
 
-// Transform Builder
+// DPR Detection Utilities
 export {
-    SnapkitTransformBuilder
-} from './transform-builder';
+  getDevicePixelRatio,
+  getNetworkAwareDprLimit,
+  getOptimalDprValues,
+  shouldUse3xImages,
+  supportsHighEfficiencyFormats,
+} from './dpr-detection';
+export type { DprDetectionOptions } from './dpr-detection';
 
+// Transform Builder
+export { SnapkitTransformBuilder } from './transform-builder';
+
+// Image Engine
+export { SnapkitImageEngine } from './image-engine';
+export { ImageEngineCache } from './image-engine-cache';
+export type {
+  ImageEngineParams,
+  ImageRenderData,
+  ValidationResult,
+} from './image-engine';
+
+// Environment Configuration
+export {
+  detectEnvironment,
+  environmentStrategies,
+  getEnvConfig,
+  getEnvironmentDebugInfo,
+  mergeConfigWithEnv,
+  universalStrategy,
+  validateEnvConfig,
+} from './env-config';
+export type { EnvironmentStrategy } from './env-config';

@@ -4,9 +4,19 @@ const path = require("path");
 const nextConfig = {
   transpilePackages: ["@snapkit-studio/core", "@snapkit-studio/react", "@snapkit-studio/nextjs"],
   images: {
+    localPatterns: [
+      {
+        pathname: "/landing-page/**",
+        search: "",
+      },
+    ],
     remotePatterns: [
       {
         hostname: "snapkit-cdn.snapkit.studio",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
       },
     ],
   },

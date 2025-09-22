@@ -1,4 +1,4 @@
-import { ImageTransforms } from "./types";
+import { ImageTransforms } from './types';
 
 /**
  * Generate Snapkit image proxy URLs
@@ -6,13 +6,14 @@ import { ImageTransforms } from "./types";
 export class SnapkitUrlBuilder {
   private baseUrl: string;
 
-  constructor(
-    organizationName: string,
-  ) {
+  constructor(organizationName: string) {
     // Handle different parameter combinations
     if (typeof organizationName === 'string') {
       // Single parameter case - check if it looks like a URL or organization name
-      if (organizationName.startsWith('http://') || organizationName.startsWith('https://')) {
+      if (
+        organizationName.startsWith('http://') ||
+        organizationName.startsWith('https://')
+      ) {
         // It's a baseUrl without organizationName
         this.baseUrl = organizationName;
       } else {
@@ -21,7 +22,9 @@ export class SnapkitUrlBuilder {
       }
     } else {
       // Two parameter case or no parameters
-      this.baseUrl = organizationName || `https://${organizationName || ''}-cdn.snapkit.studio`;
+      this.baseUrl =
+        organizationName ||
+        `https://${organizationName || ''}-cdn.snapkit.studio`;
     }
   }
 
@@ -43,10 +46,7 @@ export class SnapkitUrlBuilder {
   /**
    * Generate image URL with transformation parameters
    */
-  buildTransformedUrl(
-    src: string,
-    transforms: ImageTransforms,
-  ): string {
+  buildTransformedUrl(src: string, transforms: ImageTransforms): string {
     const baseUrl = this.buildImageUrl(src);
     const params = this.buildQueryParams(transforms);
 
@@ -76,18 +76,18 @@ export class SnapkitUrlBuilder {
     const baseTransforms = { ...transforms };
 
     return {
-      avif: this.buildTransformedUrl(
-        src,
-        { ...baseTransforms, format: 'avif' },
-      ),
-      webp: this.buildTransformedUrl(
-        src,
-        { ...baseTransforms, format: 'webp' },
-      ),
-      original: this.buildTransformedUrl(
-        src,
-        { ...baseTransforms, format: undefined },
-      ),
+      avif: this.buildTransformedUrl(src, {
+        ...baseTransforms,
+        format: 'avif',
+      }),
+      webp: this.buildTransformedUrl(src, {
+        ...baseTransforms,
+        format: 'webp',
+      }),
+      original: this.buildTransformedUrl(src, {
+        ...baseTransforms,
+        format: undefined,
+      }),
     };
   }
 
@@ -101,10 +101,7 @@ export class SnapkitUrlBuilder {
   ): string {
     return widths
       .map((width) => {
-        const url = this.buildTransformedUrl(
-          src,
-          { ...transforms, width },
-        );
+        const url = this.buildTransformedUrl(src, { ...transforms, width });
         return `${url} ${width}w`;
       })
       .join(', ');
@@ -123,15 +120,12 @@ export class SnapkitUrlBuilder {
   ): string {
     return dprs
       .map((dpr) => {
-        const url = this.buildTransformedUrl(
-          src,
-          {
-            ...transforms,
-            width: baseWidth,
-            height: baseHeight,
-            dpr
-          },
-        );
+        const url = this.buildTransformedUrl(src, {
+          ...transforms,
+          width: baseWidth,
+          height: baseHeight,
+          dpr,
+        });
         return `${url} ${dpr}x`;
       })
       .join(', ');
@@ -174,7 +168,7 @@ export class SnapkitUrlBuilder {
     if (transforms.format && transforms.format !== 'auto') {
       params.set('format', transforms.format);
     }
-if (transforms.quality) {
+    if (transforms.quality) {
       params.set('quality', transforms.quality.toString());
     }
 

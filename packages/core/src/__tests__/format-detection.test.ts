@@ -1,11 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import {
-    estimateFormatSupportFromUA,
-    formatSupport,
-    getBestSupportedFormat,
-    getSupportedFormatsFromAcceptHeader,
-    preloadFormatSupport,
-    supportsImageFormat,
+  estimateFormatSupportFromUA,
+  formatSupport,
+  getBestSupportedFormat,
+  getSupportedFormatsFromAcceptHeader,
+  preloadFormatSupport,
+  supportsImageFormat,
 } from '../format-detection';
 
 // Canvas mocking
@@ -244,7 +245,7 @@ describe('Format Detection Utils', () => {
       preloadFormatSupport();
 
       // Wait a bit for async execution
-      await new Promise(resolve => originalSetTimeout(resolve, 15));
+      await new Promise((resolve) => originalSetTimeout(resolve, 15));
       expect(mockSetTimeout).toHaveBeenCalledTimes(4); // avif, webp, jpeg, png
       global.setTimeout = originalSetTimeout;
     });
@@ -286,7 +287,8 @@ describe('Format Detection Utils', () => {
     it('Should detect AVIF support in Chrome 85+', () => {
       Object.defineProperty(global, 'navigator', {
         value: {
-          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36',
+          userAgent:
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36',
         },
         writable: true,
       });
@@ -300,7 +302,8 @@ describe('Format Detection Utils', () => {
     it('Should not support AVIF in Chrome 84', () => {
       Object.defineProperty(global, 'navigator', {
         value: {
-          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36',
+          userAgent:
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36',
         },
         writable: true,
       });
@@ -314,7 +317,8 @@ describe('Format Detection Utils', () => {
     it('Should not support WebP in Chrome 22', () => {
       Object.defineProperty(global, 'navigator', {
         value: {
-          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/22.0.1229.94 Safari/537.36',
+          userAgent:
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/22.0.1229.94 Safari/537.36',
         },
         writable: true,
       });
@@ -328,7 +332,8 @@ describe('Format Detection Utils', () => {
     it('Should detect WebP support in Firefox 65+', () => {
       Object.defineProperty(global, 'navigator', {
         value: {
-          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0',
+          userAgent:
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0',
         },
         writable: true,
       });
@@ -342,7 +347,8 @@ describe('Format Detection Utils', () => {
     it('Should not support WebP in Firefox 64', () => {
       Object.defineProperty(global, 'navigator', {
         value: {
-          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:64.0) Gecko/20100101 Firefox/64.0',
+          userAgent:
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:64.0) Gecko/20100101 Firefox/64.0',
         },
         writable: true,
       });
@@ -356,7 +362,8 @@ describe('Format Detection Utils', () => {
     it('Should detect WebP support in Safari 14+', () => {
       Object.defineProperty(global, 'navigator', {
         value: {
-          userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Safari/605.1.15',
+          userAgent:
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Safari/605.1.15',
         },
         writable: true,
       });
@@ -370,7 +377,8 @@ describe('Format Detection Utils', () => {
     it('Should not support WebP in Safari 13', () => {
       Object.defineProperty(global, 'navigator', {
         value: {
-          userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.3 Safari/605.1.15',
+          userAgent:
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.3 Safari/605.1.15',
         },
         writable: true,
       });
@@ -384,7 +392,8 @@ describe('Format Detection Utils', () => {
     it('Should detect WebP support in Edge', () => {
       Object.defineProperty(global, 'navigator', {
         value: {
-          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edge/91.0.864.59',
+          userAgent:
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edge/91.0.864.59',
         },
         writable: true,
       });
@@ -398,7 +407,8 @@ describe('Format Detection Utils', () => {
     it('Should detect no support in old browsers', () => {
       Object.defineProperty(global, 'navigator', {
         value: {
-          userAgent: 'Mozilla/5.0 (compatible; MSIE 11.0; Windows NT 10.0; WOW64; Trident/7.0)',
+          userAgent:
+            'Mozilla/5.0 (compatible; MSIE 11.0; Windows NT 10.0; WOW64; Trident/7.0)',
         },
         writable: true,
       });

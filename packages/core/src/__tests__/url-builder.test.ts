@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+
 import { ImageTransforms } from '../types';
 import { SnapkitUrlBuilder } from '../url-builder';
 
@@ -55,13 +56,17 @@ describe('SnapkitUrlBuilder Class', () => {
     it('should add slash to paths not starting with slash', () => {
       const result = urlBuilder.buildImageUrl('folder/test.jpg');
 
-      expect(result).toBe('https://test-org-cdn.snapkit.studio/folder/test.jpg');
+      expect(result).toBe(
+        'https://test-org-cdn.snapkit.studio/folder/test.jpg',
+      );
     });
 
     it('should use paths already starting with slash as-is', () => {
       const result = urlBuilder.buildImageUrl('/folder/test.jpg');
 
-      expect(result).toBe('https://test-org-cdn.snapkit.studio/folder/test.jpg');
+      expect(result).toBe(
+        'https://test-org-cdn.snapkit.studio/folder/test.jpg',
+      );
     });
   });
 
@@ -219,7 +224,7 @@ describe('SnapkitUrlBuilder Class', () => {
         200,
         200,
         { quality: 85, format: 'webp' },
-        [1, 2, 3]
+        [1, 2, 3],
       );
 
       expect(result).toContain('w=200&h=200&dpr=1');
@@ -233,12 +238,9 @@ describe('SnapkitUrlBuilder Class', () => {
     });
 
     it('should use default DPR values when not specified', () => {
-      const result = urlBuilder.buildDprSrcSet(
-        'test.jpg',
-        100,
-        100,
-        { quality: 75 }
-      );
+      const result = urlBuilder.buildDprSrcSet('test.jpg', 100, 100, {
+        quality: 75,
+      });
 
       expect(result).toContain('w=100&h=100&dpr=1');
       expect(result).toContain('1x');
@@ -254,7 +256,7 @@ describe('SnapkitUrlBuilder Class', () => {
         150,
         undefined,
         { quality: 90 },
-        [1, 2]
+        [1, 2],
       );
 
       expect(result).toContain('w=150&dpr=1');
@@ -270,7 +272,7 @@ describe('SnapkitUrlBuilder Class', () => {
         100,
         100,
         {},
-        [1, 2]
+        [1, 2],
       );
 
       expect(result).toMatch(/1x,\s/);
@@ -283,7 +285,7 @@ describe('SnapkitUrlBuilder Class', () => {
         120,
         80,
         {},
-        [1, 1.5, 2, 3]
+        [1, 1.5, 2, 3],
       );
 
       expect(result).toContain('w=120&h=80&dpr=1');
@@ -298,7 +300,7 @@ describe('SnapkitUrlBuilder Class', () => {
         133,
         77,
         {},
-        [1.5, 2.5]
+        [1.5, 2.5],
       );
 
       // Dimensions should remain fixed regardless of DPR value
@@ -315,9 +317,9 @@ describe('SnapkitUrlBuilder Class', () => {
           quality: 95,
           format: 'avif',
           fit: 'cover',
-          blur: 5
+          blur: 5,
         },
-        [1, 2]
+        [1, 2],
       );
 
       expect(result).toContain('quality=95');

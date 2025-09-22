@@ -1,7 +1,7 @@
 import {
-  SnapkitUrlBuilder,
-  ImageTransforms,
   getBestSupportedFormat,
+  ImageTransforms,
+  SnapkitUrlBuilder,
 } from '@snapkit-studio/core';
 
 export interface CreateImageUrlOptions {
@@ -19,14 +19,15 @@ export interface CreateImageUrlOptions {
  */
 export function createImageUrl(
   src: string,
-  options: CreateImageUrlOptions
+  options: CreateImageUrlOptions,
 ): string {
   const urlBuilder = new SnapkitUrlBuilder(options.organizationName);
 
   // Determine optimal format
-  const format = options.defaultFormat === 'auto'
-    ? getBestSupportedFormat()
-    : options.defaultFormat;
+  const format =
+    options.defaultFormat === 'auto'
+      ? getBestSupportedFormat()
+      : options.defaultFormat;
 
   // Combine transforms with sizing options
   const transforms: ImageTransforms = {

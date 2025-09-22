@@ -1,4 +1,4 @@
-import { CSSProperties } from "react";
+import { CSSProperties } from 'react';
 
 /**
  * Calculate enhanced style for aspect ratio maintenance
@@ -6,7 +6,7 @@ import { CSSProperties } from "react";
 export function calculateEnhancedStyle(
   width: number | undefined,
   height: number | undefined,
-  existingStyle?: CSSProperties
+  existingStyle?: CSSProperties,
 ): CSSProperties | undefined {
   const hasOnlyWidth = (width && !height) || (width && height);
   const hasOnlyHeight = height && !width;
@@ -14,7 +14,7 @@ export function calculateEnhancedStyle(
   if (hasOnlyWidth || hasOnlyHeight) {
     return {
       ...(hasOnlyWidth && { height, width }),
-      ...(hasOnlyHeight && { width: "auto", height }),
+      ...(hasOnlyHeight && { width: 'auto', height }),
       ...existingStyle,
     };
   }

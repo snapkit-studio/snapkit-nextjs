@@ -81,6 +81,7 @@ gh api repos/:owner/:repo/branches/main/protection \
 ### 자동 실행 조건
 
 PR이 다음 파일들을 수정했을 때 자동으로 실행됩니다:
+
 - `packages/**` - 패키지 코드 변경
 - `scripts/**` - 빌드/퍼블리시 스크립트 변경
 - `pnpm-lock.yaml` - 의존성 변경
@@ -89,6 +90,7 @@ PR이 다음 파일들을 수정했을 때 자동으로 실행됩니다:
 ### 수동 실행 방법
 
 필요시 Actions 탭에서 수동으로 실행 가능:
+
 1. Actions 탭 → "NPM Publish Readiness Check" 선택
 2. "Run workflow" 버튼 클릭
 3. 브랜치 선택 후 실행
@@ -96,21 +98,25 @@ PR이 다음 파일들을 수정했을 때 자동으로 실행됩니다:
 ## 체크 실패 시 대응 방법
 
 ### 1. Build 실패
+
 ```bash
 pnpm build
 ```
 
 ### 2. Test 실패
+
 ```bash
 pnpm test
 ```
 
 ### 3. Type Check 실패
+
 ```bash
 pnpm check-types
 ```
 
 ### 4. Lint 실패
+
 ```bash
 pnpm lint
 # 자동 수정
@@ -118,6 +124,7 @@ pnpm lint --fix
 ```
 
 ### 5. Publication Test 실패
+
 ```bash
 node scripts/prepare-publication.js
 node scripts/test-publication.js
@@ -125,6 +132,7 @@ node scripts/simulate-external-install.js
 ```
 
 ### 6. Breaking Changes 감지
+
 - 버전 번호를 적절히 업데이트 (major/minor/patch)
 - CHANGELOG 업데이트
 - Migration guide 작성 (필요시)
@@ -132,23 +140,27 @@ node scripts/simulate-external-install.js
 ## 워크플로우 특징
 
 ### 🎯 포괄적인 검증
+
 - 빌드, 테스트, 린트, 타입 체크
 - 퍼블리시 준비 상태 검증
 - 외부 설치 시뮬레이션
 - 다양한 Node.js 버전과 패키지 매니저 테스트
 
 ### 📊 상세한 리포트
+
 - GitHub Step Summary에 결과 요약
 - 패키지 크기 정보
 - Breaking changes 감지
 - 버전 정보 확인
 
 ### 🔒 안전한 퍼블리시
+
 - Dry run으로 실제 퍼블리시 전 검증
 - workspace 의존성 제거 확인
 - 필수 필드 존재 여부 확인
 
 ### ⚡ 효율적인 실행
+
 - 필요한 경로 변경 시에만 실행
 - 병렬 실행으로 시간 단축
 - 캐시 활용으로 빠른 실행

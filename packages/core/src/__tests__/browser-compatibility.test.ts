@@ -1,17 +1,19 @@
 import { afterEach, describe, expect, it } from 'vitest';
+
 import {
   checkAvifSupport,
   checkWebpSupport,
   estimateFormatSupportFromUA,
   getFormatSupportFromUA,
   parseBrowserInfo,
-  type BrowserInfo
+  type BrowserInfo,
 } from '../browser-compatibility';
 
 describe('Browser Compatibility Utils', () => {
   describe('parseBrowserInfo function', () => {
     it('Should parse Chrome browser info', () => {
-      const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36';
+      const userAgent =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36';
       const result = parseBrowserInfo(userAgent);
 
       expect(result.name).toBe('chrome');
@@ -21,7 +23,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should parse Firefox browser info', () => {
-      const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0';
+      const userAgent =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0';
       const result = parseBrowserInfo(userAgent);
 
       expect(result.name).toBe('firefox');
@@ -31,7 +34,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should parse Edge browser info', () => {
-      const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.2277.112';
+      const userAgent =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.2277.112';
       const result = parseBrowserInfo(userAgent);
 
       expect(result.name).toBe('edge');
@@ -41,7 +45,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should parse Safari browser info', () => {
-      const userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Safari/605.1.15';
+      const userAgent =
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Safari/605.1.15';
       const result = parseBrowserInfo(userAgent);
 
       expect(result.name).toBe('safari');
@@ -51,7 +56,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should parse iOS Safari browser info', () => {
-      const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1';
+      const userAgent =
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 16_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1';
       const result = parseBrowserInfo(userAgent);
 
       expect(result.name).toBe('safari');
@@ -61,7 +67,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should parse iOS Chrome browser info', () => {
-      const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/90.0.4430.78 Mobile/15E148 Safari/604.1';
+      const userAgent =
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 16_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/90.0.4430.78 Mobile/15E148 Safari/604.1';
       const result = parseBrowserInfo(userAgent);
 
       expect(result.name).toBe('chrome');
@@ -86,7 +93,7 @@ describe('Browser Compatibility Utils', () => {
       const browserInfo: BrowserInfo = {
         name: 'chrome',
         version: 90,
-        platform: 'desktop'
+        platform: 'desktop',
       };
 
       expect(checkAvifSupport(browserInfo)).toBe(true);
@@ -96,7 +103,7 @@ describe('Browser Compatibility Utils', () => {
       const browserInfo: BrowserInfo = {
         name: 'chrome',
         version: 84,
-        platform: 'desktop'
+        platform: 'desktop',
       };
 
       expect(checkAvifSupport(browserInfo)).toBe(false);
@@ -106,7 +113,7 @@ describe('Browser Compatibility Utils', () => {
       const browserInfo: BrowserInfo = {
         name: 'firefox',
         version: 95,
-        platform: 'desktop'
+        platform: 'desktop',
       };
 
       expect(checkAvifSupport(browserInfo)).toBe(true);
@@ -116,7 +123,7 @@ describe('Browser Compatibility Utils', () => {
       const browserInfo: BrowserInfo = {
         name: 'firefox',
         version: 92,
-        platform: 'desktop'
+        platform: 'desktop',
       };
 
       expect(checkAvifSupport(browserInfo)).toBe(false);
@@ -126,7 +133,7 @@ describe('Browser Compatibility Utils', () => {
       const browserInfo: BrowserInfo = {
         name: 'edge',
         version: 121,
-        platform: 'desktop'
+        platform: 'desktop',
       };
 
       expect(checkAvifSupport(browserInfo)).toBe(true);
@@ -136,7 +143,7 @@ describe('Browser Compatibility Utils', () => {
       const browserInfo: BrowserInfo = {
         name: 'edge',
         version: 120,
-        platform: 'desktop'
+        platform: 'desktop',
       };
 
       expect(checkAvifSupport(browserInfo)).toBe(true);
@@ -147,7 +154,7 @@ describe('Browser Compatibility Utils', () => {
         name: 'chrome',
         version: 90,
         platform: 'ios',
-        iosVersion: { major: 16, minor: 3 }
+        iosVersion: { major: 16, minor: 3 },
       };
 
       expect(checkAvifSupport(browserInfo)).toBe(false);
@@ -158,7 +165,7 @@ describe('Browser Compatibility Utils', () => {
         name: 'safari',
         version: 16,
         platform: 'ios',
-        iosVersion: { major: 16, minor: 4 }
+        iosVersion: { major: 16, minor: 4 },
       };
 
       expect(checkAvifSupport(browserInfo)).toBe(true);
@@ -169,7 +176,7 @@ describe('Browser Compatibility Utils', () => {
         name: 'safari',
         version: 17,
         platform: 'ios',
-        iosVersion: { major: 17, minor: 0 }
+        iosVersion: { major: 17, minor: 0 },
       };
 
       expect(checkAvifSupport(browserInfo)).toBe(true);
@@ -181,7 +188,7 @@ describe('Browser Compatibility Utils', () => {
       const browserInfo: BrowserInfo = {
         name: 'chrome',
         version: 50,
-        platform: 'desktop'
+        platform: 'desktop',
       };
 
       expect(checkWebpSupport(browserInfo)).toBe(true);
@@ -191,7 +198,7 @@ describe('Browser Compatibility Utils', () => {
       const browserInfo: BrowserInfo = {
         name: 'chrome',
         version: 31,
-        platform: 'desktop'
+        platform: 'desktop',
       };
 
       expect(checkWebpSupport(browserInfo)).toBe(false);
@@ -201,7 +208,7 @@ describe('Browser Compatibility Utils', () => {
       const browserInfo: BrowserInfo = {
         name: 'firefox',
         version: 88,
-        platform: 'desktop'
+        platform: 'desktop',
       };
 
       expect(checkWebpSupport(browserInfo)).toBe(true);
@@ -211,7 +218,7 @@ describe('Browser Compatibility Utils', () => {
       const browserInfo: BrowserInfo = {
         name: 'firefox',
         version: 64,
-        platform: 'desktop'
+        platform: 'desktop',
       };
 
       expect(checkWebpSupport(browserInfo)).toBe(false);
@@ -221,7 +228,7 @@ describe('Browser Compatibility Utils', () => {
       const browserInfo: BrowserInfo = {
         name: 'edge',
         version: 18,
-        platform: 'desktop'
+        platform: 'desktop',
       };
 
       expect(checkWebpSupport(browserInfo)).toBe(true);
@@ -231,7 +238,7 @@ describe('Browser Compatibility Utils', () => {
       const browserInfo: BrowserInfo = {
         name: 'edge',
         version: 0,
-        platform: 'desktop'
+        platform: 'desktop',
       };
 
       expect(checkWebpSupport(browserInfo)).toBe(true);
@@ -242,7 +249,7 @@ describe('Browser Compatibility Utils', () => {
         name: 'safari',
         version: 14,
         platform: 'ios',
-        iosVersion: { major: 14, minor: 0 }
+        iosVersion: { major: 14, minor: 0 },
       };
 
       expect(checkWebpSupport(browserInfo)).toBe(true);
@@ -253,7 +260,7 @@ describe('Browser Compatibility Utils', () => {
         name: 'safari',
         version: 13,
         platform: 'ios',
-        iosVersion: { major: 13, minor: 7 }
+        iosVersion: { major: 13, minor: 7 },
       };
 
       expect(checkWebpSupport(browserInfo)).toBe(false);
@@ -263,7 +270,7 @@ describe('Browser Compatibility Utils', () => {
       const browserInfo: BrowserInfo = {
         name: 'safari',
         version: 15,
-        platform: 'desktop'
+        platform: 'desktop',
       };
 
       expect(checkWebpSupport(browserInfo)).toBe(true);
@@ -272,7 +279,8 @@ describe('Browser Compatibility Utils', () => {
 
   describe('getFormatSupportFromUA function', () => {
     it('Should detect AVIF and WebP support in Chrome 90', () => {
-      const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36';
+      const userAgent =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36';
       const result = getFormatSupportFromUA(userAgent);
 
       expect(result.avif).toBe(true);
@@ -280,7 +288,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should detect WebP but not AVIF in Chrome 84', () => {
-      const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
+      const userAgent =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
       const result = getFormatSupportFromUA(userAgent);
 
       expect(result.avif).toBe(false);
@@ -288,7 +297,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should not support WebP in Chrome 31', () => {
-      const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36';
+      const userAgent =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36';
       const result = getFormatSupportFromUA(userAgent);
 
       expect(result.avif).toBe(false);
@@ -296,7 +306,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should detect AVIF and WebP support in Firefox 95', () => {
-      const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:95.0) Gecko/20100101 Firefox/95.0';
+      const userAgent =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:95.0) Gecko/20100101 Firefox/95.0';
       const result = getFormatSupportFromUA(userAgent);
 
       expect(result.avif).toBe(true);
@@ -304,7 +315,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should detect WebP but not AVIF in Firefox 88', () => {
-      const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0';
+      const userAgent =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0';
       const result = getFormatSupportFromUA(userAgent);
 
       expect(result.avif).toBe(false);
@@ -312,7 +324,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should not support WebP in Firefox 64', () => {
-      const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:64.0) Gecko/20100101 Firefox/64.0';
+      const userAgent =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:64.0) Gecko/20100101 Firefox/64.0';
       const result = getFormatSupportFromUA(userAgent);
 
       expect(result.avif).toBe(false);
@@ -320,7 +333,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should detect AVIF and WebP support in modern Edge', () => {
-      const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.2277.112';
+      const userAgent =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.2277.112';
       const result = getFormatSupportFromUA(userAgent);
 
       expect(result.avif).toBe(true);
@@ -328,7 +342,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should detect WebP but not AVIF in Edge 18', () => {
-      const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.19582';
+      const userAgent =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.19582';
       const result = getFormatSupportFromUA(userAgent);
 
       expect(result.avif).toBe(false);
@@ -336,7 +351,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should detect WebP support in Safari 15', () => {
-      const userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Safari/605.1.15';
+      const userAgent =
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Safari/605.1.15';
       const result = getFormatSupportFromUA(userAgent);
 
       expect(result.avif).toBe(false);
@@ -344,7 +360,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should not support WebP in Safari 13', () => {
-      const userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.3 Safari/605.1.15';
+      const userAgent =
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.3 Safari/605.1.15';
       const result = getFormatSupportFromUA(userAgent);
 
       expect(result.avif).toBe(false);
@@ -352,7 +369,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should disable AVIF on iOS 16.0', () => {
-      const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1';
+      const userAgent =
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1';
       const result = getFormatSupportFromUA(userAgent);
 
       expect(result.avif).toBe(false); // iOS 16.0 should disable AVIF
@@ -360,7 +378,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should disable AVIF on iOS 16.1', () => {
-      const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1';
+      const userAgent =
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 16_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1';
       const result = getFormatSupportFromUA(userAgent);
 
       expect(result.avif).toBe(false); // iOS 16.1 should disable AVIF
@@ -368,7 +387,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should disable AVIF on iOS 16.2', () => {
-      const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1';
+      const userAgent =
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 16_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1';
       const result = getFormatSupportFromUA(userAgent);
 
       expect(result.avif).toBe(false); // iOS 16.2 should disable AVIF
@@ -376,7 +396,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should disable AVIF on iOS 16.3', () => {
-      const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1';
+      const userAgent =
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 16_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1';
       const result = getFormatSupportFromUA(userAgent);
 
       expect(result.avif).toBe(false); // iOS 16.3 should disable AVIF
@@ -384,7 +405,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should enable AVIF on iOS 16.4', () => {
-      const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1';
+      const userAgent =
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 16_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1';
       const result = getFormatSupportFromUA(userAgent);
 
       expect(result.avif).toBe(true); // iOS 16.4+ supports AVIF
@@ -392,7 +414,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should enable AVIF on iOS 17.0', () => {
-      const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
+      const userAgent =
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
       const result = getFormatSupportFromUA(userAgent);
 
       expect(result.avif).toBe(true); // iOS 17+ supports AVIF
@@ -400,7 +423,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should not support WebP on iOS 13', () => {
-      const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.3 Mobile/15E148 Safari/604.1';
+      const userAgent =
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 13_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.3 Mobile/15E148 Safari/604.1';
       const result = getFormatSupportFromUA(userAgent);
 
       expect(result.avif).toBe(false); // iOS 13 doesn't support AVIF
@@ -408,7 +432,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should support WebP but not AVIF on iOS 14', () => {
-      const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1';
+      const userAgent =
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1';
       const result = getFormatSupportFromUA(userAgent);
 
       expect(result.avif).toBe(false); // iOS 14 doesn't support AVIF
@@ -416,7 +441,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should disable AVIF on iOS 16.3 with Chrome', () => {
-      const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/90.0.4430.78 Mobile/15E148 Safari/604.1';
+      const userAgent =
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 16_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/90.0.4430.78 Mobile/15E148 Safari/604.1';
       const result = getFormatSupportFromUA(userAgent);
 
       expect(result.avif).toBe(false); // iOS 16.3 should disable AVIF even with Chrome
@@ -424,7 +450,8 @@ describe('Browser Compatibility Utils', () => {
     });
 
     it('Should detect no support in old browsers', () => {
-      const userAgent = 'Mozilla/5.0 (compatible; MSIE 11.0; Windows NT 10.0; WOW64; Trident/7.0)';
+      const userAgent =
+        'Mozilla/5.0 (compatible; MSIE 11.0; Windows NT 10.0; WOW64; Trident/7.0)';
       const result = getFormatSupportFromUA(userAgent);
 
       expect(result.avif).toBe(false);
@@ -472,7 +499,8 @@ describe('Browser Compatibility Utils', () => {
     it('Should detect format support from navigator.userAgent', () => {
       Object.defineProperty(global, 'navigator', {
         value: {
-          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36',
+          userAgent:
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36',
         },
         writable: true,
       });

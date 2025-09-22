@@ -25,12 +25,21 @@ export function calculateImageSizes(
 ): { width: number; height?: number } {
   return {
     width: Math.round(baseWidth * devicePixelRatio),
-    height: baseHeight !== undefined ? Math.round(baseHeight * devicePixelRatio) : undefined,
+    height:
+      baseHeight !== undefined
+        ? Math.round(baseHeight * devicePixelRatio)
+        : undefined,
   };
 }
 
 /**
  * Extract actual rendering sizes from sizes attribute value
+ *
+ * @example
+ * ```
+ * parseImageSizes('(max-width: 768px) 100vw, 50vw')
+ * // [188, 384, 512, 640, 960]
+ * ```
  */
 export function parseImageSizes(sizes: string): number[] {
   const sizeMatches = sizes.match(/(\d+)px|(\d+)vw/g) || [];
@@ -60,6 +69,12 @@ export function parseImageSizes(sizes: string): number[] {
 
 /**
  * Generate basic responsive widths
+ *
+ * @example
+ * ```
+ * generateResponsiveWidths(1200)
+ * // [200, 300, 400, 600, 800, 1200, 2400]
+ * ```
  */
 export function generateResponsiveWidths(
   baseWidth: number,
@@ -176,9 +191,13 @@ export function getDeviceCharacteristics() {
     };
   }
 
-  const connection = typeof navigator !== 'undefined' ?
-    ((navigator as unknown as { connection?: NetworkInformation })?.connection ||
-    (navigator as unknown as { mozConnection?: NetworkInformation })?.mozConnection) : undefined;
+  const connection =
+    typeof navigator !== 'undefined'
+      ? (navigator as unknown as { connection?: NetworkInformation })
+          ?.connection ||
+        (navigator as unknown as { mozConnection?: NetworkInformation })
+          ?.mozConnection
+      : undefined;
 
   return {
     devicePixelRatio: window.devicePixelRatio || 1,
@@ -202,7 +221,11 @@ export function adjustQualityForConnection(
     return baseQuality;
   }
 
-  const connection = typeof navigator !== 'undefined' ? (navigator as unknown as { connection?: NetworkInformation })?.connection : undefined;
+  const connection =
+    typeof navigator !== 'undefined'
+      ? (navigator as unknown as { connection?: NetworkInformation })
+          ?.connection
+      : undefined;
   const effectiveType = connectionType || connection?.effectiveType;
   const saveData = connection?.saveData === true;
 
@@ -229,7 +252,7 @@ export type NetworkSpeed = 'fast' | 'slow' | 'offline';
 
 /**
  * Detect current network speed
- * 
+ *
  * ref: https://developer.mozilla.org/en-US/docs/Web/API/Network_Information_API
  * This feature is not Baseline because it does not work in some of the most widely-used browsers.
  */

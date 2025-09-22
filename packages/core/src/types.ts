@@ -55,7 +55,6 @@ export interface NextImageProps {
 // Snapkit exclusive props
 export interface SnapkitImageProps extends Omit<ComponentProps<'img'>, 'src'> {
   src: string;
-  alt: string;
 
   // Next.js compatible props
   width?: number;
@@ -65,13 +64,16 @@ export interface SnapkitImageProps extends Omit<ComponentProps<'img'>, 'src'> {
   quality?: number;
   priority?: boolean;
   blurDataURL?: string;
-  loading?: 'lazy' | 'eager';
 
   // Snapkit exclusive features
-  organizationName?: string;
-  baseUrl?: string;
   transforms?: ImageTransforms;
-  optimizeFormat?: 'avif' | 'webp' | 'auto';
+  dprOptions?: {
+    maxDpr?: number;
+    autoDetect?: boolean;
+    forceDpr?: number;
+    customDprs?: number[];
+  };
+  adjustQualityByNetwork?: boolean;
 }
 
 // Source definition for Picture component
@@ -83,23 +85,29 @@ export interface PictureSource {
   transforms?: ImageTransforms;
 }
 
-export interface SnapkitPictureProps
-  extends Omit<ComponentProps<'img'>, 'src'> {
-  sources: PictureSource[];
-  src: string; // fallback image
-  alt: string;
-  organizationName?: string;
-  baseUrl?: string;
-  quality?: number;
-  optimizeFormat?: 'avif' | 'webp' | 'auto' | 'off';
-}
-
 // Provider configuration
 export interface SnapkitConfig {
-  baseUrl?: string;
-  organizationName?: string;
-  defaultQuality?: number;
-  defaultFormat?: 'avif' | 'webp' | 'auto' | 'off';
+  organizationName: string;
+  /**
+   * Default image quality (1-100)
+   * @default 85
+   */
+  defaultQuality: number;
+  /**
+   * Default image format
+   * @default 'auto'
+   */
+  defaultFormat: ImageTransforms['format'];
+}
+
+// Environment-based configuration (serverless-friendly)
+export interface SnapkitEnvConfig {
+  /** Default organization name */
+  SNAPKIT_ORGANIZATION_NAME?: string;
+  /** Default image quality (1-100) */
+  SNAPKIT_DEFAULT_QUALITY?: number;
+  /** Enable/disable format optimization */
+  SNAPKIT_DEFAULT_OPTIMIZE_FORMAT?: 'avif' | 'webp' | 'auto';
 }
 
 // Internal use types
@@ -111,11 +119,4 @@ export interface ProcessedImageUrl {
     webp?: string;
     original?: string;
   };
-}
-
-// Snapkit loader configuration types
-export interface SnapkitLoaderOptions {
-  organizationName?: string;
-  transforms?: ImageTransforms;
-  unoptimizedFormat?: boolean;
 }

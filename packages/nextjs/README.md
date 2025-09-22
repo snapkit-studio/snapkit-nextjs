@@ -9,34 +9,34 @@ Next.js image loader and React component for Snapkit image optimization service.
 ## Features
 
 - 🖼️ **Next.js Image Integration**: Seamless integration with Next.js Image component
-- ⚡ **Automatic Optimization**: Dynamic image transformation and optimization
+- ⚡ **Automatic Optimization**: Dynamic image transformation with DPR-based srcset
 - 🎯 **Flexible Configuration**: Global and per-component configuration options
 - 📱 **Format Auto-Selection**: Intelligent format selection (WebP, AVIF, etc.)
+- 🚀 **Server Components Support**: Automatic server/client component selection
 - 🔧 **TypeScript Support**: Full TypeScript definitions included
 - 🧪 **Well Tested**: 90%+ test coverage with comprehensive edge case handling
+- 🛡️ **Memory Leak Prevention**: Advanced cleanup logic for IntersectionObserver and resources
+- 📦 **Picture Element Support**: Server-side rendering with optimized srcSet generation
 
 ## Installation
 
 ```bash
-npm install @snapkit-studio/nextjs @snapkit-studio/core
+npm install @snapkit-studio/nextjs
 # or
-yarn add @snapkit-studio/nextjs @snapkit-studio/core
+yarn add @snapkit-studio/nextjs
 # or
-pnpm add @snapkit-studio/nextjs @snapkit-studio/core
+pnpm add @snapkit-studio/nextjs
 ```
 
 ## Quick Start
 
-### 1. Configure Snapkit (Global Setup)
+### 1. Environment Configuration
 
-```typescript
-// app/layout.tsx or pages/_app.tsx
-import { setDefaultUrlBuilder, SnapkitUrlBuilder } from '@snapkit-studio/core';
-
-// Set up global Snapkit configuration
-setDefaultUrlBuilder(
-  new SnapkitUrlBuilder('your-organization-name')
-);
+```bash
+# .env.local (Required and Optional variables)
+NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME=your-organization-name  # Required
+NEXT_PUBLIC_SNAPKIT_DEFAULT_QUALITY=85                       # Optional (default: 85)
+NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT=auto             # Optional (default: auto)
 ```
 
 ### 2. Use with Next.js Image Component
@@ -53,7 +53,7 @@ export function Hero() {
       height={600}
       alt="Hero image"
       transforms={{
-        format: 'webp',
+        format: 'auto',
         quality: 85
       }}
     />
@@ -63,47 +63,50 @@ export function Hero() {
 
 ## Usage Patterns
 
-### Pattern 1: Global Configuration (Recommended)
+### Pattern 1: Environment Variables (Recommended)
 
 Best for most applications where you want consistent optimization across all images.
 
+```bash
+# .env.local - All available environment variables
+NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME=your-organization-name  # Required
+NEXT_PUBLIC_SNAPKIT_DEFAULT_QUALITY=85                       # Optional (1-100, default: 85)
+NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT=auto             # Optional (auto|avif|webp|off, default: auto)
+```
+
+**Environment Variables Reference:**
+- `NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME`: Your Snapkit organization identifier (required)
+- `NEXT_PUBLIC_SNAPKIT_DEFAULT_QUALITY`: Global quality setting for all images (1-100)
+- `NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT`: Default format optimization strategy
+  - `auto`: Automatically select best format based on browser support
+  - `avif`: Use AVIF format if supported
+  - `webp`: Use WebP format if supported
+  - `off`: Disable format optimization
+
 ```typescript
-// Set up once in your app root
-import { setDefaultUrlBuilder, SnapkitUrlBuilder } from '@snapkit-studio/core';
-
-setDefaultUrlBuilder(
-  new SnapkitUrlBuilder('your-org-name')
-);
-
-// Use anywhere in your app
+// Use anywhere in your app - no setup required
 import { Image } from '@snapkit-studio/nextjs';
 
 <Image src="/photo.jpg" width={800} height={600} alt="Photo" />
 ```
 
-### Pattern 2: Custom Loader (Advanced)
+### Pattern 2: Direct Props (Advanced)
 
 Use when you need different optimization settings for specific image components.
 
 ```typescript
-import { createSnapkitLoader } from '@snapkit-studio/nextjs';
-import NextImage from 'next/image';
+import { Image } from '@snapkit-studio/nextjs';
 
-const customLoader = createSnapkitLoader({
-  organizationName: 'your-org-name',
-  transforms: {
-    format: 'avif',
-    quality: 90,
-    blur: 0
-  }
-});
-
-<NextImage
+<Image
   src="/high-quality-photo.jpg"
   width={1920}
   height={1080}
   alt="High quality photo"
-  loader={customLoader}
+  organizationName="custom-org"
+  transforms={{
+    format: 'avif',
+    quality: 90
+  }}
 />
 ```
 
@@ -118,7 +121,7 @@ import { snapkitLoader } from '@snapkit-studio/nextjs';
 const optimizedUrl = snapkitLoader({
   src: '/my-image.jpg',
   width: 800,
-  quality: 85
+  quality: 85,
 });
 
 console.log(optimizedUrl);
@@ -126,21 +129,6 @@ console.log(optimizedUrl);
 ```
 
 ## Configuration Options
-
-### SnapkitLoaderOptions
-
-```typescript
-interface SnapkitLoaderOptions {
-  /** Your Snapkit organization name */
-  organizationName: string;
-
-  /** Disable format optimization (keeps original format) */
-  unoptimizedFormat?: boolean;
-
-  /** Default transforms to apply to all images */
-  transforms?: ImageTransforms;
-}
-```
 
 ### ImageTransforms
 
@@ -166,27 +154,12 @@ interface ImageTransforms {
 }
 ```
 
-## React Integration
+## Advanced Configuration
 
-### Basic Usage with Snapkit Provider
+### Custom Organization Name
 
 ```typescript
-// app/layout.tsx
-import { SnapkitProvider } from '@snapkit-studio/react';
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html>
-      <body>
-        <SnapkitProvider organizationName="your-org-name">
-          {children}
-        </SnapkitProvider>
-      </body>
-    </html>
-  );
-}
-
-// app/components/Gallery.tsx
+// Override environment variable per component
 import { Image } from '@snapkit-studio/nextjs';
 
 export function Gallery({ images }: { images: string[] }) {
@@ -199,7 +172,8 @@ export function Gallery({ images }: { images: string[] }) {
           width={400}
           height={300}
           alt={`Gallery image ${index + 1}`}
-          transforms={{ format: 'webp', quality: 80 }}
+          organizationName="custom-org"
+          transforms={{ format: 'auto', quality: 80 }}
         />
       ))}
     </div>
@@ -223,6 +197,81 @@ export function Gallery({ images }: { images: string[] }) {
 />
 ```
 
+## Server Components Support
+
+The Next.js package now includes automatic server/client component selection for optimal performance:
+
+### Automatic Component Selection
+
+```typescript
+import { Image } from '@snapkit-studio/nextjs';
+
+// Automatically renders as a server component (no client JS)
+<Image
+  src="/hero.jpg"
+  width={1200}
+  height={600}
+  alt="Hero image"
+/>
+
+// Automatically switches to client component (has onLoad handler)
+<Image
+  src="/interactive.jpg"
+  width={800}
+  height={400}
+  alt="Interactive image"
+  onLoad={() => console.log('Loaded!')}
+/>
+```
+
+### Component Selection Logic
+
+| Props | Renders As | Reason |
+|-------|------------|--------|
+| Basic props only | `ServerImage` | Default, best performance with server-side srcSet |
+| `onLoad`, `onError` | `ClientImage` | Event handlers need browser |
+| `adjustQualityByNetwork` | `ClientImage` | Network detection needs browser |
+| `dprOptions` | `ClientImage` | Custom DPR detection needs browser |
+| `optimize="server"` | `ServerImage` | Explicitly forced server rendering |
+| `optimize="client"` | `ClientImage` | Explicitly forced client rendering |
+
+### Explicit Control
+
+```typescript
+// Force server rendering
+<Image
+  src="/static.jpg"
+  optimize="server"
+  alt="Always server rendered"
+/>
+
+// Force client rendering
+<Image
+  src="/dynamic.jpg"
+  optimize="client"
+  alt="Always client rendered"
+/>
+```
+
+### Advanced Usage
+
+For cases where you need direct access to specific components:
+
+```typescript
+import { ServerImage, ClientImage } from '@snapkit-studio/nextjs';
+
+// Use ServerImage directly (no 'use client' needed)
+export default function ServerComponent() {
+  return <ServerImage src="/image.jpg" width={800} height={600} alt="Server" />;
+}
+
+// Use ClientImage in client components
+'use client';
+export default function ClientComponent() {
+  return <ClientImage src="/image.jpg" width={800} height={600} alt="Client" />;
+}
+```
+
 ## Error Handling
 
 ### Common Errors and Solutions
@@ -231,11 +280,12 @@ export function Gallery({ images }: { images: string[] }) {
 
 ```typescript
 // ❌ This will throw an error
-import { snapkitLoader } from '@snapkit-studio/nextjs';
-snapkitLoader({ src: '/image.jpg', width: 800 });
 
 // ✅ Solution: Configure global URL builder first
 import { setDefaultUrlBuilder, SnapkitUrlBuilder } from '@snapkit-studio/core';
+import { snapkitLoader } from '@snapkit-studio/nextjs';
+
+snapkitLoader({ src: '/image.jpg', width: 800 });
 
 setDefaultUrlBuilder(new SnapkitUrlBuilder('your-org-name'));
 
@@ -281,6 +331,7 @@ export function SafeImage(props: any) {
 ### Best Practices
 
 1. **Use appropriate image sizes**
+
    ```typescript
    // ✅ Good: Match display size
    <Image src="/hero.jpg" width={1200} height={600} />
@@ -290,6 +341,7 @@ export function SafeImage(props: any) {
    ```
 
 2. **Choose optimal formats**
+
    ```typescript
    // ✅ Modern browsers: Use WebP/AVIF
    transforms={{ format: 'auto' }}  // Automatically selects best format
@@ -299,6 +351,7 @@ export function SafeImage(props: any) {
    ```
 
 3. **Quality settings**
+
    ```typescript
    // ✅ Photography: Higher quality
    transforms={{ quality: 85 }}
@@ -344,13 +397,13 @@ if (!urlBuilder) {
 import { createSnapkitLoader } from '@snapkit-studio/nextjs';
 
 const testLoader = createSnapkitLoader({
-  organizationName: 'your-org-name'
+  organizationName: 'your-org-name',
 });
 
 const testUrl = testLoader({
   src: '/test-image.jpg',
   width: 800,
-  quality: 85
+  quality: 85,
 });
 
 console.log('Generated URL:', testUrl);
@@ -359,12 +412,12 @@ console.log('Generated URL:', testUrl);
 
 ### Common Issues
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Images not optimized | Global config missing | Call `setDefaultUrlBuilder()` in app root |
-| TypeScript errors | Missing type imports | Import types from `@snapkit-studio/core` |
-| 404 errors on images | Wrong organization name | Verify organization name in Snapkit dashboard |
-| Slow image loading | Large unoptimized images | Use appropriate `width`/`height` props |
+| Issue                | Cause                    | Solution                                      |
+| -------------------- | ------------------------ | --------------------------------------------- |
+| Images not optimized | Global config missing    | Call `setDefaultUrlBuilder()` in app root     |
+| TypeScript errors    | Missing type imports     | Import types from `@snapkit-studio/core`      |
+| 404 errors on images | Wrong organization name  | Verify organization name in Snapkit dashboard |
+| Slow image loading   | Large unoptimized images | Use appropriate `width`/`height` props        |
 
 ## Next.js Configuration
 
@@ -379,8 +432,8 @@ const nextConfig = {
 
     // Use custom loader globally (optional)
     loader: 'custom',
-    loaderFile: './snapkit-loader.js'
-  }
+    loaderFile: './snapkit-loader.js',
+  },
 };
 
 module.exports = nextConfig;
@@ -488,20 +541,16 @@ import { Image } from '@snapkit-studio/nextjs';
 Default image loader using global configuration.
 
 **Parameters:**
+
 - `src`: Image source path
 - `width`: Target width in pixels
 - `quality`: Image quality (1-100)
 
 **Returns:** Optimized image URL
 
-#### `createSnapkitLoader(options: SnapkitLoaderOptions): ImageLoader`
+#### `createSnapkitLoader(): ImageLoader`
 
 Create a custom image loader with specific configuration.
-
-**Parameters:**
-- `organizationName`: Your Snapkit organization name
-- `unoptimizedFormat`: Disable format optimization
-- `transforms`: Default transforms to apply
 
 **Returns:** Image loader function
 
@@ -512,11 +561,108 @@ Create a custom image loader with specific configuration.
 React component wrapper around Next.js Image with Snapkit optimization.
 
 **Props:** All Next.js Image props plus:
+
 - `transforms?: ImageTransforms` - Image transformations to apply
 
 ## Contributing
 
 Contributions are welcome! Please read our [contributing guide](../../CONTRIBUTING.md) for details on our code of conduct and development process.
+
+## 🤖 AI Assistant Prompts
+
+Copy these prompts for quick integration with AI coding tools:
+
+### Next.js Zero-Config Setup
+```
+Set up @snapkit-studio/nextjs with zero configuration.
+No layout.tsx changes needed - no Provider required.
+Add to .env.local:
+NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME=your-org
+NEXT_PUBLIC_SNAPKIT_DEFAULT_QUALITY=85
+Replace next/image with @snapkit-studio/nextjs Image.
+Works immediately without any wrapper components.
+```
+
+### App Router - Direct Usage
+```
+Use @snapkit-studio/nextjs in App Router without Provider:
+import { Image } from '@snapkit-studio/nextjs';
+// No layout.tsx setup needed
+<Image
+  src="/hero.jpg"
+  alt="Hero"
+  width={1200}
+  height={600}
+  transforms={{ format: 'auto' }}
+/>
+Environment vars auto-detected from NEXT_PUBLIC_ prefix.
+```
+
+### Migration: Simplest Path
+```
+Migrate next/image to @snapkit-studio/nextjs:
+1. npm install @snapkit-studio/nextjs
+2. Add NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME to .env.local
+3. Find/replace: "from 'next/image'" → "from '@snapkit-studio/nextjs'"
+4. Add transforms prop for optimizations
+No Provider setup, no layout changes required.
+```
+
+### Server Components Gallery
+```
+Build gallery in Next.js server component:
+import { Image } from '@snapkit-studio/nextjs';
+// Works in RSC without client wrapper
+export default function Gallery() {
+  return images.map(img => (
+    <Image
+      key={img.id}
+      src={img.src}
+      alt={img.alt}
+      width={400}
+      height={300}
+      transforms={{ fit: 'cover', format: 'auto' }}
+    />
+  ));
+}
+```
+
+### E-commerce with Optimization
+```
+Product images with @snapkit-studio/nextjs (no Provider):
+<Image
+  src={product.mainImage}
+  alt={product.name}
+  width={800}
+  height={800}
+  priority
+  transforms={{ quality: 90, format: 'auto' }}
+/>
+Thumbnails: transforms={{ width: 100, height: 100, fit: 'cover' }}
+Each Image component works independently.
+```
+
+### Blog MDX Integration
+```
+Use Snapkit in MDX without Provider setup:
+// mdx-components.tsx
+import { Image } from '@snapkit-studio/nextjs';
+export const components = {
+  img: (props) => <Image {...props} transforms={{ format: 'auto' }} />
+};
+No context or Provider needed - direct replacement.
+```
+
+### Performance-First Pattern
+```
+Optimize Next.js images with zero config:
+import { Image } from '@snapkit-studio/nextjs';
+// Above fold: priority={true}
+// Below fold: default lazy loading
+// Responsive: sizes prop as usual
+// Format: transforms={{ format: 'auto' }}
+No SnapkitProvider, works with env vars only.
+```
 
 ## License
 
@@ -571,14 +717,17 @@ export class SnapkitAnalytics {
     loadedImages: 0,
     failedImages: 0,
     averageLoadTime: 0,
-    bytesTransferred: 0
+    bytesTransferred: 0,
   };
 
-  track(event: 'load' | 'error', data: {
-    url: string;
-    loadTime?: number;
-    optimizedSize?: number;
-  }) {
+  track(
+    event: 'load' | 'error',
+    data: {
+      url: string;
+      loadTime?: number;
+      optimizedSize?: number;
+    },
+  ) {
     this.metrics.totalImages++;
 
     if (event === 'load') {
@@ -597,7 +746,7 @@ export class SnapkitAnalytics {
   private sendMetrics() {
     if (window.gtag) {
       window.gtag('event', 'snapkit_metrics', {
-        custom_parameter: this.metrics
+        custom_parameter: this.metrics,
       });
     }
   }
@@ -618,12 +767,9 @@ export const snapkitCSP = {
     'data:',
     '*-cdn.snapkit.studio',
     // Add your custom domains
-    'images.yourdomain.com'
+    'images.yourdomain.com',
   ],
-  'connect-src': [
-    "'self'",
-    '*-cdn.snapkit.studio'
-  ]
+  'connect-src': ["'self'", '*-cdn.snapkit.studio'],
 };
 
 // Apply via next.config.js
@@ -647,11 +793,12 @@ export async function checkSnapkitHealth(organizationName?: string): Promise<{
     urlGeneration: false,
     imageDelivery: false,
     responseTime: 0,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   };
 
   try {
-    const orgName = organizationName || process.env.NEXT_PUBLIC_SNAPKIT_ORG_NAME;
+    const orgName =
+      organizationName || process.env.NEXT_PUBLIC_SNAPKIT_ORG_NAME;
 
     if (!orgName) {
       throw new Error('Organization name not configured');
@@ -662,7 +809,7 @@ export async function checkSnapkitHealth(organizationName?: string): Promise<{
     const testUrl = loader({
       src: '/health-check.jpg',
       width: 100,
-      quality: 75
+      quality: 75,
     });
     checks.urlGeneration = !!testUrl;
 
@@ -675,13 +822,16 @@ export async function checkSnapkitHealth(organizationName?: string): Promise<{
     }
 
     return {
-      healthy: checks.urlGeneration && checks.imageDelivery && checks.responseTime < 1000,
-      details: checks
+      healthy:
+        checks.urlGeneration &&
+        checks.imageDelivery &&
+        checks.responseTime < 1000,
+      details: checks,
     };
   } catch (error) {
     return {
       healthy: false,
-      details: { ...checks, error: error.message }
+      details: { ...checks, error: error.message },
     };
   }
 }
@@ -696,13 +846,13 @@ import { createSnapkitLoader } from '@snapkit-studio/nextjs';
 
 // 1. Test URL generation
 const testLoader = createSnapkitLoader({
-  organizationName: 'your-org-name'
+  organizationName: 'your-org-name',
 });
 
 const testUrl = testLoader({
   src: '/test-image.jpg',
   width: 800,
-  quality: 85
+  quality: 85,
 });
 
 console.log('Generated URL:', testUrl);
@@ -714,6 +864,7 @@ console.log('Generated URL:', testUrl);
 #### 1. Images Not Loading / 404 Errors
 
 **Symptoms:**
+
 - Images show broken image icon
 - Network tab shows 404 errors for image URLs
 - Console shows "Failed to load resource" errors
@@ -728,11 +879,12 @@ console.log('Generated URL:', testUrl);
 
 // ✅ Correct format
 const loader = createSnapkitLoader({
-  organizationName: 'your-actual-org-name'
+  organizationName: 'your-actual-org-name',
 });
 ```
 
 **How to find your organization name:**
+
 1. Log into your Snapkit dashboard
 2. Check the URL: `https://dashboard.snapkit.studio/organizations/YOUR-ORG-NAME`
 3. Use exactly the `YOUR-ORG-NAME` part
@@ -760,7 +912,7 @@ const nextConfig = {
     domains: ['your-org-name-cdn.snapkit.studio'],
     // If using custom domain:
     domains: ['cdn.yourdomain.com'],
-  }
+  },
 };
 
 module.exports = nextConfig;
@@ -768,25 +920,25 @@ module.exports = nextConfig;
 
 #### 2. Configuration Errors
 
-**Error:** `"Snapkit configuration not found"`
+**Error:** `"Organization name not found"`
 
-This occurs when using the `Image` component without `SnapkitProvider`:
+This occurs when the organization name is not configured:
 
 ```typescript
-// ✅ Solution: Wrap your app with SnapkitProvider
-import { SnapkitProvider } from '@snapkit-studio/react';
+// ✅ Solution: Add environment variable
+// .env.local
+NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME=your-organization-name
 
-export default function RootLayout({ children }) {
-  return (
-    <html>
-      <body>
-        <SnapkitProvider organizationName="your-org-name">
-          {children}
-        </SnapkitProvider>
-      </body>
-    </html>
-  );
-}
+// Or pass directly to component
+import { Image } from '@snapkit-studio/nextjs';
+
+<Image
+  src="/image.jpg"
+  alt="Image"
+  width={800}
+  height={600}
+  organizationName="your-organization-name"
+/>
 ```
 
 #### 3. TypeScript Errors
@@ -868,9 +1020,10 @@ export default function RootLayout({ children }) {
 
    ```typescript
    // Use environment-specific organization names
-   const orgName = process.env.NODE_ENV === 'production'
-     ? process.env.NEXT_PUBLIC_SNAPKIT_ORG_PROD
-     : process.env.NEXT_PUBLIC_SNAPKIT_ORG_DEV;
+   const orgName =
+     process.env.NODE_ENV === 'production'
+       ? process.env.NEXT_PUBLIC_SNAPKIT_ORG_PROD
+       : process.env.NEXT_PUBLIC_SNAPKIT_ORG_DEV;
    ```
 
 2. **Build-time optimization:**
@@ -918,20 +1071,20 @@ vi.mock('@snapkit-studio/nextjs', () => ({
 // utils/snapkit-debug.ts
 export function debugSnapkitConfiguration() {
   const checks = {
-    globalConfig: true, // SnapkitProvider based
+    globalConfig: true, // Environment variable based
     canGenerateUrls: false,
-    organizationReachable: false
+    organizationReachable: false,
   };
 
   // Test URL generation
   try {
     const loader = createSnapkitLoader({
-      organizationName: process.env.NEXT_PUBLIC_SNAPKIT_ORG_NAME
+      organizationName: process.env.NEXT_PUBLIC_SNAPKIT_ORG_NAME,
     });
     const testUrl = loader({
       src: '/test.jpg',
       width: 400,
-      quality: 85
+      quality: 85,
     });
     checks.canGenerateUrls = !!testUrl;
     console.log('Test URL:', testUrl);
@@ -955,7 +1108,7 @@ export function monitorImagePerformance() {
           console.log('Snapkit image loaded:', {
             url: entry.name,
             duration: entry.duration,
-            size: entry.transferSize
+            size: entry.transferSize,
           });
         }
       }
@@ -989,9 +1142,9 @@ const debugInfo = {
   environment: process.env.NODE_ENV,
   userAgent: navigator.userAgent,
   configuration: {
-    hasSnapkitProvider: true, // If using SnapkitProvider
+    hasEnvironmentConfig: true, // If using environment variables
     // Don't include sensitive information
-  }
+  },
 };
 
 console.log('Debug info:', debugInfo);
@@ -1001,19 +1154,17 @@ console.log('Debug info:', debugInfo);
 
 ```typescript
 // minimal-reproduction.tsx
-import { SnapkitProvider } from '@snapkit-studio/react';
+// .env.local: NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME=your-org-name
 import { Image } from '@snapkit-studio/nextjs';
 
 export default function MinimalExample() {
   return (
-    <SnapkitProvider organizationName="your-org-name">
-      <Image
-        src="/test-image.jpg"
-        alt="Test image"
-        width={400}
-        height={300}
-      />
-    </SnapkitProvider>
+    <Image
+      src="/test-image.jpg"
+      alt="Test image"
+      width={400}
+      height={300}
+    />
   );
 }
 ```

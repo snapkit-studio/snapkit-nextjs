@@ -29,7 +29,7 @@ import { Image } from '@snapkit-studio/nextjs';
   width={800}
   height={600}
   transforms={{ format: 'auto', fit: 'cover' }}
-/>
+/>;
 ```
 
 ```tsx
@@ -44,7 +44,7 @@ import { Image, SnapkitProvider } from '@snapkit-studio/react';
     height={600}
     transforms={{ format: 'auto', fit: 'cover' }}
   />
-</SnapkitProvider>
+</SnapkitProvider>;
 ```
 
 ## 설치

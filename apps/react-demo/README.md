@@ -5,17 +5,21 @@ Interactive demonstration app showcasing all features of the @snapkit-studio/rea
 ## Features Demonstrated
 
 ### 🖼️ Core Image Features
+
 - **DPR-based Srcset** - Automatic 1x, 2x, 3x versions for crisp displays
 - **Fill Mode** - Container-filling responsive images
 - **Image Transformations** - Format optimization, visual effects, region extraction
 - **Format Optimization** - AVIF, WebP, auto-detection examples
 
 ### ⚡ Performance Optimization
+
 - **Lazy Loading** - Intersection Observer based loading
 - **Priority Loading** - Immediate loading for above-the-fold content
 - **Network-aware Quality** - Dynamic quality adjustment
 
 ### 🎯 Advanced Patterns
+
+- **Error Boundaries** - Graceful error handling with ImageErrorBoundary
 - **Art Direction** - Different compositions for different screen sizes
 - **Custom Transforms** - Real-time image effects and cropping
 - **Quality Controls** - Network-optimized image delivery
@@ -52,20 +56,31 @@ npm run preview
 - **App.tsx** - Main demo application with feature sections
 - **CodeBlock.tsx** - Syntax-highlighted code examples using Shiki
 
+### Example Components
+
+- **ImageErrorBoundaryExample.tsx** - Error boundary demonstrations with fallback UI
+
 ### Section Breakdown
 
 #### 1. Basic Features
+
 - **DPR Srcset Example**: Shows automatic generation of high-DPI versions
 - **Fill Mode Example**: Demonstrates container-filling behavior
 - **Image Transforms**: Live examples of format optimization, grayscale, and cropping
 
 #### 2. Performance Optimization
+
 - **Lazy Loading**: Scrollable container showing deferred image loading
-- **Priority Loading**: Immediate loading demonstration for critical images
+- **Priority Loading**: Immediate loading demonstration for critical images with preload hints
+- **Smart DPR Detection**: Automatic device pixel ratio optimization
+- **Network-aware Quality**: Dynamic quality adjustment based on connection speed
 
 #### 3. Advanced Patterns
+
+- **Error Boundary Protection**: Graceful error handling with custom fallback UI
 - **Art Direction**: Different aspect ratios for different contexts
 - **Network-aware Quality**: Quality optimization based on connection speed
+- **HOC Pattern**: Using withImageErrorBoundary for component wrapping
 
 ## Technical Stack
 
@@ -79,41 +94,46 @@ npm run preview
 ## Configuration Files
 
 ### Vite Configuration (`vite.config.ts`)
+
 ```typescript
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
-    host: true
-  }
-})
+    host: true,
+  },
+});
 ```
 
 ### TypeScript Configuration
+
 - **tsconfig.json** - Main TypeScript configuration
 - **tsconfig.node.json** - Node.js specific configuration for Vite
 
 ### ESLint Configuration (`eslint.config.js`)
-```javascript
-import { config } from '@repo/eslint-config/react-internal'
 
-export default config
+```javascript
+import { config } from "@repo/eslint-config/react-internal";
+
+export default config;
 ```
 
 ## Image Assets
 
 The demo uses sample images located at:
+
 - `/landing-page/fox.jpg` - Primary demo image
 - Images are served through Snapkit optimization pipeline
 
 ## Code Examples
 
 ### Basic Image Usage
+
 ```tsx
-import { Image } from '@snapkit-studio/react';
+import { Image } from "@snapkit-studio/react";
 
 <Image
   src="/landing-page/fox.jpg"
@@ -124,19 +144,34 @@ import { Image } from '@snapkit-studio/react';
 />
 ```
 
-### Fill Mode with Container
+### Error Boundary Protection
+
 ```tsx
-<div className="relative w-full h-64 rounded-lg overflow-hidden">
+import { ImageErrorBoundary, Image } from "@snapkit-studio/react";
+
+<ImageErrorBoundary
+  fallback={<CustomErrorFallback />}
+  onError={(error, errorInfo) => console.error(error)}
+>
   <Image
     src="/landing-page/fox.jpg"
-    alt="Fill mode example"
-    fill={true}
-    className="object-cover"
+    alt="Protected image"
+    width={300}
+    height={200}
   />
+</ImageErrorBoundary>
+```
+
+### Fill Mode with Container
+
+```tsx
+<div className="relative h-64 w-full overflow-hidden rounded-lg">
+  <Image src="/landing-page/fox.jpg" alt="Fill mode example" fill={true} className="object-cover" />
 </div>
 ```
 
 ### Image Transformations
+
 ```tsx
 // Format optimization
 <Image
@@ -169,6 +204,7 @@ import { Image } from '@snapkit-studio/react';
 ```
 
 ### Performance Features
+
 ```tsx
 // Priority loading for above-the-fold
 <Image
@@ -193,17 +229,21 @@ import { Image } from '@snapkit-studio/react';
 ## Development Features
 
 ### Hot Module Replacement (HMR)
+
 The demo includes fast refresh for immediate feedback during development.
 
 ### Type Safety
+
 Full TypeScript integration with @snapkit-studio/react types.
 
 ### Code Highlighting
+
 Live syntax highlighting for all code examples using Shiki with VS Code themes.
 
 ## Browser Testing
 
 Test the following features in different browsers:
+
 - **AVIF Support** - Chrome 85+, Firefox 93+, Safari 16+
 - **WebP Support** - Chrome 23+, Firefox 65+, Safari 14+
 - **Lazy Loading** - Chrome 76+, Firefox 75+, Safari 15.4+
@@ -212,6 +252,7 @@ Test the following features in different browsers:
 ## Performance Metrics
 
 The demo showcases real performance benefits:
+
 - **Faster Loading** - Optimized formats reduce file sizes by 30-70%
 - **Better Core Web Vitals** - Priority loading improves LCP scores
 - **Reduced Bandwidth** - Network-aware quality saves data on slow connections
@@ -234,12 +275,14 @@ npm run build
 The demo is designed to work with static hosting providers:
 
 ### Vercel
+
 ```bash
 # Deploy to Vercel
 vercel --prod
 ```
 
 ### Netlify
+
 ```bash
 # Build and deploy
 npm run build
@@ -247,6 +290,7 @@ netlify deploy --prod --dir dist
 ```
 
 ### GitHub Pages
+
 ```bash
 # Build for GitHub Pages
 npm run build
@@ -258,19 +302,18 @@ npm run build
 ### Adding New Examples
 
 1. **Create new section in App.tsx**:
+
 ```tsx
-<div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-  <h3 className="text-2xl font-semibold text-gray-800 mb-6">New Feature</h3>
-  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<div className="mb-8 rounded-lg bg-white p-8 shadow-lg">
+  <h3 className="mb-6 text-2xl font-semibold text-gray-800">New Feature</h3>
+  <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
     <div>
-      <h4 className="text-lg font-medium text-gray-700 mb-4">Live Demo</h4>
+      <h4 className="mb-4 text-lg font-medium text-gray-700">Live Demo</h4>
       {/* Your demo here */}
     </div>
     <div>
-      <h4 className="text-lg font-medium text-gray-700 mb-4">Implementation</h4>
-      <CodeBlock language="tsx">
-        {/* Your code example */}
-      </CodeBlock>
+      <h4 className="mb-4 text-lg font-medium text-gray-700">Implementation</h4>
+      <CodeBlock language="tsx">{/* Your code example */}</CodeBlock>
     </div>
   </div>
 </div>
@@ -286,13 +329,7 @@ The demo uses Tailwind CSS utility classes. Modify classes in JSX or add custom 
 
 ```tsx
 // Custom component styling
-<Image
-  src="/custom-image.jpg"
-  alt="Custom styled"
-  width={400}
-  height={300}
-  className="your-custom-classes"
-/>
+<Image src="/custom-image.jpg" alt="Custom styled" width={400} height={300} className="your-custom-classes" />
 ```
 
 ## Troubleshooting

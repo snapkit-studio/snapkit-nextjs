@@ -1,9 +1,10 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
 import {
-  formatBytes,
   calculateSizeReduction,
+  extractDimensionsFromUrl,
+  formatBytes,
   isSnapkitUrl,
-  extractDimensionsFromUrl
 } from '../utils';
 
 describe('formatBytes', () => {
@@ -49,21 +50,33 @@ describe('isSnapkitUrl', () => {
 
 describe('extractDimensionsFromUrl', () => {
   it('should extract dimensions from URL parameters', () => {
-    const result1 = extractDimensionsFromUrl('https://example.com/image.jpg?w=800&h=600');
+    const result1 = extractDimensionsFromUrl(
+      'https://example.com/image.jpg?w=800&h=600',
+    );
     expect(result1).toEqual({ width: 800, height: 600 });
 
-    const result2 = extractDimensionsFromUrl('https://example.com/image.jpg?width=1200&height=900');
+    const result2 = extractDimensionsFromUrl(
+      'https://example.com/image.jpg?width=1200&height=900',
+    );
     expect(result2).toEqual({ width: 1200, height: 900 });
   });
 
   it('should return null when dimensions are not found', () => {
-    expect(extractDimensionsFromUrl('https://example.com/image.jpg')).toBe(null);
-    expect(extractDimensionsFromUrl('https://example.com/image.jpg?q=80')).toBe(null);
+    expect(extractDimensionsFromUrl('https://example.com/image.jpg')).toBe(
+      null,
+    );
+    expect(extractDimensionsFromUrl('https://example.com/image.jpg?q=80')).toBe(
+      null,
+    );
     expect(extractDimensionsFromUrl('not-a-url')).toBe(null);
   });
 
   it('should handle partial dimension parameters', () => {
-    expect(extractDimensionsFromUrl('https://example.com/image.jpg?w=800')).toBe(null);
-    expect(extractDimensionsFromUrl('https://example.com/image.jpg?h=600')).toBe(null);
+    expect(
+      extractDimensionsFromUrl('https://example.com/image.jpg?w=800'),
+    ).toBe(null);
+    expect(
+      extractDimensionsFromUrl('https://example.com/image.jpg?h=600'),
+    ).toBe(null);
   });
 });

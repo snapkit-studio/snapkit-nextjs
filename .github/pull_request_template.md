@@ -9,12 +9,14 @@
 ```
 
 **Examples:**
+
 - `feat(core): add utility functions for image optimization`
 - `fix(react): resolve image loading issue in Safari`
 - `docs: update installation guide`
 - `feat!: change API response format` (breaking change)
 
 **Common Types:**
+
 - `feat:` - New feature (minor version bump)
 - `fix:` - Bug fix (patch version bump)
 - `docs:` - Documentation changes
@@ -30,9 +32,9 @@
 
 <!-- Briefly describe what this PR accomplishes -->
 
-- 
-- 
-- 
+-
+-
+-
 
 ## Type of Change
 
@@ -53,13 +55,16 @@
 <!-- Describe the changes in detail -->
 
 ### Added
-- 
+
+-
 
 ### Changed
-- 
+
+-
 
 ### Removed
-- 
+
+-
 
 ## Testing
 
@@ -75,9 +80,9 @@
 
 <!-- Checklist of manual testing steps -->
 
-- [ ] 
-- [ ] 
-- [ ] 
+- [ ]
+- [ ]
+- [ ]
 
 ## Breaking Changes
 
