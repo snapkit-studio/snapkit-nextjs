@@ -26,11 +26,9 @@ pnpm add @snapkit-studio/core
 ✅ **Browser Compatibility** - Cross-browser compatibility utilities
 ✅ **TypeScript Support** - Full type definitions included
 
-## API Reference
+## Quick Start
 
 ### URL Builder
-
-The `SnapkitUrlBuilder` class provides a fluent API for constructing optimized image URLs.
 
 ```typescript
 import { SnapkitUrlBuilder } from '@snapkit-studio/core';
@@ -60,21 +58,7 @@ const transformedUrl = urlBuilder
   .build();
 ```
 
-#### SnapkitUrlBuilder Methods
-
-| Method                         | Description                    | Parameters                                              |
-| ------------------------------ | ------------------------------ | ------------------------------------------------------- |
-| `setSource(src)`               | Set the source image path      | `src: string`                                           |
-| `setDimensions(width, height)` | Set image dimensions           | `width: number, height?: number`                        |
-| `setQuality(quality)`          | Set image quality (1-100)      | `quality: number`                                       |
-| `setFormat(format)`            | Set output format              | `format: 'auto' \| 'avif' \| 'webp' \| 'jpeg' \| 'png'` |
-| `setTransforms(transforms)`    | Set image transformations      | `transforms: ImageTransforms`                           |
-| `build()`                      | Build the final URL            | Returns: `string`                                       |
-| `reset()`                      | Reset builder to initial state | Returns: `SnapkitUrlBuilder`                            |
-
 ### Format Detection
-
-Utilities for detecting and managing image format support across browsers.
 
 ```typescript
 import {
@@ -98,27 +82,13 @@ const serverSupport = estimateFormatSupportFromUA(userAgent);
 preloadFormatSupport();
 ```
 
-#### Format Detection Functions
-
-| Function                                      | Description                          | Parameters          | Returns                          |
-| --------------------------------------------- | ------------------------------------ | ------------------- | -------------------------------- |
-| `supportsImageFormat(format)`                 | Check if browser supports format     | `format: string`    | `boolean`                        |
-| `getBestSupportedFormat(formats)`             | Get best supported format from array | `formats: string[]` | `string`                         |
-| `estimateFormatSupportFromUA(ua)`             | Estimate support from user agent     | `ua: string`        | `{avif: boolean, webp: boolean}` |
-| `getSupportedFormatsFromAcceptHeader(accept)` | Parse Accept header for formats      | `accept: string`    | `string[]`                       |
-| `preloadFormatSupport()`                      | Preload format detection tests       | None                | `Promise<void>`                  |
-
 ### Responsive Utilities
-
-Calculate optimal image sizes and generate responsive configurations.
 
 ```typescript
 import {
   adjustQualityForConnection,
   calculateOptimalImageSize,
-  createLazyLoadObserver,
   generateResponsiveWidths,
-  parseImageSizes,
 } from '@snapkit-studio/core';
 
 // Generate responsive width array
@@ -136,40 +106,9 @@ const adjustedQuality = adjustQualityForConnection(85, {
   effectiveType: '3g',
   saveData: false,
 });
-
-// Create intersection observer for lazy loading
-const observer = createLazyLoadObserver(
-  {
-    threshold: 0.1,
-    rootMargin: '50px',
-  },
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        // Load image
-      }
-    });
-  },
-);
-
-// Parse CSS sizes attribute
-const parsedSizes = parseImageSizes('(max-width: 768px) 100vw, 50vw');
 ```
 
-#### Responsive Utility Functions
-
-| Function                                             | Description                              | Parameters                                       | Returns         |
-| ---------------------------------------------------- | ---------------------------------------- | ------------------------------------------------ | --------------- |
-| `generateResponsiveWidths(maxWidth, options)`        | Generate array of responsive widths      | `maxWidth: number, options?: ResponsiveOptions`  | `number[]`      |
-| `calculateOptimalImageSize(dimensions, constraints)` | Calculate optimal image size             | `dimensions: Size, constraints: SizeConstraints` | `Size`          |
-| `adjustQualityForConnection(quality, connection)`    | Adjust quality for network conditions    | `quality: number, connection: NetworkInfo`       | `number`        |
-| `determineImagePriority(element, options)`           | Determine if image should be prioritized | `element: Element, options?: PriorityOptions`    | `boolean`       |
-| `getDeviceCharacteristics()`                         | Get device pixel ratio and viewport      | None                                             | `DeviceInfo`    |
-| `parseImageSizes(sizes)`                             | Parse CSS sizes attribute                | `sizes: string`                                  | `ParsedSizes[]` |
-
 ### Transform Builder
-
-Type-safe builder for image transformation parameters.
 
 ```typescript
 import { SnapkitTransformBuilder } from '@snapkit-studio/core';
@@ -190,24 +129,7 @@ const url = urlBuilder
   .build();
 ```
 
-#### Transform Builder Methods
-
-| Method                         | Description            | Parameters                                            |
-| ------------------------------ | ---------------------- | ----------------------------------------------------- |
-| `resize(width, height, fit)`   | Set resize parameters  | `width: number, height?: number, fit?: FitMode`       |
-| `quality(value)`               | Set quality (1-100)    | `value: number`                                       |
-| `format(value)`                | Set output format      | `value: ImageFormat`                                  |
-| `blur(radius)`                 | Apply blur effect      | `radius: number`                                      |
-| `grayscale(enable)`            | Convert to grayscale   | `enable?: boolean`                                    |
-| `flip(enable)`                 | Flip vertically        | `enable?: boolean`                                    |
-| `flop(enable)`                 | Flip horizontally      | `enable?: boolean`                                    |
-| `extract(x, y, width, height)` | Extract region         | `x: number, y: number, width: number, height: number` |
-| `build()`                      | Build transform object | Returns: `ImageTransforms`                            |
-| `reset()`                      | Reset to initial state | Returns: `SnapkitTransformBuilder`                    |
-
-## Type Definitions
-
-### Core Types
+## Core Types
 
 ```typescript
 // Configuration
@@ -240,47 +162,11 @@ interface ImageTransforms {
 // Image formats
 type ImageFormat = 'auto' | 'avif' | 'webp' | 'jpeg' | 'png' | 'gif';
 
-// Responsive configuration
-interface ResponsiveConfig {
-  breakpoints?: number[];
-  densities?: number[];
-  sizes?: string;
-}
-
 // Network information
 interface NetworkInfo {
   effectiveType?: '2g' | '3g' | '4g';
   saveData?: boolean;
   downlink?: number;
-}
-```
-
-### Component Props
-
-```typescript
-// Base image props
-interface SnapkitImageProps {
-  src: string;
-  alt: string;
-  width?: number;
-  height?: number;
-  quality?: number;
-  priority?: boolean;
-  loading?: 'lazy' | 'eager';
-  optimizeFormat?: ImageFormat;
-  transforms?: ImageTransforms;
-  organizationName?: string;
-  baseUrl?: string;
-}
-
-// Next.js compatible props
-interface NextImageProps extends SnapkitImageProps {
-  fill?: boolean;
-  sizes?: string;
-  blurDataURL?: string;
-  unoptimized?: boolean;
-  onLoad?: () => void;
-  onError?: () => void;
 }
 ```
 
@@ -332,18 +218,33 @@ const optimizedQuality = adjustQualityForConnection(baseQuality, {
 
 ## Testing
 
-The package includes comprehensive test coverage:
+The package includes comprehensive test coverage with automatic coverage reporting:
 
 ```bash
 # Run tests
 npm test
 
-# Run with coverage
-npm test -- --coverage
+# Run with coverage report
+npm run test:coverage
 
-# Watch mode
+# Watch mode for development
 npm test -- --watch
 ```
+
+### Test Coverage
+
+The package maintains high test coverage standards:
+
+- **Coverage Threshold**: 80% minimum for branches, functions, lines, and statements
+- **Test Framework**: Vitest with v8 coverage provider
+- **Coverage Reports**: Text (console), JSON, HTML, and LCOV formats
+- **Coverage Exclusions**: Configuration files, type definitions, and test utilities
+
+Coverage reports are generated in multiple formats:
+- **Text**: Console output during test runs
+- **HTML**: Detailed coverage report in `coverage/` directory
+- **LCOV**: For CI/CD integration and coverage tools
+- **JSON**: Machine-readable coverage data
 
 ## Development
 
@@ -362,163 +263,6 @@ npm run check-types
 
 # Linting
 npm run lint
-```
-
-## Examples
-
-### Basic URL Building
-
-```typescript
-import { SnapkitUrlBuilder } from '@snapkit-studio/core';
-
-const builder = new SnapkitUrlBuilder({
-  baseUrl: 'https://cdn.snapkit.com',
-  organizationName: 'my-org',
-});
-
-// Simple resize
-const url1 = builder
-  .setSource('/images/hero.jpg')
-  .setDimensions(800, 600)
-  .build();
-
-// With quality and format
-const url2 = builder
-  .setSource('/images/photo.jpg')
-  .setDimensions(400, 300)
-  .setQuality(90)
-  .setFormat('webp')
-  .build();
-
-// Complex transformations
-const url3 = builder
-  .setSource('/images/original.jpg')
-  .setDimensions(600, 400)
-  .setTransforms({
-    fit: 'cover',
-    blur: 10,
-    grayscale: true,
-    extract: { x: 100, y: 50, width: 300, height: 200 },
-  })
-  .build();
-```
-
-### Progressive Format Detection
-
-```typescript
-import {
-  getBestSupportedFormat,
-  preloadFormatSupport,
-  supportsImageFormat,
-} from '@snapkit-studio/core';
-
-// Initialize format detection early
-preloadFormatSupport();
-
-// Later in your app
-function getOptimalImageUrl(src: string) {
-  const formats = ['avif', 'webp', 'jpeg'];
-  const bestFormat = getBestSupportedFormat(formats);
-
-  return urlBuilder.setSource(src).setFormat(bestFormat).build();
-}
-
-// Check specific format support
-if (supportsImageFormat('avif')) {
-  // Use AVIF
-} else if (supportsImageFormat('webp')) {
-  // Fallback to WebP
-} else {
-  // Use JPEG/PNG
-}
-```
-
-### Responsive Image Configuration
-
-```typescript
-import {
-  calculateOptimalImageSize,
-  generateResponsiveWidths,
-} from '@snapkit-studio/core';
-
-// Generate responsive breakpoints
-const widths = generateResponsiveWidths(1200, {
-  steps: 6,
-  minWidth: 320,
-  maxWidth: 1200,
-});
-// Result: [320, 480, 640, 800, 1000, 1200]
-
-// Calculate optimal size for container
-const containerSize = { width: 800, height: 600 };
-const optimal = calculateOptimalImageSize(containerSize, {
-  maxWidth: 1920,
-  pixelDensity: window.devicePixelRatio || 1,
-  qualityBudget: 'high',
-});
-
-// Generate srcset
-const srcset = widths
-  .map((width) => {
-    const url = urlBuilder.setSource('/image.jpg').setDimensions(width).build();
-    return `${url} ${width}w`;
-  })
-  .join(', ');
-```
-
-## 🤖 AI Assistant Prompts
-
-Copy these prompts to quickly integrate Snapkit core utilities with AI coding assistants:
-
-### URL Builder Implementation
-```
-Create a Snapkit URL builder for optimized image delivery.
-Use @snapkit-studio/core SnapkitUrlBuilder with dimensions, quality,
-and format settings. Include error handling for invalid inputs.
-```
-
-### Format Detection Setup
-```
-Implement browser format detection using @snapkit-studio/core.
-Use getBestSupportedFormat for AVIF/WebP fallback chain.
-Include preloadFormatSupport on app initialization.
-Cache results to avoid repeated detection.
-```
-
-### Responsive Image Utilities
-```
-Generate responsive image configuration with @snapkit-studio/core.
-Use generateResponsiveWidths for breakpoints and calculateOptimalImageSize
-for container-aware sizing. Include device pixel ratio handling.
-```
-
-### Network-Aware Optimization
-```
-Add network-aware image optimization using @snapkit-studio/core.
-Use adjustQualityForConnection to reduce quality on slow connections.
-Implement progressive loading strategy with connection detection.
-```
-
-### Transform Builder Pattern
-```
-Create image transformation pipeline with @snapkit-studio/core.
-Use SnapkitTransformBuilder for chained transformations:
-resize, blur, grayscale, crop. Include type-safe transform validation.
-```
-
-### Custom Image Engine
-```
-Build custom image optimization engine extending @snapkit-studio/core.
-Implement URL building, format detection, and responsive utilities.
-Add custom transformation methods and caching layer.
-```
-
-### Server-Side Format Detection
-```
-Implement server-side format detection for SSR/SSG.
-Use estimateFormatSupportFromUA from @snapkit-studio/core.
-Parse Accept headers with getSupportedFormatsFromAcceptHeader.
-Return optimized images based on client capabilities.
 ```
 
 ## Contributing

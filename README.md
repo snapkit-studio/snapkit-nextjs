@@ -44,8 +44,6 @@ npm install @snapkit-studio/nextjs
 ```bash
 # .env.local
 NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME=your-organization-name
-NEXT_PUBLIC_SNAPKIT_DEFAULT_QUALITY=85        # Optional (default: 85)
-NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT=auto  # Optional (default: auto)
 ```
 
 ```tsx
@@ -86,8 +84,6 @@ npm install @snapkit-studio/react
 ```bash
 # .env
 VITE_SNAPKIT_ORGANIZATION_NAME=your-organization-name
-VITE_SNAPKIT_DEFAULT_QUALITY=85               # Optional (default: 85)
-VITE_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT=auto     # Optional (default: auto)
 ```
 
 ```tsx
@@ -120,58 +116,18 @@ function App() {
 }
 ```
 
-## 🤖 AI Prompts
+## Features Comparison
 
-### Next.js Migration with RSC Support (Zero Config)
-```
-Migrate from next/image to Snapkit with full RSC support:
-1. npm install @snapkit-studio/nextjs
-2. Add to .env.local: NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME=your-org-name
-3. Replace: import Image from 'next/image' → import { Image } from '@snapkit-studio/nextjs'
-4. Automatic benefits:
-   - Static images render as ServerImage (zero client JS)
-   - Interactive images auto-switch to ClientImage
-   - 60% smaller bundles for galleries
-   - Full App Router and RSC compatibility
-No Provider setup required. Works immediately.
-```
-
-### React Setup with RSC Support
-```
-Add Snapkit to React with Server Component support:
-1. npm install @snapkit-studio/react
-2. Create .env: VITE_SNAPKIT_ORGANIZATION_NAME=your-org-name
-3. Import: import { Image } from '@snapkit-studio/react'
-4. Automatic server/client component selection:
-   - No event handlers → ServerImage (zero JS)
-   - Has onLoad/onError → ClientImage
-   - adjustQualityByNetwork → ClientImage
-5. Or use explicit: import { ServerImage, ClientImage } from '@snapkit-studio/react'
-Works in any React 18+ environment with RSC support.
-```
-
-### Responsive Gallery
-```
-Build image gallery with automatic optimization:
-import { Image } from '@snapkit-studio/nextjs' // or react/image
-{images.map(img => (
-  <Image key={img.id} src={img.src} width={400} height={300}
-    transforms={{ fit: 'cover', format: 'auto' }}
-    sizes="(max-width: 768px) 100vw, 33vw" />
-))}
-First 2 images: add priority={true}
-```
-
-### Hero Image Optimization
-```
-Optimize above-fold hero images:
-<Image src="/hero.jpg" width={1200} height={600}
-  priority={true}  // Load immediately
-  sizes="100vw"   // Full width responsive
-  transforms={{ format: 'auto', quality: 90 }}
-  alt="Hero image" />
-Use priority for all above-fold images.
-```
+| Feature | @snapkit-studio/nextjs | @snapkit-studio/react |
+|---------|------------------------|----------------------|
+| React Server Components | ✅ via Next.js | ✅ Native support |
+| Auto Server/Client Selection | ✅ | ✅ |
+| Next.js Image Integration | ✅ Native | ❌ |
+| Bundle Size | ~15KB | ~9KB |
+| Error Boundaries | ✅ | ✅ ImageErrorBoundary |
+| Network-aware Quality | ✅ | ✅ |
+| DPR Optimization | ✅ | ✅ |
+| Provider Required | ❌ | ❌ |
 
 ## Environment Variables
 
@@ -189,23 +145,29 @@ Use priority for all above-fold images.
 | `VITE_SNAPKIT_DEFAULT_QUALITY` | `85` | Default image quality (1-100) |
 | `VITE_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT` | `auto` | Default format: `auto`, `avif`, `webp`, `off` |
 
-## Features Comparison
-
-| Feature | @snapkit-studio/nextjs | @snapkit-studio/react |
-|---------|------------------------|----------------------|
-| React Server Components | ✅ via Next.js | ✅ Native support |
-| Auto Server/Client Selection | ✅ | ✅ |
-| Next.js Image Integration | ✅ Native | ❌ |
-| Bundle Size | ~15KB | ~9KB |
-| Error Boundaries | ✅ | ✅ ImageErrorBoundary |
-| Network-aware Quality | ✅ | ✅ |
-| DPR Optimization | ✅ | ✅ |
-| Provider Required | ❌ | ❌ |
-
 ## Live Demos
 
-- **Next.js Demo**: [`apps/nextjs-demo`](./apps/nextjs-demo) - Server/Client components, DPR optimization
-- **React Demo**: [`apps/react-demo`](./apps/react-demo) - Error boundaries, network adaptation, transforms
+- **Next.js Demo**: [https://nextjs.snapkit.studio](https://nextjs.snapkit.studio) - Server/Client components, DPR optimization ([Source](./apps/nextjs-demo))
+- **React Demo**: [https://react.snapkit.studio](https://react.snapkit.studio) - Error boundaries, network adaptation, transforms ([Source](./apps/react-demo))
+
+## Testing
+
+The project maintains comprehensive test coverage across all packages:
+
+```bash
+# Run all tests
+pnpm exec turbo test
+
+# Run tests with coverage
+pnpm exec turbo test:coverage
+```
+
+### Test Coverage Standards
+
+All packages maintain consistent coverage standards:
+- **Coverage Threshold**: 80% minimum for branches, functions, lines, and statements
+- **Test Framework**: Vitest with v8 coverage provider
+- **Coverage Reports**: Text (console), JSON, HTML, and LCOV formats
 
 ## Development
 
