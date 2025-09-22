@@ -56,7 +56,13 @@ export function getOptimalDprValues(
     return getStandardDprSet(maxDpr);
   }
 
-  // Auto-detect based on device pixel ratio
+  // For SSR consistency, always use a predictable set for hydration
+  if (typeof window === 'undefined') {
+    // Server-side: use standard set to ensure hydration consistency
+    return getStandardDprSet(maxDpr);
+  }
+
+  // Auto-detect based on device pixel ratio (client-side only)
   const deviceDpr = getDevicePixelRatio();
 
   // Smart DPR selection based on actual device DPR

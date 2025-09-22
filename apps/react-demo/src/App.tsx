@@ -6,9 +6,61 @@ import {
   getOptimalDprValues,
   Image,
 } from '@snapkit-studio/react';
+//
+import {
+  DemoLayout,
+  ExampleContainer,
+  type NavGroup,
+} from '@repo/demo-components';
 
-import { CodeBlock } from './components/CodeBlock';
 import { ImageErrorBoundaryExample } from './examples/ImageErrorBoundaryExample';
+
+const navigation: NavGroup[] = [
+  {
+    title: 'Basic Features',
+    items: [
+      { id: 'dpr-srcset', title: 'DPR-based Srcset', href: '#dpr-srcset' },
+      { id: 'fill-mode', title: 'Fill Mode', href: '#fill-mode' },
+      { id: 'transforms', title: 'Image Transforms', href: '#transforms' },
+    ],
+    defaultOpen: true,
+  },
+  {
+    title: 'Performance Optimization',
+    items: [
+      { id: 'lazy-loading', title: 'Lazy Loading', href: '#lazy-loading' },
+      {
+        id: 'priority-loading',
+        title: 'Priority Loading',
+        href: '#priority-loading',
+      },
+      { id: 'smart-dpr', title: 'Smart DPR Detection', href: '#smart-dpr' },
+      {
+        id: 'network-aware',
+        title: 'Network-Aware Quality',
+        href: '#network-aware',
+      },
+    ],
+    defaultOpen: true,
+  },
+  {
+    title: 'Advanced Patterns',
+    items: [
+      {
+        id: 'error-boundary',
+        title: 'Error Boundary',
+        href: '#error-boundary',
+      },
+      { id: 'art-direction', title: 'Art Direction', href: '#art-direction' },
+      {
+        id: 'dynamic-quality',
+        title: 'Dynamic Quality',
+        href: '#dynamic-quality',
+      },
+    ],
+    defaultOpen: true,
+  },
+];
 
 // DPR Detection Demo component
 function DprDetectionDemo() {
@@ -24,94 +76,63 @@ function DprDetectionDemo() {
   }, []);
 
   return (
-    <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-      <div>
-        <h4 className="mb-4 text-lg font-medium text-gray-700">Live Demo</h4>
-        <div className="rounded-lg bg-gray-100 p-6">
-          <div className="space-y-4">
-            <div className="rounded-lg bg-white p-4">
-              <p className="mb-2 text-sm font-medium text-gray-700">
-                Your Device Information:
-              </p>
-              <div className="space-y-1 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Device Pixel Ratio:</span>
-                  <span className="font-semibold">{deviceDpr}x</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Optimal DPR Values:</span>
-                  <span className="font-semibold">
-                    {optimalDprs.join('x, ')}x
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">3x Images Needed:</span>
-                  <span className="font-semibold">
-                    {optimalDprs.includes(3) ? 'Yes' : 'No (Skipped)'}
-                  </span>
-                </div>
-              </div>
+    <>
+      <div className="space-y-4">
+        <div className="rounded-lg bg-white p-4">
+          <p className="mb-2 text-sm font-medium text-gray-700">
+            Your Device Information:
+          </p>
+          <div className="space-y-1 text-sm">
+            <div className="flex justify-between">
+              <span className="text-gray-600">Device Pixel Ratio:</span>
+              <span className="font-semibold">{deviceDpr}x</span>
             </div>
-
-            <button
-              onClick={() => setShowComparison(!showComparison)}
-              className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
-            >
-              {showComparison ? 'Hide' : 'Show'} Optimized vs Standard
-              Comparison
-            </button>
-
-            {showComparison && (
-              <div className="space-y-4">
-                <div>
-                  <p className="mb-2 text-sm font-medium text-gray-700">
-                    Smart DPR (Optimized):
-                  </p>
-                  <Image
-                    src="/landing-page/fox.jpg"
-                    alt="Smart DPR optimization"
-                    width={300}
-                    height={200}
-                    className="w-full rounded-lg shadow-md"
-                  />
-                  <p className="mt-1 text-xs text-gray-600">
-                    Using: {optimalDprs.join('x, ')}x
-                  </p>
-                </div>
-              </div>
-            )}
+            <div className="flex justify-between">
+              <span className="text-gray-600">Optimal DPR Values:</span>
+              <span className="font-semibold">{optimalDprs.join('x, ')}x</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">3x Images Needed:</span>
+              <span className="font-semibold">
+                {optimalDprs.includes(3) ? 'Yes' : 'No (Skipped)'}
+              </span>
+            </div>
           </div>
         </div>
-        <p className="mt-4 text-sm text-gray-600">
-          Snapkit automatically detects your device&apos;s pixel ratio and
-          generates only the necessary image sizes, reducing bandwidth usage
-          while maintaining visual quality.
-        </p>
-      </div>
-      <div>
-        <h4 className="mb-4 text-lg font-medium text-gray-700">
-          Implementation
-        </h4>
-        <CodeBlock language="tsx">
-          {`// Automatic smart DPR detection (default)
-<Image
-  src="/landing-page/fox.jpg"
-  alt="Smart DPR optimization"
-  width={300}
-  height={200}
-/>
 
-// Force specific DPR for testing
-<Image
-  src="/landing-page/fox.jpg"
-  alt="Force 2x DPR"
-  width={300}
-  height={200}
-  dprOptions={{ forceDpr: 2 }}
-/>`}
-        </CodeBlock>
+        <button
+          onClick={() => setShowComparison(!showComparison)}
+          className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+        >
+          {showComparison ? 'Hide' : 'Show'} Optimized vs Standard Comparison
+        </button>
+
+        {showComparison && (
+          <div className="space-y-4">
+            <div>
+              <p className="mb-2 text-sm font-medium text-gray-700">
+                Smart DPR (Optimized):
+              </p>
+              <Image
+                src="/landing-page/fox.jpg"
+                alt="Smart DPR optimization"
+                width={300}
+                height={200}
+                className="w-full rounded-lg shadow-md"
+              />
+              <p className="mt-1 text-xs text-gray-600">
+                Using: {optimalDprs.join('x, ')}x
+              </p>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+      <p className="mt-4 text-sm text-gray-600">
+        Snapkit automatically detects your device's pixel ratio and generates
+        only the necessary image sizes, reducing bandwidth usage while
+        maintaining visual quality.
+      </p>
+    </>
   );
 }
 
@@ -128,100 +149,69 @@ function NetworkQualityDemo() {
   }, []);
 
   return (
-    <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-      <div>
-        <h4 className="mb-4 text-lg font-medium text-gray-700">Live Demo</h4>
-        <div className="rounded-lg bg-gray-100 p-6">
-          <div className="space-y-4">
-            <div className="rounded-lg bg-white p-4">
-              <p className="mb-2 text-sm font-medium text-gray-700">
-                Network Information:
-              </p>
-              <div className="space-y-1 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Connection Speed:</span>
-                  <span className="font-semibold capitalize">
-                    {networkSpeed === 'slow' && '🟡 Slow'}
-                    {networkSpeed === 'fast' && '🟢 Fast'}
-                    {networkSpeed === 'unknown' && '⚪ Unknown'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Auto Adjustment:</span>
-                  <span className="font-semibold">Enabled</span>
-                </div>
-              </div>
+    <>
+      <div className="space-y-4">
+        <div className="rounded-lg bg-white p-4">
+          <p className="mb-2 text-sm font-medium text-gray-700">
+            Network Information:
+          </p>
+          <div className="space-y-1 text-sm">
+            <div className="flex justify-between">
+              <span className="text-gray-600">Connection Speed:</span>
+              <span className="font-semibold capitalize">
+                {networkSpeed === 'slow' && '🟡 Slow'}
+                {networkSpeed === 'fast' && '🟢 Fast'}
+                {networkSpeed === 'unknown' && '⚪ Unknown'}
+              </span>
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="mb-2 text-sm font-medium text-gray-700">
-                  Auto Quality:
-                </p>
-                <Image
-                  src="/landing-page/fox.jpg"
-                  alt="Auto quality adjustment"
-                  width={150}
-                  height={100}
-                  adjustQualityByNetwork={true}
-                  className="w-full rounded-lg shadow-md"
-                />
-                <p className="mt-1 text-xs text-gray-600">
-                  Quality: {networkSpeed === 'slow' ? '~60%' : '~85%'}
-                </p>
-              </div>
-              <div>
-                <p className="mb-2 text-sm font-medium text-gray-700">
-                  Fixed Quality:
-                </p>
-                <Image
-                  src="/landing-page/fox.jpg"
-                  alt="Fixed quality"
-                  width={150}
-                  height={100}
-                  quality={manualQuality}
-                  adjustQualityByNetwork={false}
-                  className="w-full rounded-lg shadow-md"
-                />
-                <p className="mt-1 text-xs text-gray-600">
-                  Quality: {manualQuality}%
-                </p>
-              </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Auto Adjustment:</span>
+              <span className="font-semibold">Enabled</span>
             </div>
           </div>
         </div>
-        <p className="mt-4 text-sm text-gray-600">
-          Images automatically adjust their quality based on network conditions
-          to provide the best balance between visual quality and loading
-          performance.
-        </p>
-      </div>
-      <div>
-        <h4 className="mb-4 text-lg font-medium text-gray-700">
-          Implementation
-        </h4>
-        <CodeBlock language="tsx">
-          {`// Automatic network-based quality (default)
-<Image
-  src="/landing-page/fox.jpg"
-  alt="Auto quality"
-  width={300}
-  height={200}
-  adjustQualityByNetwork={true}
-/>
 
-// Fixed quality (no network adjustment)
-<Image
-  src="/landing-page/fox.jpg"
-  alt="Fixed quality"
-  width={300}
-  height={200}
-  quality={95}
-  adjustQualityByNetwork={false}
-/>`}
-        </CodeBlock>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="mb-2 text-sm font-medium text-gray-700">
+              Auto Quality:
+            </p>
+            <Image
+              src="/landing-page/fox.jpg"
+              alt="Auto quality adjustment"
+              width={150}
+              height={100}
+              adjustQualityByNetwork={true}
+              className="w-full rounded-lg shadow-md"
+            />
+            <p className="mt-1 text-xs text-gray-600">
+              Quality: {networkSpeed === 'slow' ? '~60%' : '~85%'}
+            </p>
+          </div>
+          <div>
+            <p className="mb-2 text-sm font-medium text-gray-700">
+              Fixed Quality:
+            </p>
+            <Image
+              src="/landing-page/fox.jpg"
+              alt="Fixed quality"
+              width={150}
+              height={100}
+              quality={manualQuality}
+              adjustQualityByNetwork={false}
+              className="w-full rounded-lg shadow-md"
+            />
+            <p className="mt-1 text-xs text-gray-600">
+              Quality: {manualQuality}%
+            </p>
+          </div>
+        </div>
       </div>
-    </div>
+      <p className="mt-4 text-sm text-gray-600">
+        Images automatically adjust their quality based on network conditions to
+        provide the best balance between visual quality and loading performance.
+      </p>
+    </>
   );
 }
 
@@ -298,198 +288,106 @@ function PriorityLoadingDemo() {
   };
 
   return (
-    <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-      <div>
-        <h4 className="mb-4 text-lg font-medium text-gray-700">Live Demo</h4>
-        <div className="rounded-lg bg-gray-100 p-6">
-          <div className="space-y-4">
-            <div className="flex gap-2">
-              <button
-                onClick={handleLoadPriorityImage}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
-              >
-                {showPriorityImage
-                  ? 'Hide Image'
-                  : 'Click Me to Load Priority Image'}
-              </button>
-              <div className="flex items-center text-sm text-gray-600">
-                {showPriorityImage && (
-                  <span className="rounded bg-green-100 px-2 py-1 text-xs text-green-800">
-                    ⚡ Priority Loading Active
-                  </span>
-                )}
-              </div>
-            </div>
-
+    <>
+      <div className="space-y-4">
+        <div className="flex gap-2">
+          <button
+            onClick={handleLoadPriorityImage}
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+          >
+            {showPriorityImage
+              ? 'Hide Image'
+              : 'Click Me to Load Priority Image'}
+          </button>
+          <div className="flex items-center text-sm text-gray-600">
             {showPriorityImage && (
-              <div className="relative">
-                <Image
-                  src="/landing-page/fox.jpg"
-                  alt="Priority loaded hero image"
-                  width={400}
-                  height={267}
-                  priority={true}
-                  className="rounded-lg shadow-md"
-                />
-                <div className="absolute -top-2 -left-2 rounded-full bg-red-500 px-2 py-1 text-xs text-white">
-                  PRIORITY
-                </div>
-              </div>
+              <span className="rounded bg-green-100 px-2 py-1 text-xs text-green-800">
+                ⚡ Priority Loading Active
+              </span>
             )}
-
-            <PreloadMonitor />
-
-            <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
-              <p className="text-sm text-blue-800">
-                💡 <strong>How to Verify:</strong>
-              </p>
-              <ul className="mt-1 space-y-1 text-sm text-blue-700">
-                <li>
-                  • Watch the box above for real-time preload link generation
-                </li>
-                <li>• F12 → Network tab to see preload requests</li>
-                <li>
-                  • F12 → Elements tab to inspect &lt;head&gt; &lt;link
-                  rel=&quot;preload&quot;&gt; tags
-                </li>
-              </ul>
-            </div>
           </div>
         </div>
-        <p className="mt-4 text-sm text-gray-600">
-          Priority images generate preload links immediately to improve page
-          load performance by allowing the browser to start downloading in
-          advance. This helps improve LCP (Largest Contentful Paint) scores.
-        </p>
+
+        {showPriorityImage && (
+          <div className="relative">
+            <Image
+              src="/landing-page/fox.jpg"
+              alt="Priority loaded hero image"
+              width={400}
+              height={267}
+              priority={true}
+              className="rounded-lg shadow-md"
+            />
+            <div className="absolute -top-2 -left-2 rounded-full bg-red-500 px-2 py-1 text-xs text-white">
+              PRIORITY
+            </div>
+          </div>
+        )}
+
+        <PreloadMonitor />
+
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
+          <p className="text-sm text-blue-800">
+            💡 <strong>How to Verify:</strong>
+          </p>
+          <ul className="mt-1 space-y-1 text-sm text-blue-700">
+            <li>• Watch the box above for real-time preload link generation</li>
+            <li>• F12 → Network tab to see preload requests</li>
+            <li>
+              • F12 → Elements tab to inspect &lt;head&gt; &lt;link
+              rel=&quot;preload&quot;&gt; tags
+            </li>
+          </ul>
+        </div>
       </div>
-      <div>
-        <h4 className="mb-4 text-lg font-medium text-gray-700">
-          Implementation
-        </h4>
-        <CodeBlock language="tsx">
-          {`// Automatic priority loading
-<Image
-  src="/landing-page/fox.jpg"
-  alt="Priority loaded hero image"
-  width={400}
-  height={267}
-  priority={true}  // ← This prop automatically creates preload link
-  className="rounded-lg shadow-md"
-/>
-
-// Advanced: Manual preload hint creation
-import { createPreloadHint } from '@snapkit-studio/react';
-
-const cleanup = createPreloadHint(
-  'https://example.com/image.jpg',
-  '400px'  // sizes attribute
-);
-
-// Clean up later (prevents memory leaks)
-cleanup();
-
-// HTML automatically generates:
-// <link rel="preload" as="image" 
-//       href="..." imagesizes="400px" />`}
-        </CodeBlock>
-      </div>
-    </div>
+      <p className="mt-4 text-sm text-gray-600">
+        Priority images generate preload links immediately to improve page load
+        performance by allowing the browser to start downloading in advance.
+        This helps improve LCP (Largest Contentful Paint) scores.
+      </p>
+    </>
   );
 }
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-12 text-center">
-          <h1 className="mb-4 text-4xl font-bold text-gray-900">
-            Snapkit React Image Component Demo
-          </h1>
-          <p className="mx-auto max-w-3xl text-xl text-gray-600">
-            Explore the various features and use cases of Snapkit&apos;s React
-            Image component. Each example shows the component in action
-            alongside its implementation code.
-          </p>
-        </div>
+    <DemoLayout
+      title="Snapkit React Image Component Demo"
+      description="Explore the various features and use cases of Snapkit's React Image component. Each example shows the component in action alongside its implementation code."
+      navigation={navigation}
+    >
+      {/* Basic Features Section */}
+      <section className="space-y-8">
+        <h2 className="text-3xl font-bold text-gray-900">Basic Features</h2>
 
-        {/* Basic Features Section */}
-        <section className="mb-16">
-          <h2 className="mb-8 text-3xl font-bold text-gray-900">
-            Basic Features
-          </h2>
-
-          {/* DPR Srcset Example */}
-          <div className="mb-8 rounded-lg bg-white p-8 shadow-lg">
-            <h3 className="mb-6 text-2xl font-semibold text-gray-800">
-              DPR-based Srcset
-            </h3>
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-              <div>
-                <h4 className="mb-4 text-lg font-medium text-gray-700">
-                  Live Demo
-                </h4>
-                <div className="flex rounded-lg bg-gray-100 p-6">
-                  <Image
-                    src="/landing-page/fox.jpg"
-                    alt="Fox with DPR srcset"
-                    width={300}
-                    height={200}
-                    className="rounded-lg shadow-md"
-                  />
-                </div>
-                <p className="mt-4 text-sm text-gray-600">
-                  This image automatically generates 1x, 2x, 3x versions for
-                  crisp display on all devices.
-                </p>
-              </div>
-              <div>
-                <h4 className="mb-4 text-lg font-medium text-gray-700">
-                  Implementation
-                </h4>
-                <CodeBlock language="tsx">
-                  {`<Image
+        {/* DPR Srcset Example */}
+        <ExampleContainer
+          id="dpr-srcset"
+          title="DPR-based Srcset"
+          description="This image automatically generates 1x, 2x, 3x versions for crisp display on all devices."
+          code={`<Image
   src="/landing-page/fox.jpg"
   alt="Fox with DPR srcset"
   width={300}
   height={200}
   className="rounded-lg shadow-md"
 />`}
-                </CodeBlock>
-              </div>
-            </div>
-          </div>
-          {/* Fill Mode Example */}
-          <div className="mb-8 rounded-lg bg-white p-8 shadow-lg">
-            <h3 className="mb-6 text-2xl font-semibold text-gray-800">
-              Fill Mode
-            </h3>
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-              <div>
-                <h4 className="mb-4 text-lg font-medium text-gray-700">
-                  Live Demo
-                </h4>
-                <div className="rounded-lg bg-gray-100 p-6">
-                  <div className="relative h-64 w-full overflow-hidden rounded-lg shadow-md">
-                    <Image
-                      src="/landing-page/fox.jpg"
-                      alt="Fill mode fox"
-                      fill={true}
-                      className="object-cover"
-                    />
-                  </div>
-                </div>
-                <p className="mt-4 text-sm text-gray-600">
-                  Fill mode makes the image fill its container completely,
-                  useful for responsive layouts.
-                </p>
-              </div>
-              <div>
-                <h4 className="mb-4 text-lg font-medium text-gray-700">
-                  Implementation
-                </h4>
-                <CodeBlock language="tsx">
-                  {`<div className="relative w-full h-64 rounded-lg overflow-hidden">
+        >
+          <Image
+            src="/landing-page/fox.jpg"
+            alt="Fox with DPR srcset"
+            width={300}
+            height={200}
+            className="rounded-lg shadow-md"
+          />
+        </ExampleContainer>
+
+        {/* Fill Mode Example */}
+        <ExampleContainer
+          id="fill-mode"
+          title="Fill Mode"
+          description="Fill mode makes the image fill its container completely, useful for responsive layouts."
+          code={`<div className="relative w-full h-64 rounded-lg overflow-hidden">
   <Image
     src="/landing-page/fox.jpg"
     alt="Fill mode fox"
@@ -497,145 +395,23 @@ function App() {
     className="object-cover"
   />
 </div>`}
-                </CodeBlock>
-              </div>
-            </div>
+        >
+          <div className="relative h-64 w-full overflow-hidden rounded-lg shadow-md">
+            <Image
+              src="/landing-page/fox.jpg"
+              alt="Fill mode fox"
+              fill={true}
+              className="object-cover"
+            />
           </div>
+        </ExampleContainer>
 
-          {/* Image Transforms Example */}
-          <div className="mb-8 rounded-lg bg-white p-8 shadow-lg">
-            <h3 className="mb-6 text-2xl font-semibold text-gray-800">
-              Image Transforms
-            </h3>
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-              <div>
-                <h4 className="mb-4 text-lg font-medium text-gray-700">
-                  Live Demo
-                </h4>
-                <div className="rounded-lg bg-gray-100 p-6">
-                  <div className="space-y-6">
-                    {/* Format Conversion */}
-                    <div>
-                      <p className="mb-3 text-sm font-medium text-gray-700">
-                        Format Optimization
-                      </p>
-                      <div className="grid grid-cols-3 gap-2">
-                        <div className="text-center">
-                          <Image
-                            src="/landing-page/fox.jpg"
-                            alt="WebP format"
-                            width={100}
-                            height={67}
-                            transforms={{ format: 'webp' }}
-                            className="h-auto w-full rounded shadow-sm"
-                          />
-                          <p className="mt-1 text-xs text-gray-600">WebP</p>
-                        </div>
-                        <div className="text-center">
-                          <Image
-                            src="/landing-page/fox.jpg"
-                            alt="AVIF format"
-                            width={100}
-                            height={67}
-                            transforms={{ format: 'avif' }}
-                            className="h-auto w-full rounded shadow-sm"
-                          />
-                          <p className="mt-1 text-xs text-gray-600">AVIF</p>
-                        </div>
-                        <div className="text-center">
-                          <Image
-                            src="/landing-page/fox.jpg"
-                            alt="Auto format"
-                            width={100}
-                            height={67}
-                            transforms={{ format: 'auto' }}
-                            className="h-auto w-full rounded shadow-sm"
-                          />
-                          <p className="mt-1 text-xs text-gray-600">Auto</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Visual Effects */}
-                    <div>
-                      <p className="mb-3 text-sm font-medium text-gray-700">
-                        Visual Effects
-                      </p>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="text-center">
-                          <Image
-                            src="/landing-page/fox.jpg"
-                            alt="Original image"
-                            width={120}
-                            height={80}
-                            className="h-auto w-full rounded shadow-sm"
-                          />
-                          <p className="mt-1 text-xs text-gray-600">Original</p>
-                        </div>
-                        <div className="text-center">
-                          <Image
-                            src="/landing-page/fox.jpg"
-                            alt="Grayscale effect"
-                            width={120}
-                            height={80}
-                            transforms={{ grayscale: true }}
-                            className="h-auto w-full rounded shadow-sm"
-                          />
-                          <p className="mt-1 text-xs text-gray-600">
-                            Grayscale
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Region Extraction */}
-                    <div>
-                      <p className="mb-3 text-sm font-medium text-gray-700">
-                        Region Extraction
-                      </p>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="text-center">
-                          <Image
-                            src="/landing-page/fox.jpg"
-                            alt="Full image"
-                            width={120}
-                            height={80}
-                            className="h-auto w-full rounded shadow-sm"
-                          />
-                          <p className="mt-1 text-xs text-gray-600">
-                            Full Image
-                          </p>
-                        </div>
-                        <div className="text-center">
-                          <Image
-                            src="/landing-page/fox.jpg"
-                            alt="Center crop"
-                            width={120}
-                            height={80}
-                            transforms={{
-                              extract: { x: 25, y: 25, width: 50, height: 50 },
-                            }}
-                            className="h-auto w-full rounded shadow-sm"
-                          />
-                          <p className="mt-1 text-xs text-gray-600">
-                            Center Crop
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <p className="mt-4 text-sm text-gray-600">
-                  Real-time image transformations including format optimization,
-                  visual effects, and region extraction.
-                </p>
-              </div>
-              <div>
-                <h4 className="mb-4 text-lg font-medium text-gray-700">
-                  Implementation
-                </h4>
-                <CodeBlock language="tsx">
-                  {`// Format optimization for better performance
+        {/* Image Transforms Example */}
+        <ExampleContainer
+          id="transforms"
+          title="Image Transforms"
+          description="Real-time image transformations including format optimization, visual effects, and region extraction."
+          code={`// Format optimization for better performance
 <Image
   src="/landing-page/fox.jpg"
   alt="Optimized image"
@@ -663,67 +439,127 @@ function App() {
     extract: { x: 25, y: 25, width: 50, height: 50 }
   }}
 />`}
-                </CodeBlock>
+        >
+          <div className="space-y-6">
+            {/* Format Conversion */}
+            <div>
+              <p className="mb-3 text-sm font-medium text-gray-700">
+                Format Optimization
+              </p>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="text-center">
+                  <Image
+                    src="/landing-page/fox.jpg"
+                    alt="WebP format"
+                    width={100}
+                    height={67}
+                    transforms={{ format: 'webp' }}
+                    className="h-auto w-full rounded shadow-sm"
+                  />
+                  <p className="mt-1 text-xs text-gray-600">WebP</p>
+                </div>
+                <div className="text-center">
+                  <Image
+                    src="/landing-page/fox.jpg"
+                    alt="AVIF format"
+                    width={100}
+                    height={67}
+                    transforms={{ format: 'avif' }}
+                    className="h-auto w-full rounded shadow-sm"
+                  />
+                  <p className="mt-1 text-xs text-gray-600">AVIF</p>
+                </div>
+                <div className="text-center">
+                  <Image
+                    src="/landing-page/fox.jpg"
+                    alt="Auto format"
+                    width={100}
+                    height={67}
+                    transforms={{ format: 'auto' }}
+                    className="h-auto w-full rounded shadow-sm"
+                  />
+                  <p className="mt-1 text-xs text-gray-600">Auto</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Visual Effects */}
+            <div>
+              <p className="mb-3 text-sm font-medium text-gray-700">
+                Visual Effects
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center">
+                  <Image
+                    src="/landing-page/fox.jpg"
+                    alt="Original image"
+                    width={120}
+                    height={80}
+                    className="h-auto w-full rounded shadow-sm"
+                  />
+                  <p className="mt-1 text-xs text-gray-600">Original</p>
+                </div>
+                <div className="text-center">
+                  <Image
+                    src="/landing-page/fox.jpg"
+                    alt="Grayscale effect"
+                    width={120}
+                    height={80}
+                    transforms={{ grayscale: true }}
+                    className="h-auto w-full rounded shadow-sm"
+                  />
+                  <p className="mt-1 text-xs text-gray-600">Grayscale</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Region Extraction */}
+            <div>
+              <p className="mb-3 text-sm font-medium text-gray-700">
+                Region Extraction
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center">
+                  <Image
+                    src="/landing-page/fox.jpg"
+                    alt="Full image"
+                    width={120}
+                    height={80}
+                    className="h-auto w-full rounded shadow-sm"
+                  />
+                  <p className="mt-1 text-xs text-gray-600">Full Image</p>
+                </div>
+                <div className="text-center">
+                  <Image
+                    src="/landing-page/fox.jpg"
+                    alt="Center crop"
+                    width={120}
+                    height={80}
+                    transforms={{
+                      extract: { x: 25, y: 25, width: 50, height: 50 },
+                    }}
+                    className="h-auto w-full rounded shadow-sm"
+                  />
+                  <p className="mt-1 text-xs text-gray-600">Center Crop</p>
+                </div>
               </div>
             </div>
           </div>
-        </section>
+        </ExampleContainer>
+      </section>
 
-        {/* Performance Optimization Section */}
-        <section className="mb-16">
-          <h2 className="mb-8 text-3xl font-bold text-gray-900">
-            Performance Optimization
-          </h2>
+      {/* Performance Optimization Section */}
+      <section className="space-y-8">
+        <h2 className="text-3xl font-bold text-gray-900">
+          Performance Optimization
+        </h2>
 
-          {/* Lazy Loading Example */}
-          <div className="mb-8 rounded-lg bg-white p-8 shadow-lg">
-            <h3 className="mb-6 text-2xl font-semibold text-gray-800">
-              Lazy Loading
-            </h3>
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-              <div>
-                <h4 className="mb-4 text-lg font-medium text-gray-700">
-                  Live Demo
-                </h4>
-                <div className="rounded-lg bg-gray-100 p-6">
-                  <div className="space-y-4">
-                    <p className="text-sm text-gray-600">
-                      Scroll down to see lazy-loaded images:
-                    </p>
-                    <div className="h-64 space-y-4 overflow-y-auto rounded border border-gray-200 p-4">
-                      <div className="h-32"></div>
-                      <Image
-                        src="/landing-page/fox.jpg"
-                        alt="Lazy loaded image 1"
-                        width={200}
-                        height={133}
-                        loading="lazy"
-                        className="rounded shadow-sm"
-                      />
-                      <div className="h-32"></div>
-                      <Image
-                        src="/landing-page/fox.jpg"
-                        alt="Lazy loaded image 2"
-                        width={200}
-                        height={133}
-                        loading="lazy"
-                        className="rounded shadow-sm"
-                      />
-                      <div className="h-32"></div>
-                    </div>
-                  </div>
-                </div>
-                <p className="mt-4 text-sm text-gray-600">
-                  Images are only loaded when they enter the viewport, improving
-                  initial page load performance.
-                </p>
-              </div>
-              <div>
-                <h4 className="mb-4 text-lg font-medium text-gray-700">
-                  Implementation
-                </h4>
-                <CodeBlock language="tsx">
-                  {`<Image
+        {/* Lazy Loading Example */}
+        <ExampleContainer
+          id="lazy-loading"
+          title="Lazy Loading"
+          description="Images are only loaded when they enter the viewport, improving initial page load performance."
+          code={`<Image
   src="/landing-page/fox.jpg"
   alt="Lazy loaded image"
   width={200}
@@ -731,98 +567,133 @@ function App() {
   loading="lazy"
   className="rounded shadow-sm"
 />`}
-                </CodeBlock>
-              </div>
+        >
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">
+              Scroll down to see lazy-loaded images:
+            </p>
+            <div className="h-64 space-y-4 overflow-y-auto rounded border border-gray-200 p-4">
+              <div className="h-32"></div>
+              <Image
+                src="/landing-page/fox.jpg"
+                alt="Lazy loaded image 1"
+                width={200}
+                height={133}
+                loading="lazy"
+                className="rounded shadow-sm"
+              />
+              <div className="h-32"></div>
+              <Image
+                src="/landing-page/fox.jpg"
+                alt="Lazy loaded image 2"
+                width={200}
+                height={133}
+                loading="lazy"
+                className="rounded shadow-sm"
+              />
+              <div className="h-32"></div>
             </div>
           </div>
+        </ExampleContainer>
 
-          {/* Priority Loading Example */}
-          <div className="mb-8 rounded-lg bg-white p-8 shadow-lg">
-            <h3 className="mb-6 text-2xl font-semibold text-gray-800">
-              Priority Loading
-            </h3>
-            <PriorityLoadingDemo />
-          </div>
+        {/* Priority Loading Example */}
+        <ExampleContainer
+          id="priority-loading"
+          title="Priority Loading"
+          code={`// Automatic priority loading
+<Image
+  src="/landing-page/fox.jpg"
+  alt="Priority loaded hero image"
+  width={400}
+  height={267}
+  priority={true}  // ← This prop automatically creates preload link
+  className="rounded-lg shadow-md"
+/>
 
-          {/* DPR Detection Example */}
-          <div className="mb-8 rounded-lg bg-white p-8 shadow-lg">
-            <h3 className="mb-6 text-2xl font-semibold text-gray-800">
-              Smart DPR Detection
-            </h3>
-            <DprDetectionDemo />
-          </div>
+// Advanced: Manual preload hint creation
+import { createPreloadHint } from '@snapkit-studio/react';
 
-          {/* Network-Aware Quality Example */}
-          <div className="mb-8 rounded-lg bg-white p-8 shadow-lg">
-            <h3 className="mb-6 text-2xl font-semibold text-gray-800">
-              Network-Aware Quality
-            </h3>
-            <NetworkQualityDemo />
-          </div>
-        </section>
+const cleanup = createPreloadHint(
+  'https://example.com/image.jpg',
+  '400px'  // sizes attribute
+);
 
-        {/* Advanced Patterns Section */}
-        <section className="mb-16">
-          <h2 className="mb-8 text-3xl font-bold text-gray-900">
-            Advanced Patterns
-          </h2>
+// Clean up later (prevents memory leaks)
+cleanup();
 
-          {/* Error Boundary Example */}
+// HTML automatically generates:
+// <link rel="preload" as="image"
+//       href="..." imagesizes="400px" />`}
+        >
+          <PriorityLoadingDemo />
+        </ExampleContainer>
+
+        {/* DPR Detection Example */}
+        <ExampleContainer
+          id="smart-dpr"
+          title="Smart DPR Detection"
+          code={`// Automatic smart DPR detection (default)
+<Image
+  src="/landing-page/fox.jpg"
+  alt="Smart DPR optimization"
+  width={300}
+  height={200}
+/>
+
+// Force specific DPR for testing
+<Image
+  src="/landing-page/fox.jpg"
+  alt="Force 2x DPR"
+  width={300}
+  height={200}
+  dprOptions={{ forceDpr: 2 }}
+/>`}
+        >
+          <DprDetectionDemo />
+        </ExampleContainer>
+
+        {/* Network-Aware Quality Example */}
+        <ExampleContainer
+          id="network-aware"
+          title="Network-Aware Quality"
+          code={`// Automatic network-based quality (default)
+<Image
+  src="/landing-page/fox.jpg"
+  alt="Auto quality"
+  width={300}
+  height={200}
+  adjustQualityByNetwork={true}
+/>
+
+// Fixed quality (no network adjustment)
+<Image
+  src="/landing-page/fox.jpg"
+  alt="Fixed quality"
+  width={300}
+  height={200}
+  quality={95}
+  adjustQualityByNetwork={false}
+/>`}
+        >
+          <NetworkQualityDemo />
+        </ExampleContainer>
+      </section>
+
+      {/* Advanced Patterns Section */}
+      <section className="space-y-8">
+        <h2 className="text-3xl font-bold text-gray-900">Advanced Patterns</h2>
+
+        {/* Error Boundary Example */}
+        <div id="error-boundary">
           <ImageErrorBoundaryExample />
+        </div>
 
-          {/* Art Direction Example */}
-          <div className="mb-8 rounded-lg bg-white p-8 shadow-lg">
-            <h3 className="mb-6 text-2xl font-semibold text-gray-800">
-              Art Direction
-            </h3>
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-              <div>
-                <h4 className="mb-4 text-lg font-medium text-gray-700">
-                  Live Demo
-                </h4>
-                <div className="rounded-lg bg-gray-100 p-6">
-                  <div className="space-y-4">
-                    <div>
-                      <p className="mb-2 text-sm font-medium text-gray-700">
-                        Wide Screen (16:9 landscape)
-                      </p>
-                      <div className="flex justify-center">
-                        <Image
-                          src="/landing-page/fox.jpg"
-                          alt="Wide screen art direction"
-                          width={320}
-                          height={180}
-                          className="h-auto w-full rounded shadow-sm"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <p className="mb-2 text-sm font-medium text-gray-700">
-                        Mobile Screen (1:1 square crop)
-                      </p>
-                      <div className="flex justify-center">
-                        <Image
-                          src="/landing-page/fox.jpg"
-                          alt="Mobile art direction"
-                          width={180}
-                          height={180}
-                          className="rounded shadow-sm"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <p className="mt-4 text-sm text-gray-600">
-                  Different aspect ratios and compositions optimized for
-                  different devices and viewing contexts.
-                </p>
-              </div>
-              <div>
-                <h4 className="mb-4 text-lg font-medium text-gray-700">
-                  Implementation
-                </h4>
-                <CodeBlock language="tsx">
-                  {`// Wide screen version (16:9)
+        {/* Art Direction Example */}
+        <ExampleContainer
+          id="art-direction"
+          title="Art Direction"
+          description="Different aspect ratios and compositions optimized for different devices and viewing contexts."
+          code={`// Wide screen version (16:9)
 <Image
   src="/landing-page/fox.jpg"
   alt="Wide screen art direction"
@@ -842,62 +713,45 @@ function App() {
 
 // Use CSS media queries to show/hide appropriate version
 // Or use responsive hooks for dynamic switching`}
-                </CodeBlock>
+        >
+          <div className="space-y-4">
+            <div>
+              <p className="mb-2 text-sm font-medium text-gray-700">
+                Wide Screen (16:9 landscape)
+              </p>
+              <div className="flex justify-center">
+                <Image
+                  src="/landing-page/fox.jpg"
+                  alt="Wide screen art direction"
+                  width={320}
+                  height={180}
+                  className="h-auto w-full rounded shadow-sm"
+                />
+              </div>
+            </div>
+            <div>
+              <p className="mb-2 text-sm font-medium text-gray-700">
+                Mobile Screen (1:1 square crop)
+              </p>
+              <div className="flex justify-center">
+                <Image
+                  src="/landing-page/fox.jpg"
+                  alt="Mobile art direction"
+                  width={180}
+                  height={180}
+                  className="rounded shadow-sm"
+                />
               </div>
             </div>
           </div>
+        </ExampleContainer>
 
-          {/* Dynamic Quality Example */}
-          <div className="mb-8 rounded-lg bg-white p-8 shadow-lg">
-            <h3 className="mb-6 text-2xl font-semibold text-gray-800">
-              Network-Aware Quality
-            </h3>
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-              <div>
-                <h4 className="mb-4 text-lg font-medium text-gray-700">
-                  Live Demo
-                </h4>
-                <div className="rounded-lg bg-gray-100 p-6">
-                  <div className="space-y-4">
-                    <div>
-                      <p className="mb-2 text-sm font-medium text-gray-700">
-                        High Quality (WiFi)
-                      </p>
-                      <Image
-                        src="/landing-page/fox.jpg"
-                        alt="High quality image"
-                        width={200}
-                        height={133}
-                        quality={95}
-                        className="rounded shadow-sm"
-                      />
-                    </div>
-                    <div>
-                      <p className="mb-2 text-sm font-medium text-gray-700">
-                        Optimized (Slow Connection)
-                      </p>
-                      <Image
-                        src="/landing-page/fox.jpg"
-                        alt="Optimized quality image"
-                        width={200}
-                        height={133}
-                        quality={60}
-                        className="rounded shadow-sm"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <p className="mt-4 text-sm text-gray-600">
-                  Automatically adjusts image quality based on network
-                  conditions for optimal experience.
-                </p>
-              </div>
-              <div>
-                <h4 className="mb-4 text-lg font-medium text-gray-700">
-                  Implementation
-                </h4>
-                <CodeBlock language="tsx">
-                  {`// High quality for fast connections
+        {/* Dynamic Quality Example */}
+        <ExampleContainer
+          id="dynamic-quality"
+          title="Dynamic Quality"
+          description="Automatically adjusts image quality based on network conditions for optimal experience."
+          code={`// High quality for fast connections
 <Image
   src="/landing-page/fox.jpg"
   alt="High quality image"
@@ -916,27 +770,52 @@ function App() {
   quality={60}
   className="rounded shadow-sm"
 />`}
-                </CodeBlock>
-              </div>
+        >
+          <div className="space-y-4">
+            <div>
+              <p className="mb-2 text-sm font-medium text-gray-700">
+                High Quality (WiFi)
+              </p>
+              <Image
+                src="/landing-page/fox.jpg"
+                alt="High quality image"
+                width={200}
+                height={133}
+                quality={95}
+                className="rounded shadow-sm"
+              />
+            </div>
+            <div>
+              <p className="mb-2 text-sm font-medium text-gray-700">
+                Optimized (Slow Connection)
+              </p>
+              <Image
+                src="/landing-page/fox.jpg"
+                alt="Optimized quality image"
+                width={200}
+                height={133}
+                quality={60}
+                className="rounded shadow-sm"
+              />
             </div>
           </div>
-        </section>
+        </ExampleContainer>
+      </section>
 
-        {/* Footer */}
-        <footer className="border-t border-gray-200 py-8 text-center">
-          <p className="text-gray-600">
-            Built with{' '}
-            <a
-              href="https://snapkit.studio"
-              className="font-medium text-blue-600 hover:text-blue-800"
-            >
-              Snapkit
-            </a>{' '}
-            - Next-generation image optimization for React applications
-          </p>
-        </footer>
-      </div>
-    </div>
+      {/* Footer */}
+      <footer className="border-t border-gray-200 py-8 text-center">
+        <p className="text-gray-600">
+          Built with{' '}
+          <a
+            href="https://snapkit.studio"
+            className="font-medium text-blue-600 hover:text-blue-800"
+          >
+            Snapkit
+          </a>{' '}
+          - Next-generation image optimization for React applications
+        </p>
+      </footer>
+    </DemoLayout>
   );
 }
 

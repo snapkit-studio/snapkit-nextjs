@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import {
+  DprDetectionOptions,
   ImageEngineCache,
   ImageEngineParams,
   ImageRenderData,
@@ -20,12 +21,48 @@ interface UseUnifiedImageEngineProps extends Omit<ImageEngineParams, 'src'> {
 }
 
 /**
+ * Custom hook to track hydration state for consistent SSR/client rendering
+ */
+function useHydrationState() {
+  const hasHydratedRef = useRef(false);
+
+  useEffect(() => {
+    hasHydratedRef.current = true;
+  }, []);
+
+  return hasHydratedRef.current;
+}
+
+/**
+ * Create hydration-safe DPR options that ensure consistent server/client rendering
+ */
+function createHydrationSafeDprOptions(
+  originalOptions: DprDetectionOptions | undefined,
+  hasHydrated: boolean,
+): DprDetectionOptions {
+  // During initial render (before hydration), force auto-detection off
+  // to ensure server and client generate the same srcSet
+  if (!hasHydrated) {
+    return {
+      ...originalOptions,
+      autoDetect: false, // Force standard DPR set during hydration
+    };
+  }
+
+  // After hydration, allow full client-side optimization
+  return originalOptions || {};
+}
+
+/**
  * React hook that uses the unified SnapkitImageEngine
  * Provides the same functionality as useImageConfig but with consistent core logic
+ * Includes hydration-safe DPR detection to prevent SSR/client mismatches
  */
 export function useUnifiedImageEngine(
   props: UseUnifiedImageEngineProps,
 ): ImageRenderData {
+  // Track hydration state to ensure consistent DPR detection
+  const hasHydrated = useHydrationState();
   // Merge environment config with props
   const config = useMemo((): SnapkitConfig => {
     try {
@@ -56,6 +93,12 @@ export function useUnifiedImageEngine(
 
   // Generate image data using the unified engine
   const imageData = useMemo((): ImageRenderData => {
+    // Create hydration-safe DPR options
+    const safeDprOptions = createHydrationSafeDprOptions(
+      props.dprOptions,
+      hasHydrated,
+    );
+
     const engineParams: ImageEngineParams = {
       src: props.src,
       width: props.width,
@@ -65,6 +108,7 @@ export function useUnifiedImageEngine(
       quality: props.quality,
       transforms: props.transforms,
       adjustQualityByNetwork: props.adjustQualityByNetwork,
+      dprOptions: safeDprOptions,
     };
 
     try {
@@ -85,6 +129,8 @@ export function useUnifiedImageEngine(
     props.quality,
     props.transforms,
     props.adjustQualityByNetwork,
+    props.dprOptions,
+    hasHydrated,
   ]);
 
   return imageData;

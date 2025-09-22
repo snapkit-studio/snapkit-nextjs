@@ -97,8 +97,9 @@ export function getBestSupportedFormat(
   preferredFormat?: string,
 ): 'avif' | 'webp' | 'jpeg' {
   if (typeof window === 'undefined') {
-    // Safe default for server-side
-    return 'jpeg';
+    // For SSR consistency, use webp as a safe modern default
+    // Most browsers support webp, and it provides good optimization
+    return 'webp';
   }
 
   // Check support for specific format if user requested it

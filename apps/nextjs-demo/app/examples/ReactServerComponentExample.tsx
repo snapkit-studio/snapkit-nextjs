@@ -1,8 +1,7 @@
 'use client';
 
 import { ClientImage, Image, ServerImage } from '@snapkit-studio/react';
-
-import { CodeBlock } from '../components/CodeBlock';
+import { CodeBlock } from '@repo/demo-components';
 
 export function ReactServerComponentExample() {
   return (

@@ -1,54 +1,77 @@
-import { DPROptimizationExample } from 'apps/nextjs-demo/app/examples/DPROptimizationExample';
-import { ReactServerComponentExample } from 'apps/nextjs-demo/app/examples/ReactServerComponentExample';
-import ServerClientImageExample from 'apps/nextjs-demo/app/examples/ServerClientImageExample';
-import { SnapkitImageExample } from 'apps/nextjs-demo/app/examples/SnapkitImageExample';
+import { DemoLayout, ExampleContainer, type NavGroup } from '@repo/demo-components';
+import { DPROptimizationExample } from './examples/DPROptimizationExample';
+import { ReactServerComponentExample } from './examples/ReactServerComponentExample';
+import ServerClientImageExample from './examples/ServerClientImageExample';
+import { SnapkitImageExample } from './examples/SnapkitImageExample';
+
+const navigation: NavGroup[] = [
+  {
+    title: 'Basic Features',
+    items: [
+      { id: 'basic', title: 'Basic Image Component', href: '#basic' },
+    ],
+    defaultOpen: true,
+  },
+  {
+    title: 'Next.js Features',
+    items: [
+      { id: 'server-client', title: 'Server/Client Components', href: '#server-client' },
+    ],
+    defaultOpen: true,
+  },
+  {
+    title: 'React Features',
+    items: [
+      { id: 'react-server-client', title: 'React Server Components', href: '#react-server-client' },
+    ],
+    defaultOpen: true,
+  },
+  {
+    title: 'Performance',
+    items: [
+      { id: 'dpr', title: 'DPR Optimization', href: '#dpr' },
+    ],
+    defaultOpen: true,
+  },
+];
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm">
-        <h1 className="mb-8 text-4xl font-bold">Snapkit Next.js Demo</h1>
+    <DemoLayout
+      title="Snapkit Next.js Demo"
+      description="Explore the features of Snapkit's Next.js image components with server-side rendering and optimizations."
+      navigation={navigation}
+    >
+      {/* Basic Image Component */}
+      <ExampleContainer
+        id="basic"
+        title="Basic Image Component"
+        description="Simple usage of Snapkit Image component with automatic optimizations."
+        code={`<Image
+  src="/landing-page/fox.jpg"
+  alt="Example image"
+  width={300}
+  height={200}
+  className="rounded-lg shadow-md"
+/>`}
+      >
+        <SnapkitImageExample />
+      </ExampleContainer>
 
-        {/* Navigation */}
-        <nav className="mb-8 flex gap-4">
-          <a href="#basic" className="text-blue-500 hover:underline">
-            Basic Usage
-          </a>
-          <a href="#server-client" className="text-blue-500 hover:underline">
-            Next.js Server/Client
-          </a>
-          <a
-            href="#react-server-client"
-            className="text-blue-500 hover:underline"
-          >
-            React Server/Client
-          </a>
-          <a href="#dpr" className="text-blue-500 hover:underline">
-            DPR Optimization
-          </a>
-        </nav>
-
-        {/* Basic Image Component */}
-        <div id="basic" className="mb-16">
-          <h2 className="mb-4 text-2xl font-semibold">Basic Image Component</h2>
-          <SnapkitImageExample />
-        </div>
-
-        {/* Next.js Server/Client Component Demo */}
-        <div id="server-client" className="mt-16 w-full">
-          <ServerClientImageExample />
-        </div>
-
-        {/* React Package Server/Client Component Demo */}
-        <div id="react-server-client" className="mt-16 w-full">
-          <ReactServerComponentExample />
-        </div>
-
-        {/* DPR Optimization Demo */}
-        <div id="dpr" className="mt-16 w-full">
-          <DPROptimizationExample />
-        </div>
+      {/* Next.js Server/Client Component Demo */}
+      <div id="server-client" className="scroll-mt-20">
+        <ServerClientImageExample />
       </div>
-    </main>
+
+      {/* React Package Server/Client Component Demo */}
+      <div id="react-server-client" className="scroll-mt-20">
+        <ReactServerComponentExample />
+      </div>
+
+      {/* DPR Optimization Demo */}
+      <div id="dpr" className="scroll-mt-20">
+        <DPROptimizationExample />
+      </div>
+    </DemoLayout>
   );
 }

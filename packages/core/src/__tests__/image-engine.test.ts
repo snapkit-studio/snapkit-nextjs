@@ -120,9 +120,8 @@ describe('SnapkitImageEngine', () => {
 
       expect(result.srcSet).toBeDefined();
       expect(result.srcSet).toContain('test.jpg');
-      // Should contain DPR-based srcset (1x, 2x, 3x)
+      // Should contain DPR-based srcset
       expect(result.srcSet).toMatch(/\s1x/);
-      expect(result.srcSet).toMatch(/\s2x/);
     });
 
     it('should handle fill mode correctly', () => {

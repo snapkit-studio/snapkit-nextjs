@@ -1,6 +1,7 @@
 'use client';
 
-import { forwardRef, useMemo } from 'react';
+import { forwardRef, useEffect, useMemo, useState } from 'react';
+//
 import { SnapkitImageProps } from '@snapkit-studio/core';
 
 import { useImageConfig, useImageLazyLoading, useImagePreload } from '../hooks';
@@ -102,6 +103,13 @@ export const ClientImage = forwardRef<HTMLImageElement, SnapkitImageProps>(
       adjustQualityByNetwork,
     });
 
+    // Client-side hydration state to avoid hydration mismatch
+    const [hasMounted, setHasMounted] = useState(false);
+
+    useEffect(() => {
+      setHasMounted(true);
+    }, []);
+
     // Lazy loading hook
     const { isVisible, imgRef, shouldLoadEager } = useImageLazyLoading({
       priority,
@@ -156,13 +164,19 @@ export const ClientImage = forwardRef<HTMLImageElement, SnapkitImageProps>(
       );
     }
 
+    // For hydration consistency, always render the same attributes on server and client
+    // On the server and during initial client render, only show for priority/eager images
+    // After hydration, allow lazy loading to work normally
+    const shouldRenderSrcSet =
+      priority || shouldLoadEager || (hasMounted && isVisible);
+
     // Main image content - Always render img element for IntersectionObserver to work
     const content = (
       <img
         ref={setRefs}
-        src={isVisible ? imageUrl : undefined}
+        src={shouldRenderSrcSet ? imageUrl : undefined}
         data-src={imageUrl} // Store actual URL for lazy loading
-        srcSet={isVisible ? srcSet || undefined : undefined}
+        srcSet={shouldRenderSrcSet ? srcSet || undefined : undefined}
         sizes={sizes}
         alt={alt}
         width={fill ? undefined : imageSize.width}
@@ -174,8 +188,8 @@ export const ClientImage = forwardRef<HTMLImageElement, SnapkitImageProps>(
         onError={onError}
         // ARIA attributes for better accessibility
         role="img"
-        aria-busy={!isVisible ? 'true' : 'false'}
-        aria-label={isVisible ? alt : `Loading: ${alt}`}
+        aria-busy={!shouldRenderSrcSet ? 'true' : 'false'}
+        aria-label={shouldRenderSrcSet ? alt : `Loading: ${alt}`}
         {...props}
       />
     );

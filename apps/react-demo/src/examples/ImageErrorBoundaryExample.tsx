@@ -5,8 +5,7 @@ import {
   ImageErrorBoundary,
   withImageErrorBoundary,
 } from '@snapkit-studio/react';
-
-import { CodeBlock } from '../components/CodeBlock';
+import { CodeBlock } from '@repo/demo-components';
 
 // Custom error fallback component
 function CustomErrorFallback({ error }: { error?: Error }) {

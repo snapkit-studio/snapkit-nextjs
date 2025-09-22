@@ -10,6 +10,7 @@ import {
   generateResponsiveWidths,
   getDeviceCharacteristics,
   parseImageSizes,
+  detectNetworkSpeed,
 } from '../responsive';
 
 describe('Default Breakpoints Constants', () => {
@@ -851,6 +852,132 @@ describe('adjustQualityForConnection function', () => {
       const result = adjustQualityForConnection();
 
       expect(result).toBe(85);
+    });
+  });
+});
+
+describe('detectNetworkSpeed function', () => {
+  const originalNavigator = global.navigator;
+
+  afterEach(() => {
+    global.navigator = originalNavigator;
+  });
+
+  describe('Offline detection', () => {
+    it('Should return offline when navigator.onLine is false', () => {
+      Object.defineProperty(global, 'navigator', {
+        value: {
+          onLine: false,
+        },
+        writable: true,
+      });
+
+      const result = detectNetworkSpeed();
+      expect(result).toBe('offline');
+    });
+  });
+
+  describe('Network speed detection with Connection API', () => {
+    it('Should return slow when saveData is enabled', () => {
+      Object.defineProperty(global, 'navigator', {
+        value: {
+          onLine: true,
+          connection: {
+            saveData: true,
+            effectiveType: '4g',
+          },
+        },
+        writable: true,
+      });
+
+      const result = detectNetworkSpeed();
+      expect(result).toBe('slow');
+    });
+
+    it('Should return slow for slow-2g connection', () => {
+      Object.defineProperty(global, 'navigator', {
+        value: {
+          onLine: true,
+          connection: {
+            saveData: false,
+            effectiveType: 'slow-2g',
+          },
+        },
+        writable: true,
+      });
+
+      const result = detectNetworkSpeed();
+      expect(result).toBe('slow');
+    });
+
+    it('Should return slow for 2g connection', () => {
+      Object.defineProperty(global, 'navigator', {
+        value: {
+          onLine: true,
+          connection: {
+            saveData: false,
+            effectiveType: '2g',
+          },
+        },
+        writable: true,
+      });
+
+      const result = detectNetworkSpeed();
+      expect(result).toBe('slow');
+    });
+
+    it('Should return fast for 3g connection', () => {
+      Object.defineProperty(global, 'navigator', {
+        value: {
+          onLine: true,
+          connection: {
+            saveData: false,
+            effectiveType: '3g',
+          },
+        },
+        writable: true,
+      });
+
+      const result = detectNetworkSpeed();
+      expect(result).toBe('fast');
+    });
+
+    it('Should return fast for 4g connection', () => {
+      Object.defineProperty(global, 'navigator', {
+        value: {
+          onLine: true,
+          connection: {
+            saveData: false,
+            effectiveType: '4g',
+          },
+        },
+        writable: true,
+      });
+
+      const result = detectNetworkSpeed();
+      expect(result).toBe('fast');
+    });
+  });
+
+  describe('Fallback behavior', () => {
+    it('Should return fast when Connection API is not available', () => {
+      Object.defineProperty(global, 'navigator', {
+        value: {
+          onLine: true,
+          // No connection property
+        },
+        writable: true,
+      });
+
+      const result = detectNetworkSpeed();
+      expect(result).toBe('fast');
+    });
+
+    it('Should return fast when navigator is undefined (SSR)', () => {
+      (global as any).navigator = undefined;
+
+      const result = detectNetworkSpeed();
+      expect(result).toBe('fast');
     });
   });
 });
