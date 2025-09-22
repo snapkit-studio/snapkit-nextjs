@@ -10,6 +10,7 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@repo/demo-components": "workspace:*",
     "@snapkit-studio/nextjs": "workspace:*",
     "@snapkit-studio/react": "workspace:*",
     "@tailwindcss/postcss": "^4.1.13",
@@ -24,6 +25,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "autoprefixer": "^10.4.21",
     "typescript": "^5"
   }
 }

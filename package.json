@@ -64,6 +64,7 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "jsdom": "^25.0.1",
+    "playwright": "^1.55.0",
     "prettier-plugin-tailwindcss": "0.6.14",
     "tsup": "8.5.0",
     "turbo": "^2.5.6",
