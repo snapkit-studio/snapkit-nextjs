@@ -1,0 +1,252 @@
+name: Test External Next.js App
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/**'
+      - 'test-fixtures/**'
+      - '.github/workflows/test-external-nextjs.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'packages/**'
+      - 'test-fixtures/**'
+      - '.github/workflows/test-external-nextjs.yml'
+
+jobs:
+  test-external-app:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Prepare packages for external testing
+        run: |
+          # Run prepare-release to replace workspace protocol
+          pnpm prepare-release
+
+          # Create tarballs for each package
+          cd packages/core && pnpm pack && cd ../..
+          cd packages/react && pnpm pack && cd ../..
+          cd packages/nextjs && pnpm pack && cd ../..
+
+          # Store tarball paths
+          echo "CORE_TARBALL=$(pwd)/packages/core/snapkit-studio-core-*.tgz" >> $GITHUB_ENV
+          echo "REACT_TARBALL=$(pwd)/packages/react/snapkit-studio-react-*.tgz" >> $GITHUB_ENV
+          echo "NEXTJS_TARBALL=$(pwd)/packages/nextjs/snapkit-studio-nextjs-*.tgz" >> $GITHUB_ENV
+
+      - name: Setup external test app
+        run: |
+          # Copy test fixture to temp directory
+          cp -r test-fixtures/nextjs-external-app /tmp/test-app
+          cd /tmp/test-app
+
+          # Replace placeholders in package.json template
+          sed "s|CORE_TARBALL_PATH|$CORE_TARBALL|g" package.json.template > package.json.tmp
+          sed "s|REACT_TARBALL_PATH|$REACT_TARBALL|g" package.json.tmp > package.json.tmp2
+          sed "s|NEXTJS_TARBALL_PATH|$NEXTJS_TARBALL|g" package.json.tmp2 > package.json
+          rm package.json.tmp package.json.tmp2
+
+          # Install dependencies
+          npm install
+
+      - name: Build external test app
+        run: |
+          cd /tmp/test-app
+          npm run build
+
+      - name: Install Playwright browsers
+        run: |
+          cd /tmp/test-app
+          npx playwright install chromium
+
+      - name: Run E2E tests
+        run: |
+          cd /tmp/test-app
+          npx playwright test
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report-node${{ matrix.node-version }}
+          path: /tmp/test-app/test-results/
+          retention-days: 7
+
+      - name: Upload trace on failure
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: playwright-traces-node${{ matrix.node-version }}
+          path: /tmp/test-app/test-results/
+          retention-days: 7
+
+  test-ssr-hydration:
+    runs-on: ubuntu-latest
+    needs: test-external-app
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Prepare packages for testing
+        run: |
+          pnpm prepare-release
+          cd packages/core && pnpm pack && cd ../..
+          cd packages/react && pnpm pack && cd ../..
+          cd packages/nextjs && pnpm pack && cd ../..
+
+          echo "CORE_TARBALL=$(pwd)/packages/core/snapkit-studio-core-*.tgz" >> $GITHUB_ENV
+          echo "REACT_TARBALL=$(pwd)/packages/react/snapkit-studio-react-*.tgz" >> $GITHUB_ENV
+          echo "NEXTJS_TARBALL=$(pwd)/packages/nextjs/snapkit-studio-nextjs-*.tgz" >> $GITHUB_ENV
+
+      - name: Setup and test SSR
+        run: |
+          cp -r test-fixtures/nextjs-external-app /tmp/ssr-test
+          cd /tmp/ssr-test
+
+          # Setup package.json
+          sed "s|CORE_TARBALL_PATH|$CORE_TARBALL|g" package.json.template > package.json.tmp
+          sed "s|REACT_TARBALL_PATH|$REACT_TARBALL|g" package.json.tmp > package.json.tmp2
+          sed "s|NEXTJS_TARBALL_PATH|$NEXTJS_TARBALL|g" package.json.tmp2 > package.json
+          rm package.json.tmp package.json.tmp2
+
+          npm install
+          npm run build
+
+          # Test production build
+          npm run start &
+          sleep 10
+
+          # Test SSR output
+          curl -s http://localhost:3000/test-server | grep -q "data-testid=\"server-image-basic\""
+          if [ $? -eq 0 ]; then
+            echo "✅ SSR test passed: ServerImage rendered correctly"
+          else
+            echo "❌ SSR test failed: ServerImage not found in HTML"
+            exit 1
+          fi
+
+          # Kill the server
+          kill %1
+
+  test-client-hydration:
+    runs-on: ubuntu-latest
+    needs: test-external-app
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Prepare and test hydration
+        run: |
+          pnpm prepare-release
+          cd packages/core && pnpm pack && cd ../..
+          cd packages/react && pnpm pack && cd ../..
+          cd packages/nextjs && pnpm pack && cd ../..
+
+          export CORE_TARBALL=$(pwd)/packages/core/snapkit-studio-core-*.tgz
+          export REACT_TARBALL=$(pwd)/packages/react/snapkit-studio-react-*.tgz
+          export NEXTJS_TARBALL=$(pwd)/packages/nextjs/snapkit-studio-nextjs-*.tgz
+
+          cp -r test-fixtures/nextjs-external-app /tmp/hydration-test
+          cd /tmp/hydration-test
+
+          # Setup package.json
+          sed "s|CORE_TARBALL_PATH|$CORE_TARBALL|g" package.json.template > package.json.tmp
+          sed "s|REACT_TARBALL_PATH|$REACT_TARBALL|g" package.json.tmp > package.json.tmp2
+          sed "s|NEXTJS_TARBALL_PATH|$NEXTJS_TARBALL|g" package.json.tmp2 > package.json
+          rm package.json.tmp package.json.tmp2
+
+          npm install
+          npx playwright install chromium
+
+          # Run specific hydration test
+          npx playwright test client-interaction.spec.ts --reporter=list
+
+  publish-test-report:
+    runs-on: ubuntu-latest
+    needs: [test-external-app, test-ssr-hydration, test-client-hydration]
+    if: always()
+
+    steps:
+      - name: Download all test artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Publish test summary
+        run: |
+          echo "## External Next.js App Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -d "playwright-report-node18.x" ]; then
+            echo "### Node 18.x Tests" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Tests completed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ -d "playwright-report-node20.x" ]; then
+            echo "### Node 20.x Tests" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Tests completed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Coverage" >> $GITHUB_STEP_SUMMARY
+          echo "- ServerImage rendering" >> $GITHUB_STEP_SUMMARY
+          echo "- ClientImage interactions" >> $GITHUB_STEP_SUMMARY
+          echo "- Auto component selection" >> $GITHUB_STEP_SUMMARY
+          echo "- SSR/Hydration validation" >> $GITHUB_STEP_SUMMARY
