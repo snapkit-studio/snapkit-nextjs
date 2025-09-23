@@ -79,8 +79,6 @@ jobs:
           echo "  - NextJS: $NEXTJS_PATH"
 
       - name: Test external app with tarballs
-        env:
-          SNAPKIT_ORGANIZATION_NAME: test-org
         run: |
           # Copy test fixture to temp directory
           cp -r test-fixtures/nextjs-external-app /tmp/test-app
@@ -91,6 +89,11 @@ jobs:
           sed "s|REACT_TARBALL_PATH|${{ steps.tarballs.outputs.react-tarball }}|g" package.json.tmp > package.json.tmp2
           sed "s|NEXTJS_TARBALL_PATH|${{ steps.tarballs.outputs.nextjs-tarball }}|g" package.json.tmp2 > package.json
           rm package.json.tmp package.json.tmp2
+
+          # Create .env.production file with required environment variables
+          cat > .env.production << EOF
+          SNAPKIT_ORGANIZATION_NAME=test-org
+          EOF
 
           # Install dependencies from tarballs
           npm install
