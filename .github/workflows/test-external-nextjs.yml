@@ -42,6 +42,11 @@ jobs:
       - name: Build packages
         run: pnpm build
 
+      - name: Prepare packages for release
+        run: |
+          # First prepare the packages to create package.release.json files
+          pnpm prepare-release
+
       - name: Generate canary versions
         id: versions
         run: |
@@ -94,12 +99,7 @@ jobs:
           echo "React: $(grep '"version":' packages/react/package.release.json)"
           echo "NextJS: $(grep '"version":' packages/nextjs/package.release.json)"
 
-      - name: Prepare packages for release
-        run: |
-          # Prepare packages for release with updated versions
-          pnpm prepare-release
-
-      - name: Prepare and publish canary versions
+      - name: Publish canary versions
         id: publish
         run: |
           # Configure NPM authentication
@@ -293,9 +293,10 @@ jobs:
 
           # Unpublish canary versions (optional - for cleanup)
           echo "Cleaning up canary versions..."
-          npm unpublish @snapkit-studio/nextjs@${{ needs.publish-canary.outputs.nextjs-version }} --force || echo "NextJS package cleanup failed or already removed"
-          npm unpublish @snapkit-studio/react@${{ needs.publish-canary.outputs.react-version }} --force || echo "React package cleanup failed or already removed"
-          npm unpublish @snapkit-studio/core@${{ needs.publish-canary.outputs.core-version }} --force || echo "Core package cleanup failed or already removed"
+          # Note: npm unpublish requires wait time after publish, so these might fail
+          npm unpublish @snapkit-studio/nextjs@${{ needs.publish-canary.outputs.nextjs-version }} --force 2>/dev/null || echo "NextJS cleanup skipped"
+          npm unpublish @snapkit-studio/react@${{ needs.publish-canary.outputs.react-version }} --force 2>/dev/null || echo "React cleanup skipped"
+          npm unpublish @snapkit-studio/core@${{ needs.publish-canary.outputs.core-version }} --force 2>/dev/null || echo "Core cleanup skipped"
 
           echo "Canary cleanup completed"
         env:
