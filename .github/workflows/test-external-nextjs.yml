@@ -274,29 +274,3 @@ jobs:
           echo "Canary cleanup completed"
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-  publish-test-report:
-    runs-on: ubuntu-latest
-    needs: [test-external-app, test-ssr-hydration, test-client-hydration]
-    if: always()
-
-    steps:
-      - name: Download all test artifacts
-        uses: actions/download-artifact@v3
-
-      - name: Publish test summary
-        run: |
-          echo "## External Next.js App Test Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          if [ -d "playwright-report-node22" ]; then
-            echo "### Node 18.x Tests" >> $GITHUB_STEP_SUMMARY
-            echo "✅ Tests completed" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Test Coverage" >> $GITHUB_STEP_SUMMARY
-          echo "- ServerImage rendering" >> $GITHUB_STEP_SUMMARY
-          echo "- ClientImage interactions" >> $GITHUB_STEP_SUMMARY
-          echo "- Auto component selection" >> $GITHUB_STEP_SUMMARY
-          echo "- SSR/Hydration validation" >> $GITHUB_STEP_SUMMARY
