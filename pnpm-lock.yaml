@@ -298,6 +298,9 @@ importers:
         specifier: '>=13.0.0'
         version: 15.5.3(@playwright/test@1.55.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
+      '@repo/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
       '@testing-library/jest-dom':
         specifier: ^6.1.4
         version: 6.8.0

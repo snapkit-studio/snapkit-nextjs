@@ -48,6 +48,7 @@
     "@snapkit-studio/react": "latest"
   },
   "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^14.1.2",
     "@types/react": "^18.2.0",
