@@ -1,0 +1,142 @@
+name: Test External Next.js with Tarballs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/**'
+      - 'test-fixtures/**'
+      - '.github/workflows/test-external-nextjs-tarball.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'packages/**'
+      - 'test-fixtures/**'
+      - '.github/workflows/test-external-nextjs-tarball.yml'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Prepare packages and create tarballs
+        id: tarballs
+        run: |
+          # Prepare packages for release
+          pnpm prepare-release
+
+          # Create tarballs for each package
+          echo "Creating tarballs..."
+
+          # Core package
+          cd packages/core
+          cp package.release.json package.json
+          npm pack
+          CORE_TARBALL=$(ls *.tgz)
+          CORE_PATH="$PWD/$CORE_TARBALL"
+          echo "core-tarball=$CORE_PATH" >> $GITHUB_OUTPUT
+          cd ../..
+
+          # React package
+          cd packages/react
+          cp package.release.json package.json
+          npm pack
+          REACT_TARBALL=$(ls *.tgz)
+          REACT_PATH="$PWD/$REACT_TARBALL"
+          echo "react-tarball=$REACT_PATH" >> $GITHUB_OUTPUT
+          cd ../..
+
+          # NextJS package
+          cd packages/nextjs
+          cp package.release.json package.json
+          npm pack
+          NEXTJS_TARBALL=$(ls *.tgz)
+          NEXTJS_PATH="$PWD/$NEXTJS_TARBALL"
+          echo "nextjs-tarball=$NEXTJS_PATH" >> $GITHUB_OUTPUT
+          cd ../..
+
+          echo "✅ Tarballs created:"
+          echo "  - Core: $CORE_PATH"
+          echo "  - React: $REACT_PATH"
+          echo "  - NextJS: $NEXTJS_PATH"
+
+      - name: Test external app with tarballs
+        run: |
+          # Copy test fixture to temp directory
+          cp -r test-fixtures/nextjs-external-app /tmp/test-app
+          cd /tmp/test-app
+
+          # Replace placeholders in package.json template with tarball paths
+          sed "s|CORE_TARBALL_PATH|${{ steps.tarballs.outputs.core-tarball }}|g" package.json.template > package.json.tmp
+          sed "s|REACT_TARBALL_PATH|${{ steps.tarballs.outputs.react-tarball }}|g" package.json.tmp > package.json.tmp2
+          sed "s|NEXTJS_TARBALL_PATH|${{ steps.tarballs.outputs.nextjs-tarball }}|g" package.json.tmp2 > package.json
+          rm package.json.tmp package.json.tmp2
+
+          # Install dependencies from tarballs
+          npm install
+
+          # Build the test app
+          npm run build
+
+      - name: Install Playwright browsers
+        run: |
+          cd /tmp/test-app
+          npx playwright install chromium
+
+      - name: Run E2E tests
+        run: |
+          cd /tmp/test-app
+          npx playwright test
+
+      - name: Test SSR rendering
+        run: |
+          cd /tmp/test-app
+
+          # Start production server
+          npm run start &
+          sleep 10
+
+          # Test SSR output
+          curl -s http://localhost:3000/test-server | grep -q "data-testid=\"server-image-basic\""
+          if [ $? -eq 0 ]; then
+            echo "✅ SSR test passed: ServerImage rendered correctly"
+          else
+            echo "❌ SSR test failed: ServerImage not found in HTML"
+            exit 1
+          fi
+
+          # Kill the server
+          kill %1
+
+      - name: Test client hydration
+        run: |
+          cd /tmp/test-app
+
+          # Run specific hydration test
+          npx playwright test client-interaction.spec.ts --reporter=list
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: /tmp/test-app/test-results/
+          retention-days: 7

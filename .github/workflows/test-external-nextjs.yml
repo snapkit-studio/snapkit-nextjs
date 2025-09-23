@@ -1,18 +1,19 @@
 name: Test External Next.js with Canary
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'packages/**'
-      - 'test-fixtures/**'
-      - '.github/workflows/test-external-nextjs.yml'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'packages/**'
-      - 'test-fixtures/**'
-      - '.github/workflows/test-external-nextjs.yml'
+  workflow_dispatch:  # Only run manually, disabled automatic runs
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - 'packages/**'
+  #     - 'test-fixtures/**'
+  #     - '.github/workflows/test-external-nextjs.yml'
+  # pull_request:
+  #   branches: [main]
+  #   paths:
+  #     - 'packages/**'
+  #     - 'test-fixtures/**'
+  #     - '.github/workflows/test-external-nextjs.yml'
 
 jobs:
   publish-canary:
@@ -101,9 +102,11 @@ jobs:
 
       - name: Publish canary versions
         id: publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          # Configure NPM authentication
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
+          # Debug: Check NPM auth
+          npm whoami || echo "NPM authentication may not be working"
 
           # Publish in dependency order with canary tag
           echo "Publishing core package..."
