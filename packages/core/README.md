@@ -19,12 +19,12 @@ pnpm add @snapkit-studio/core
 
 ## Features
 
-✅ **URL Builder** - Construct optimized image URLs with transformations
-✅ **Format Detection** - Detect browser support for AVIF, WebP, and other formats
-✅ **Responsive Utilities** - Calculate optimal sizes and generate responsive configurations
-✅ **Transform Builder** - Type-safe image transformation parameter building
-✅ **Browser Compatibility** - Cross-browser compatibility utilities
-✅ **TypeScript Support** - Full type definitions included
+- **URL Builder** - Construct optimized image URLs with transformations
+- **Format Detection** - Detect browser support for AVIF, WebP, and other formats
+- **Responsive Utilities** - Calculate optimal sizes and generate responsive configurations
+- **Transform Builder** - Type-safe image transformation parameter building
+- **Browser Compatibility** - Cross-browser compatibility utilities
+- **TypeScript Support** - Full type definitions included
 
 ## Quick Start
 
