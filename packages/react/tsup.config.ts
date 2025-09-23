@@ -19,12 +19,15 @@ const addUseClientDirective = async () => {
     try {
       const content = await fs.readFile(file, 'utf-8');
       // Skip if directive already present
-      if (!content.startsWith("'use client'") && !content.startsWith('"use client"')) {
+      if (
+        !content.startsWith("'use client'") &&
+        !content.startsWith('"use client"')
+      ) {
         // For CJS, add after 'use strict' if present
         if (file.endsWith('.js') && content.startsWith("'use strict'")) {
           const newContent = content.replace(
             "'use strict';",
-            "'use strict';\n'use client';"
+            "'use strict';\n'use client';",
           );
           await fs.writeFile(file, newContent);
         } else {

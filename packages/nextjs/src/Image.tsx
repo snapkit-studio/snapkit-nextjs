@@ -1,11 +1,12 @@
 import dynamic from 'next/dynamic';
+
 import { ServerImage } from './ServerImage';
 import type { SnapkitImageProps } from './types';
 import { forceServerRendering, requiresClientFeatures } from './types';
 
 // Dynamically import ClientImage to handle client-server boundary
-const ClientImage = dynamic(
-  () => import('./ClientImage').then((mod) => mod.ClientImage)
+const ClientImage = dynamic(() =>
+  import('./ClientImage').then((mod) => mod.ClientImage),
 );
 
 /**
