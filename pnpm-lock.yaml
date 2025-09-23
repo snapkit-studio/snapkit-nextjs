@@ -191,6 +191,9 @@ importers:
 
   packages/core:
     devDependencies:
+      '@repo/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
       '@types/node':
         specifier: ^20.19.17
         version: 20.19.17

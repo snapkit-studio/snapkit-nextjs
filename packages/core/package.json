@@ -44,6 +44,7 @@
     "version-info": "node -p \"'Package: @snapkit-studio/core, Current version: ' + require('./package.json').version\""
   },
   "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
     "@types/node": "^20.19.17",
     "tsup": "8.5.0",
     "typescript": "^5.0.0",

@@ -17,23 +17,18 @@ on:
 jobs:
   test-external-app:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x]
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
+        uses: pnpm/action-setup@v4
 
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -88,18 +83,18 @@ jobs:
           npx playwright test
 
       - name: Upload test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-node${{ matrix.node-version }}
+          name: playwright-report-node22
           path: /tmp/test-app/test-results/
           retention-days: 7
 
       - name: Upload trace on failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: playwright-traces-node${{ matrix.node-version }}
+          name: playwright-traces-node22
           path: /tmp/test-app/test-results/
           retention-days: 7
 
@@ -108,18 +103,16 @@ jobs:
     needs: test-external-app
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
+        uses: pnpm/action-setup@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: 22
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -234,13 +227,8 @@ jobs:
           echo "## External Next.js App Test Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          if [ -d "playwright-report-node18.x" ]; then
+          if [ -d "playwright-report-node22" ]; then
             echo "### Node 18.x Tests" >> $GITHUB_STEP_SUMMARY
-            echo "✅ Tests completed" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          if [ -d "playwright-report-node20.x" ]; then
-            echo "### Node 20.x Tests" >> $GITHUB_STEP_SUMMARY
             echo "✅ Tests completed" >> $GITHUB_STEP_SUMMARY
           fi
 
