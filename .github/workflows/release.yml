@@ -97,21 +97,47 @@ jobs:
           # Verify authentication
           npm whoami --registry=https://npm.pkg.github.com || echo "Authentication check failed"
 
-          # Publish in dependency order: core → react → nextjs
-          echo "1️⃣ Publishing core package..."
-          cd packages/core
-          npm publish --access=public && echo "✅ Core published" || echo "❌ Core failed"
-          cd ../..
+          # Function to check if version is a prerelease
+          is_prerelease() {
+            local version=$1
+            if [[ "$version" =~ -[a-zA-Z] ]]; then
+              return 0  # true - is prerelease
+            else
+              return 1  # false - is stable release
+            fi
+          }
 
-          echo "2️⃣ Publishing react package..."
-          cd packages/react
-          npm publish --access=public && echo "✅ React published" || echo "❌ React failed"
-          cd ../..
+          # Function to publish package if it's a stable version
+          publish_if_stable() {
+            local package_name=$1
+            local package_dir=$2
+            local display_name=$3
 
-          echo "3️⃣ Publishing nextjs package..."
-          cd packages/nextjs
-          npm publish --access=public && echo "✅ NextJS published" || echo "❌ NextJS failed"
-          cd ../..
+            echo "${package_name} Publishing ${display_name} package..."
+            cd "$package_dir"
+
+            # Get version from package.json
+            local version=$(node -p "require('./package.json').version")
+            echo "📋 ${display_name} version: $version"
+
+            if is_prerelease "$version"; then
+              echo "⚠️ Skipping ${display_name} - prerelease version detected ($version)"
+              echo "ℹ️ GitHub Package Registry only publishes stable releases"
+            else
+              echo "✅ Publishing ${display_name} - stable version ($version)"
+              if npm publish --access=public; then
+                echo "✅ ${display_name} published successfully"
+              else
+                echo "❌ ${display_name} failed to publish"
+              fi
+            fi
+            cd ../..
+          }
+
+          # Publish in dependency order: core → react → nextjs (only stable versions)
+          publish_if_stable "1️⃣" "packages/core" "Core"
+          publish_if_stable "2️⃣" "packages/react" "React"
+          publish_if_stable "3️⃣" "packages/nextjs" "NextJS"
 
           echo "🎉 GitHub Package Registry publishing completed!"
         env:
