@@ -75,6 +75,7 @@ NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT=auto             # Optional (auto|av
 ```
 
 **Environment Variables Reference:**
+
 - `NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME`: Your Snapkit organization identifier (required)
 - `NEXT_PUBLIC_SNAPKIT_DEFAULT_QUALITY`: Global quality setting for all images (1-100)
 - `NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT`: Default format optimization strategy
@@ -181,14 +182,14 @@ import { Image } from '@snapkit-studio/nextjs';
 
 ### Component Selection Logic
 
-| Props | Renders As | Reason |
-|-------|------------|--------|
-| Basic props only | `ServerImage` | Default, best performance with server-side srcSet |
-| `onLoad`, `onError` | `ClientImage` | Event handlers need browser |
-| `adjustQualityByNetwork` | `ClientImage` | Network detection needs browser |
-| `dprOptions` | `ClientImage` | Custom DPR detection needs browser |
-| `optimize="server"` | `ServerImage` | Explicitly forced server rendering |
-| `optimize="client"` | `ClientImage` | Explicitly forced client rendering |
+| Props                    | Renders As    | Reason                                            |
+| ------------------------ | ------------- | ------------------------------------------------- |
+| Basic props only         | `ServerImage` | Default, best performance with server-side srcSet |
+| `onLoad`, `onError`      | `ClientImage` | Event handlers need browser                       |
+| `adjustQualityByNetwork` | `ClientImage` | Network detection needs browser                   |
+| `dprOptions`             | `ClientImage` | Custom DPR detection needs browser                |
+| `optimize="server"`      | `ServerImage` | Explicitly forced server rendering                |
+| `optimize="client"`      | `ClientImage` | Explicitly forced client rendering                |
 
 ### Explicit Control
 
@@ -306,6 +307,7 @@ Experience all features in action with our interactive demo:
 **[🚀 Live Demo →](https://nextjs.snapkit.studio)** - Real-time examples with source code
 
 Explore features including:
+
 - Server/Client component automatic selection
 - DPR optimization with srcSet generation
 - Image transformations with live preview
@@ -413,6 +415,7 @@ The package maintains high test coverage standards:
 - **Coverage Exclusions**: Test setup files, configuration files, type definitions, and test utilities
 
 Coverage reports are generated in multiple formats:
+
 - **Text**: Console output during test runs
 - **HTML**: Detailed coverage report in `coverage/` directory
 - **LCOV**: For CI/CD integration and coverage tools

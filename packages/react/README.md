@@ -65,13 +65,15 @@ function MyComponent() {
 
 ```typescript
 // Image component only (~9 KB)
-import { Image } from '@snapkit-studio/react/image';
 
 // Specific hooks only (~8 KB)
 import { useImageOptimization } from '@snapkit-studio/react/hooks';
-
+import { Image } from '@snapkit-studio/react/image';
 // Utility functions only (~5 KB)
-import { createImageStyle, mergeConfiguration } from '@snapkit-studio/react/utils';
+import {
+  createImageStyle,
+  mergeConfiguration,
+} from '@snapkit-studio/react/utils';
 ```
 
 ### Full Bundle Import
@@ -98,6 +100,7 @@ NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT=auto
 ```
 
 **Format Options:**
+
 - `auto`: Automatically select best format based on browser support
 - `avif`: Use AVIF format if supported, fallback to WebP/JPEG
 - `webp`: Use WebP format if supported, fallback to JPEG
@@ -341,6 +344,7 @@ Experience all features in action with our interactive demo:
 **[🚀 Live Demo →](https://react.snapkit.studio)** - Real-time examples with source code
 
 Explore features including:
+
 - Image transformations with live preview
 - Error boundary demonstrations
 - Network-aware quality adjustments
@@ -381,6 +385,7 @@ The package maintains high test coverage standards:
 - **Coverage Exclusions**: Test files, configuration files, type definitions, and test utilities
 
 Coverage reports are generated in multiple formats:
+
 - **Text**: Console output during test runs
 - **HTML**: Detailed coverage report in `coverage/` directory
 - **LCOV**: For CI/CD integration and coverage tools

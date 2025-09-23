@@ -14,12 +14,14 @@ Drop-in image optimization with automatic format conversion (AVIF/WebP), lazy lo
 Both **@snapkit-studio/nextjs** and **@snapkit-studio/react** offer full RSC support:
 
 #### Next.js Package
+
 - **Zero JavaScript** for static images with automatic ServerImage selection
 - **Automatic ServerImage/ClientImage selection** based on props
 - **Native Next.js Image integration** with picture element wrapper
 - **Full App Router compatibility**
 
 #### React Package
+
 - **Framework-agnostic RSC support** - works in any React 18+ environment
 - **ServerImage and ClientImage components** for explicit control
 - **Smaller bundle size** without Next.js dependencies
@@ -27,11 +29,11 @@ Both **@snapkit-studio/nextjs** and **@snapkit-studio/react** offer full RSC sup
 
 ## Packages
 
-| Package | Size | Description |
-|---------|------|-------------|
+| Package                                       | Size  | Description                                     |
+| --------------------------------------------- | ----- | ----------------------------------------------- |
 | [`@snapkit-studio/nextjs`](./packages/nextjs) | ~15KB | Next.js Image component with zero configuration |
-| [`@snapkit-studio/react`](./packages/react) | ~9KB | Lightweight React Image component |
-| [`@snapkit-studio/core`](./packages/core) | ~5KB | Core utilities for custom implementations |
+| [`@snapkit-studio/react`](./packages/react)   | ~9KB  | Lightweight React Image component               |
+| [`@snapkit-studio/core`](./packages/core)     | ~5KB  | Core utilities for custom implementations       |
 
 ## Quick Start
 
@@ -54,13 +56,7 @@ export default function Page() {
   return (
     <>
       {/* Automatically renders as ServerImage (no client JS) */}
-      <Image
-        src="/hero.jpg"
-        alt="Hero"
-        width={1200}
-        height={600}
-        priority
-      />
+      <Image src="/hero.jpg" alt="Hero" width={1200} height={600} priority />
 
       {/* Automatically switches to ClientImage (has event handler) */}
       <Image
@@ -118,32 +114,34 @@ function App() {
 
 ## Features Comparison
 
-| Feature | @snapkit-studio/nextjs | @snapkit-studio/react |
-|---------|------------------------|----------------------|
-| React Server Components | ✅ via Next.js | ✅ Native support |
-| Auto Server/Client Selection | ✅ | ✅ |
-| Next.js Image Integration | ✅ Native | ❌ |
-| Bundle Size | ~15KB | ~9KB |
-| Error Boundaries | ✅ | ✅ ImageErrorBoundary |
-| Network-aware Quality | ✅ | ✅ |
-| DPR Optimization | ✅ | ✅ |
-| Provider Required | ❌ | ❌ |
+| Feature                      | @snapkit-studio/nextjs | @snapkit-studio/react |
+| ---------------------------- | ---------------------- | --------------------- |
+| React Server Components      | ✅ via Next.js         | ✅ Native support     |
+| Auto Server/Client Selection | ✅                     | ✅                    |
+| Next.js Image Integration    | ✅ Native              | ❌                    |
+| Bundle Size                  | ~15KB                  | ~9KB                  |
+| Error Boundaries             | ✅                     | ✅ ImageErrorBoundary |
+| Network-aware Quality        | ✅                     | ✅                    |
+| DPR Optimization             | ✅                     | ✅                    |
+| Provider Required            | ❌                     | ❌                    |
 
 ## Environment Variables
 
 ### Next.js
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME` | Required | Your Snapkit organization name |
-| `NEXT_PUBLIC_SNAPKIT_DEFAULT_QUALITY` | `85` | Default image quality (1-100) |
-| `NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT` | `auto` | Default format: `auto`, `avif`, `webp`, `off` |
+
+| Variable                                      | Default  | Description                                   |
+| --------------------------------------------- | -------- | --------------------------------------------- |
+| `NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME`       | Required | Your Snapkit organization name                |
+| `NEXT_PUBLIC_SNAPKIT_DEFAULT_QUALITY`         | `85`     | Default image quality (1-100)                 |
+| `NEXT_PUBLIC_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT` | `auto`   | Default format: `auto`, `avif`, `webp`, `off` |
 
 ### React (Vite/CRA)
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `VITE_SNAPKIT_ORGANIZATION_NAME` | Required | Your Snapkit organization name |
-| `VITE_SNAPKIT_DEFAULT_QUALITY` | `85` | Default image quality (1-100) |
-| `VITE_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT` | `auto` | Default format: `auto`, `avif`, `webp`, `off` |
+
+| Variable                               | Default  | Description                                   |
+| -------------------------------------- | -------- | --------------------------------------------- |
+| `VITE_SNAPKIT_ORGANIZATION_NAME`       | Required | Your Snapkit organization name                |
+| `VITE_SNAPKIT_DEFAULT_QUALITY`         | `85`     | Default image quality (1-100)                 |
+| `VITE_SNAPKIT_DEFAULT_OPTIMIZE_FORMAT` | `auto`   | Default format: `auto`, `avif`, `webp`, `off` |
 
 ## Live Demos
 
@@ -165,6 +163,7 @@ pnpm exec turbo test:coverage
 ### Test Coverage Standards
 
 All packages maintain consistent coverage standards:
+
 - **Coverage Threshold**: 80% minimum for branches, functions, lines, and statements
 - **Test Framework**: Vitest with v8 coverage provider
 - **Coverage Reports**: Text (console), JSON, HTML, and LCOV formats

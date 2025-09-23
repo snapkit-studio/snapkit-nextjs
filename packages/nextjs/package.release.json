@@ -2,13 +2,7 @@
   "name": "@snapkit-studio/nextjs",
   "version": "1.7.0-canary.0",
   "description": "Next.js image loader for Snapkit image optimization",
-  "keywords": [
-    "nextjs",
-    "image",
-    "loader",
-    "snapkit",
-    "optimization"
-  ],
+  "keywords": ["nextjs", "image", "loader", "snapkit", "optimization"],
   "repository": {
     "type": "git",
     "url": "https://github.com/snapkit-studio/snapkit-js.git",
@@ -30,10 +24,7 @@
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist",
-    "README.md"
-  ],
+  "files": ["dist", "README.md"],
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts --clean",
     "check-types": "tsc --noEmit",

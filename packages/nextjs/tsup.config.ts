@@ -40,5 +40,4 @@ export default defineConfig({
 
   // Keep function names
   keepNames: true,
-
 });

@@ -1,5 +1,5 @@
-import type { ImageTransforms } from '@snapkit-studio/core';
 import type { ImageProps } from 'next/image';
+import type { ImageTransforms } from '@snapkit-studio/core';
 
 /**
  * Snapkit Image Props extending Next.js Image Props
