@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
 //
 import {
+  DemoLayout,
+  ExampleContainer,
+  type NavGroup,
+} from '@repo/demo-components';
+//
+import {
   detectNetworkSpeed,
   getDevicePixelRatio,
   getOptimalDprValues,
   Image,
 } from '@snapkit-studio/react';
-//
-import {
-  DemoLayout,
-  ExampleContainer,
-  type NavGroup,
-} from '@repo/demo-components';
 
 import { ImageErrorBoundaryExample } from './examples/ImageErrorBoundaryExample';
 
@@ -128,8 +128,8 @@ function DprDetectionDemo() {
         )}
       </div>
       <p className="mt-4 text-sm text-gray-600">
-        Snapkit automatically detects your device's pixel ratio and generates
-        only the necessary image sizes, reducing bandwidth usage while
+        Snapkit automatically detects your device&apos;s pixel ratio and
+        generates only the necessary image sizes, reducing bandwidth usage while
         maintaining visual quality.
       </p>
     </>

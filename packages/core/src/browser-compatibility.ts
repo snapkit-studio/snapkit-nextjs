@@ -117,7 +117,7 @@ export function checkAvifSupport(browserInfo: BrowserInfo): boolean {
 
     case 'edge':
       // Edge is Chromium-based, same support as Chrome
-      return browserInfo.version >= 85;
+      return browserInfo.version >= 91;
 
     case 'safari':
       // Safari on iOS/macOS 16.4+ supports AVIF fully
@@ -139,13 +139,13 @@ export function checkAvifSupport(browserInfo: BrowserInfo): boolean {
 export function checkWebpSupport(browserInfo: BrowserInfo): boolean {
   switch (browserInfo.name) {
     case 'chrome':
-      return browserInfo.version >= 32;
+      return browserInfo.version >= 23;
 
     case 'firefox':
       return browserInfo.version >= 65;
 
     case 'edge':
-      return browserInfo.version >= 18 || browserInfo.version === 0; // Legacy Edge detection
+      return browserInfo.version >= 14 || browserInfo.version === 0; // Legacy Edge detection
 
     case 'safari':
       // Safari on iOS 14+ supports WebP
@@ -176,11 +176,13 @@ export function getFormatSupportFromUA(userAgent: string): FormatSupport {
  * Estimate rough format support based on User Agent (main entry point)
  */
 export function estimateFormatSupportFromUA(): FormatSupport {
-  if (
-    typeof window === 'undefined' ||
-    typeof navigator === 'undefined' ||
-    !navigator?.userAgent
-  ) {
+  // Check if we're in a browser environment with a valid navigator
+  const isValidBrowser =
+    typeof window !== 'undefined' &&
+    typeof navigator !== 'undefined' &&
+    navigator?.userAgent;
+
+  if (!isValidBrowser) {
     return { avif: false, webp: false };
   }
 

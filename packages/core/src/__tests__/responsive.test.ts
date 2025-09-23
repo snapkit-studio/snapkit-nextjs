@@ -6,11 +6,11 @@ import {
   calculateOptimalImageSize,
   createLazyLoadObserver,
   DEFAULT_BREAKPOINTS,
+  detectNetworkSpeed,
   determineImagePriority,
   generateResponsiveWidths,
   getDeviceCharacteristics,
   parseImageSizes,
-  detectNetworkSpeed,
 } from '../responsive';
 
 describe('Default Breakpoints Constants', () => {
@@ -556,7 +556,13 @@ describe('getDeviceCharacteristics function', () => {
   const originalWindow = global.window;
 
   afterEach(() => {
-    global.navigator = originalNavigator;
+    if (originalNavigator) {
+      Object.defineProperty(global, 'navigator', {
+        value: originalNavigator,
+        writable: true,
+        configurable: true,
+      });
+    }
     global.window = originalWindow;
     vi.clearAllMocks();
   });
@@ -673,7 +679,13 @@ describe('adjustQualityForConnection function', () => {
   const originalWindow = global.window;
 
   afterEach(() => {
-    global.navigator = originalNavigator;
+    if (originalNavigator) {
+      Object.defineProperty(global, 'navigator', {
+        value: originalNavigator,
+        writable: true,
+        configurable: true,
+      });
+    }
     global.window = originalWindow;
   });
 
@@ -860,7 +872,13 @@ describe('detectNetworkSpeed function', () => {
   const originalNavigator = global.navigator;
 
   afterEach(() => {
-    global.navigator = originalNavigator;
+    if (originalNavigator) {
+      Object.defineProperty(global, 'navigator', {
+        value: originalNavigator,
+        writable: true,
+        configurable: true,
+      });
+    }
   });
 
   describe('Offline detection', () => {

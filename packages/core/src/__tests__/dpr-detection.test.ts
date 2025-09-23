@@ -21,7 +21,13 @@ describe('DPR Detection', () => {
   afterEach(() => {
     // Restore original values
     global.window = originalWindow;
-    global.navigator = originalNavigator;
+    if (originalNavigator) {
+      Object.defineProperty(global, 'navigator', {
+        value: originalNavigator,
+        writable: true,
+        configurable: true,
+      });
+    }
   });
 
   describe('getDevicePixelRatio', () => {

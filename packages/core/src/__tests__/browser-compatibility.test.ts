@@ -194,14 +194,14 @@ describe('Browser Compatibility Utils', () => {
       expect(checkWebpSupport(browserInfo)).toBe(true);
     });
 
-    it('Should not support WebP in Chrome 31', () => {
+    it('Should support WebP in Chrome 31', () => {
       const browserInfo: BrowserInfo = {
         name: 'chrome',
         version: 31,
         platform: 'desktop',
       };
 
-      expect(checkWebpSupport(browserInfo)).toBe(false);
+      expect(checkWebpSupport(browserInfo)).toBe(true); // Chrome 23+ supports WebP
     });
 
     it('Should support WebP in Firefox 65+', () => {
@@ -296,13 +296,13 @@ describe('Browser Compatibility Utils', () => {
       expect(result.webp).toBe(true);
     });
 
-    it('Should not support WebP in Chrome 31', () => {
+    it('Should support WebP in Chrome 31', () => {
       const userAgent =
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36';
       const result = getFormatSupportFromUA(userAgent);
 
       expect(result.avif).toBe(false);
-      expect(result.webp).toBe(false);
+      expect(result.webp).toBe(true); // Chrome 23+ supports WebP
     });
 
     it('Should detect AVIF and WebP support in Firefox 95', () => {
@@ -473,7 +473,13 @@ describe('Browser Compatibility Utils', () => {
 
     afterEach(() => {
       global.window = originalWindow;
-      global.navigator = originalNavigator;
+      if (originalNavigator) {
+        Object.defineProperty(global, 'navigator', {
+          value: originalNavigator,
+          writable: true,
+          configurable: true,
+        });
+      }
     });
 
     it('Should return false on server side', () => {

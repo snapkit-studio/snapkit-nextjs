@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { ClientImage } from '../ClientImage';
 
 // Mock hooks
@@ -11,7 +12,8 @@ vi.mock('../../hooks', () => ({
     defaultQuality: 85,
     defaultOptimizeFormat: 'auto',
     imageUrl: 'https://cdn.test.com/test.jpg?optimized',
-    srcSet: 'https://cdn.test.com/test.jpg?w=400 1x, https://cdn.test.com/test.jpg?w=800 2x',
+    srcSet:
+      'https://cdn.test.com/test.jpg?w=400 1x, https://cdn.test.com/test.jpg?w=800 2x',
     imageSize: {
       width: 800,
       height: 600,
@@ -55,7 +57,7 @@ describe('ClientImage', () => {
           alt="Test image"
           width={800}
           height={600}
-        />
+        />,
       );
 
       const img = screen.getByAltText('Test image');
@@ -72,25 +74,17 @@ describe('ClientImage', () => {
           width={800}
           height={600}
           className="custom-class"
-        />
+        />,
       );
 
       const img = screen.getByAltText('Test image');
       expect(img).toHaveClass('custom-class');
     });
-
   });
 
   describe('Fill mode', () => {
-
     it('should not require width/height when fill is true', () => {
-      render(
-        <ClientImage
-          src="/test.jpg"
-          alt="Test image"
-          fill={true}
-        />
-      );
+      render(<ClientImage src="/test.jpg" alt="Test image" fill={true} />);
 
       const img = screen.getByAltText('Test image');
       expect(img).not.toHaveAttribute('width');
@@ -108,7 +102,7 @@ describe('ClientImage', () => {
           width={800}
           height={600}
           onLoad={onLoad}
-        />
+        />,
       );
 
       const img = screen.getByAltText('Test image');
@@ -126,7 +120,7 @@ describe('ClientImage', () => {
           width={800}
           height={600}
           onError={onError}
-        />
+        />,
       );
 
       const img = screen.getByAltText('Test image');
@@ -137,7 +131,6 @@ describe('ClientImage', () => {
   });
 
   describe('Loading states', () => {
-
     it('should set loading="lazy" by default', () => {
       render(
         <ClientImage
@@ -145,7 +138,7 @@ describe('ClientImage', () => {
           alt="Test image"
           width={800}
           height={600}
-        />
+        />,
       );
 
       const img = screen.getByAltText('Test image');
@@ -162,7 +155,7 @@ describe('ClientImage', () => {
           width={800}
           height={600}
           sizes="(max-width: 768px) 100vw, 50vw"
-        />
+        />,
       );
 
       const img = screen.getByAltText('Test image');
@@ -185,7 +178,7 @@ describe('ClientImage', () => {
           width={800}
           height={600}
           transforms={transforms}
-        />
+        />,
       );
 
       const img = screen.getByAltText('Test image');
@@ -194,16 +187,15 @@ describe('ClientImage', () => {
   });
 
   describe('Placeholder handling', () => {
-    it('should handle placeholder blur', () => {
+    it('should handle blur data URL', () => {
       render(
         <ClientImage
           src="/test.jpg"
           alt="Test image"
           width={800}
           height={600}
-          placeholder="blur"
           blurDataURL="data:image/jpeg;base64,..."
-        />
+        />,
       );
 
       const img = screen.getByAltText('Test image');
@@ -213,14 +205,7 @@ describe('ClientImage', () => {
 
   describe('Accessibility', () => {
     it('should always have alt text', () => {
-      render(
-        <ClientImage
-          src="/test.jpg"
-          alt=""
-          width={800}
-          height={600}
-        />
-      );
+      render(<ClientImage src="/test.jpg" alt="" width={800} height={600} />);
 
       const img = screen.getByRole('img');
       expect(img).toHaveAttribute('alt', '');
@@ -234,7 +219,7 @@ describe('ClientImage', () => {
           width={800}
           height={600}
           role="presentation"
-        />
+        />,
       );
 
       const img = screen.getByRole('presentation');
@@ -244,14 +229,7 @@ describe('ClientImage', () => {
 
   describe('Error handling', () => {
     it('should handle missing src gracefully', () => {
-      render(
-        <ClientImage
-          src=""
-          alt="Test image"
-          width={800}
-          height={600}
-        />
-      );
+      render(<ClientImage src="" alt="Test image" width={800} height={600} />);
 
       const img = screen.getByAltText('Test image');
       expect(img).toBeInTheDocument();
@@ -264,7 +242,7 @@ describe('ClientImage', () => {
           alt="Test image"
           width={-100}
           height={0}
-        />
+        />,
       );
 
       const img = screen.getByAltText('Test image');
