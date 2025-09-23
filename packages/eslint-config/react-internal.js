@@ -18,7 +18,7 @@ export const config = [
   {
     languageOptions: {
       ...pluginReact.configs.flat.recommended.languageOptions,
-    }
+    },
   },
   {
     plugins: {

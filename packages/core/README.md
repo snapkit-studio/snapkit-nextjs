@@ -241,6 +241,7 @@ The package maintains high test coverage standards:
 - **Coverage Exclusions**: Configuration files, type definitions, and test utilities
 
 Coverage reports are generated in multiple formats:
+
 - **Text**: Console output during test runs
 - **HTML**: Detailed coverage report in `coverage/` directory
 - **LCOV**: For CI/CD integration and coverage tools

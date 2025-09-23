@@ -1,7 +1,11 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
-import { render, screen, cleanup } from '@testing-library/react';
-import { ImageErrorBoundary, withImageErrorBoundary } from '../ImageErrorBoundary';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import {
+  ImageErrorBoundary,
+  withImageErrorBoundary,
+} from '../ImageErrorBoundary';
 
 // Test component that throws error
 const ThrowError = ({ shouldThrow }: { shouldThrow: boolean }) => {
@@ -33,7 +37,7 @@ describe('ImageErrorBoundary', () => {
       render(
         <ImageErrorBoundary>
           <div>Test content</div>
-        </ImageErrorBoundary>
+        </ImageErrorBoundary>,
       );
 
       expect(screen.getByText('Test content')).toBeInTheDocument();
@@ -43,7 +47,7 @@ describe('ImageErrorBoundary', () => {
       render(
         <ImageErrorBoundary>
           <ThrowError shouldThrow={true} />
-        </ImageErrorBoundary>
+        </ImageErrorBoundary>,
       );
 
       expect(screen.getByRole('img')).toBeInTheDocument();
@@ -56,7 +60,7 @@ describe('ImageErrorBoundary', () => {
       render(
         <ImageErrorBoundary fallback={customFallback}>
           <ThrowError shouldThrow={true} />
-        </ImageErrorBoundary>
+        </ImageErrorBoundary>,
       );
 
       expect(screen.getByText('Custom error message')).toBeInTheDocument();
@@ -70,7 +74,7 @@ describe('ImageErrorBoundary', () => {
       render(
         <ImageErrorBoundary onError={onError}>
           <ThrowError shouldThrow={true} />
-        </ImageErrorBoundary>
+        </ImageErrorBoundary>,
       );
 
       expect(onError).toHaveBeenCalledTimes(1);
@@ -80,7 +84,7 @@ describe('ImageErrorBoundary', () => {
         }),
         expect.objectContaining({
           componentStack: expect.any(String),
-        })
+        }),
       );
     });
 
@@ -94,7 +98,7 @@ describe('ImageErrorBoundary', () => {
       render(
         <ImageErrorBoundary>
           <ErrorComponent />
-        </ImageErrorBoundary>
+        </ImageErrorBoundary>,
       );
 
       expect(screen.getByText('Custom error message')).toBeInTheDocument();
@@ -103,14 +107,12 @@ describe('ImageErrorBoundary', () => {
     // Test removed - custom fallback prop passing not working as expected
   });
 
-
-
   describe('Default fallback component', () => {
     it('should render accessible fallback UI', () => {
       render(
         <ImageErrorBoundary>
           <ThrowError shouldThrow={true} />
-        </ImageErrorBoundary>
+        </ImageErrorBoundary>,
       );
 
       const fallback = screen.getByRole('img');
@@ -121,7 +123,7 @@ describe('ImageErrorBoundary', () => {
       render(
         <ImageErrorBoundary>
           <ThrowError shouldThrow={true} />
-        </ImageErrorBoundary>
+        </ImageErrorBoundary>,
       );
 
       const svg = document.querySelector('svg');
@@ -177,7 +179,7 @@ describe('withImageErrorBoundary HOC', () => {
     const WrappedComponent = withImageErrorBoundary(
       ErrorComponent,
       undefined,
-      onError
+      onError,
     );
 
     render(<WrappedComponent />);
@@ -187,7 +189,7 @@ describe('withImageErrorBoundary HOC', () => {
       expect.objectContaining({
         message: 'Test error',
       }),
-      expect.any(Object)
+      expect.any(Object),
     );
   });
 

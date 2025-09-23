@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { mergeConfigWithEnv } from '../env-config';
+
 // Mock the core module first
 vi.mock('@snapkit-studio/core', async () => {
   const actual = await vi.importActual('@snapkit-studio/core');
@@ -8,16 +10,19 @@ vi.mock('@snapkit-studio/core', async () => {
     mergeConfigWithEnv: vi.fn((props) => {
       const env = process.env;
       return {
-        organizationName: props?.organizationName || env.SNAPKIT_ORGANIZATION_NAME || '',
-        defaultQuality: props?.defaultQuality ||
-          (env.SNAPKIT_DEFAULT_QUALITY ? parseInt(env.SNAPKIT_DEFAULT_QUALITY, 10) : 85),
-        defaultFormat: props?.defaultFormat || env.SNAPKIT_DEFAULT_OPTIMIZE_FORMAT || 'auto',
+        organizationName:
+          props?.organizationName || env.SNAPKIT_ORGANIZATION_NAME || '',
+        defaultQuality:
+          props?.defaultQuality ||
+          (env.SNAPKIT_DEFAULT_QUALITY
+            ? parseInt(env.SNAPKIT_DEFAULT_QUALITY, 10)
+            : 85),
+        defaultFormat:
+          props?.defaultFormat || env.SNAPKIT_DEFAULT_OPTIMIZE_FORMAT || 'auto',
       };
     }),
   };
 });
-
-import { mergeConfigWithEnv } from '../env-config';
 
 describe('env-config utilities', () => {
   const originalProcessEnv = process.env;

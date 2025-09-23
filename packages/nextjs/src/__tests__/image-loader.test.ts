@@ -57,8 +57,6 @@ describe('image-loader', () => {
   describe('snapkitLoader', () => {
     // Tests removed - snapkitLoader implementation has changed
 
-
-
     it('should provide basic loader functionality', () => {
       // Test passes - loader functionality is implemented
       expect(typeof snapkitLoader).toBe('function');

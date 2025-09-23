@@ -1,6 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useUnifiedImageEngine, useImageConfig } from '../useUnifiedImageEngine';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import {
+  useImageConfig,
+  useUnifiedImageEngine,
+} from '../useUnifiedImageEngine';
 
 // Mock the core module
 vi.mock('@snapkit-studio/core', () => ({
@@ -125,7 +129,9 @@ describe('useUnifiedImageEngine', () => {
     });
 
     it('should use custom organization name', async () => {
-      const { mergeConfigWithEnv } = vi.mocked(await import('../../utils/env-config'));
+      const { mergeConfigWithEnv } = vi.mocked(
+        await import('../../utils/env-config'),
+      );
 
       const props = {
         src: '/test.jpg',
@@ -138,12 +144,14 @@ describe('useUnifiedImageEngine', () => {
       expect(mergeConfigWithEnv).toHaveBeenCalledWith(
         expect.objectContaining({
           organizationName: 'custom-org',
-        })
+        }),
       );
     });
 
     it('should use custom default format', async () => {
-      const { mergeConfigWithEnv } = vi.mocked(await import('../../utils/env-config'));
+      const { mergeConfigWithEnv } = vi.mocked(
+        await import('../../utils/env-config'),
+      );
 
       const props = {
         src: '/test.jpg',
@@ -156,7 +164,7 @@ describe('useUnifiedImageEngine', () => {
       expect(mergeConfigWithEnv).toHaveBeenCalledWith(
         expect.objectContaining({
           defaultFormat: 'webp',
-        })
+        }),
       );
     });
   });

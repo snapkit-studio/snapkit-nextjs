@@ -36,6 +36,20 @@ describe('SnapkitUrlBuilder Class', () => {
 
       expect(result).toBe('https://custom.domain.com/test.jpg');
     });
+
+    it('should handle empty organization name', () => {
+      const builder = new SnapkitUrlBuilder('');
+      const result = builder.buildImageUrl('test.jpg');
+
+      expect(result).toBe('https://-cdn.snapkit.studio/test.jpg');
+    });
+
+    it('should handle undefined organization name', () => {
+      const builder = new SnapkitUrlBuilder(undefined as any);
+      const result = builder.buildImageUrl('test.jpg');
+
+      expect(result).toBe('https://-cdn.snapkit.studio/test.jpg');
+    });
   });
 
   describe('buildImageUrl Method', () => {
@@ -89,6 +103,18 @@ describe('SnapkitUrlBuilder Class', () => {
       expect(result).toContain('w=800');
       expect(result).toContain('h=600');
       expect(result).toContain('fit=cover');
+    });
+
+    it('should append transforms when URL already has query parameters', () => {
+      const transforms: ImageTransforms = {
+        width: 800,
+        quality: 90,
+      };
+      const result = urlBuilder.buildTransformedUrl('test.jpg?v=123', transforms);
+
+      expect(result).toContain('test.jpg?v=123&');
+      expect(result).toContain('w=800');
+      expect(result).toContain('quality=90');
     });
 
     it('should generate URL with DPR parameter', () => {

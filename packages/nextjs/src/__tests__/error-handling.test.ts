@@ -22,7 +22,9 @@ describe('Enhanced Error Handling', () => {
       expect(expectedMessages.invalidSrc).toContain('Invalid image source');
       expect(expectedMessages.invalidWidth).toContain('Invalid width');
       expect(expectedMessages.invalidQuality).toContain('Invalid quality');
-      expect(expectedMessages.urlGenerationFailed).toContain('Failed to generate');
+      expect(expectedMessages.urlGenerationFailed).toContain(
+        'Failed to generate',
+      );
     });
   });
 });

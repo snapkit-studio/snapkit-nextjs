@@ -1,8 +1,8 @@
 /**
  * @vitest-environment jsdom
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useUnifiedImageEngine } from '../useUnifiedImageEngine';
 
@@ -12,9 +12,10 @@ vi.mock('@snapkit-studio/core', () => ({
     getInstance: vi.fn(() => ({
       generateImageData: vi.fn(({ dprOptions }) => ({
         url: 'https://test.com/image.jpg',
-        srcSet: dprOptions?.autoDetect === false
-          ? 'standard-srcset' // Server-like behavior
-          : 'optimized-srcset', // Client-like behavior
+        srcSet:
+          dprOptions?.autoDetect === false
+            ? 'standard-srcset' // Server-like behavior
+            : 'optimized-srcset', // Client-like behavior
         size: { width: 800, height: 600 },
         transforms: {},
         adjustedQuality: 80,
@@ -54,7 +55,9 @@ describe('Hydration-safe DPR detection', () => {
   });
 
   it('should switch to optimized DPR after hydration completes', async () => {
-    const { result, rerender } = renderHook(() => useUnifiedImageEngine(defaultProps));
+    const { result, rerender } = renderHook(() =>
+      useUnifiedImageEngine(defaultProps),
+    );
 
     // Initial render (before hydration)
     expect(result.current.srcSet).toBe('standard-srcset');
@@ -79,7 +82,9 @@ describe('Hydration-safe DPR detection', () => {
       dprOptions: customDprOptions,
     };
 
-    const { result, rerender } = renderHook(() => useUnifiedImageEngine(propsWithDpr));
+    const { result, rerender } = renderHook(() =>
+      useUnifiedImageEngine(propsWithDpr),
+    );
 
     // Initial render should disable auto-detection but preserve custom options
     expect(result.current.srcSet).toBe('standard-srcset');
@@ -93,10 +98,12 @@ describe('Hydration-safe DPR detection', () => {
   });
 
   it('should handle undefined dprOptions gracefully', () => {
-    const { result } = renderHook(() => useUnifiedImageEngine({
-      ...defaultProps,
-      dprOptions: undefined,
-    }));
+    const { result } = renderHook(() =>
+      useUnifiedImageEngine({
+        ...defaultProps,
+        dprOptions: undefined,
+      }),
+    );
 
     // Should not throw error with undefined dprOptions
     expect(result.current.srcSet).toBe('standard-srcset');

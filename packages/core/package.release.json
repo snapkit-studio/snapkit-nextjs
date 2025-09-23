@@ -2,13 +2,7 @@
   "name": "@snapkit-studio/core",
   "version": "1.9.0-canary.0",
   "description": "Core utilities and types for Snapkit Studio image optimization",
-  "keywords": [
-    "snapkit",
-    "image",
-    "optimization",
-    "utilities",
-    "types"
-  ],
+  "keywords": ["snapkit", "image", "optimization", "utilities", "types"],
   "repository": {
     "type": "git",
     "url": "https://github.com/snapkit-studio/web.git",
@@ -30,10 +24,7 @@
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist",
-    "README.md"
-  ],
+  "files": ["dist", "README.md"],
   "scripts": {
     "build": "tsup",
     "check-types": "tsc --noEmit",

@@ -239,5 +239,31 @@ describe('SnapkitImageEngine', () => {
       expect(result.transforms.format).toBe(config.defaultFormat);
       expect(result.transforms.blur).toBe(3);
     });
+
+    it('should handle sizes with parsing failure fallback', () => {
+      const params: ImageEngineParams = {
+        src: 'test.jpg',
+        width: 800,
+        sizes: 'invalid-sizes-string',
+      };
+
+      const result = engine.generateImageData(params);
+
+      expect(result.srcSet).toBeDefined();
+      expect(result.srcSet).toContain('800w');
+    });
+
+    it('should handle non-finite height validation', () => {
+      const params: ImageEngineParams = {
+        src: 'test.jpg',
+        width: 800,
+        height: Infinity,
+      };
+
+      const validation = engine.validateParams(params);
+
+      expect(validation.isValid).toBe(false);
+      expect(validation.errors).toContain('height must be a positive number');
+    });
   });
 });
