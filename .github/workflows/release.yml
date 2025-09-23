@@ -90,9 +90,15 @@ jobs:
           echo "✅ Tags pushed successfully"
 
       - name: Create GitHub Release
-        if: steps.changesets.outputs.hasChangesets == 'false'
+        if: steps.changesets.outputs.hasChangesets == 'false' && steps.changesets.outputs.published == 'true'
         run: |
           echo "🚀 Creating GitHub Release..."
+
+          # Check if tags exist before proceeding
+          if ! git describe --tags --abbrev=0 > /dev/null 2>&1; then
+            echo "⚠️ No tags found, skipping GitHub Release creation"
+            exit 0
+          fi
 
           # Get the latest tag
           LATEST_TAG=$(git describe --tags --abbrev=0)

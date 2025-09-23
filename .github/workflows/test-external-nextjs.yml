@@ -45,32 +45,35 @@ jobs:
       - name: Generate canary versions
         id: versions
         run: |
-          # Changesets로 다음 버전 계산
-          echo "Calculating next versions with changesets..."
-          pnpm changeset:version
+          # 현재 package.json에서 직접 버전 읽기 (package.release.json 의존성 제거)
+          echo "Reading current versions from package.json files..."
+          CORE_VERSION=$(node -p "require('./packages/core/package.json').version")
+          REACT_VERSION=$(node -p "require('./packages/react/package.json').version")
+          NEXTJS_VERSION=$(node -p "require('./packages/nextjs/package.json').version")
 
-          # 계산된 버전 추출
-          CORE_VERSION=$(node -p "require('./packages/core/package.release.json').version")
-          REACT_VERSION=$(node -p "require('./packages/react/package.release.json').version")
-          NEXTJS_VERSION=$(node -p "require('./packages/nextjs/package.release.json').version")
-
-          # 변경사항 되돌리기 (카나리 테스트용이므로)
-          git reset --hard HEAD
+          echo "Current versions:"
+          echo "- Core: ${CORE_VERSION}"
+          echo "- React: ${REACT_VERSION}"
+          echo "- NextJS: ${NEXTJS_VERSION}"
 
           # 고유한 카나리 suffix 생성
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
           COMMIT_SHA=${GITHUB_SHA::7}
           CANARY_SUFFIX="canary.${TIMESTAMP}.${COMMIT_SHA}"
 
-          # 카나리 버전 생성
-          echo "core-version=${CORE_VERSION}-${CANARY_SUFFIX}" >> $GITHUB_OUTPUT
-          echo "react-version=${REACT_VERSION}-${CANARY_SUFFIX}" >> $GITHUB_OUTPUT
-          echo "nextjs-version=${NEXTJS_VERSION}-${CANARY_SUFFIX}" >> $GITHUB_OUTPUT
+          # 카나리 버전 생성 (기존 버전에 카나리 suffix 추가)
+          CORE_CANARY="${CORE_VERSION}-${CANARY_SUFFIX}"
+          REACT_CANARY="${REACT_VERSION}-${CANARY_SUFFIX}"
+          NEXTJS_CANARY="${NEXTJS_VERSION}-${CANARY_SUFFIX}"
+
+          echo "core-version=${CORE_CANARY}" >> $GITHUB_OUTPUT
+          echo "react-version=${REACT_CANARY}" >> $GITHUB_OUTPUT
+          echo "nextjs-version=${NEXTJS_CANARY}" >> $GITHUB_OUTPUT
 
           echo "Generated canary versions:"
-          echo "- Core: ${CORE_VERSION}-${CANARY_SUFFIX}"
-          echo "- React: ${REACT_VERSION}-${CANARY_SUFFIX}"
-          echo "- NextJS: ${NEXTJS_VERSION}-${CANARY_SUFFIX}"
+          echo "- Core: ${CORE_CANARY}"
+          echo "- React: ${REACT_CANARY}"
+          echo "- NextJS: ${NEXTJS_CANARY}"
 
       - name: Update package versions for canary release
         run: |
@@ -97,16 +100,19 @@ jobs:
           # Publish in dependency order with canary tag
           echo "Publishing core package..."
           cd packages/core
+          cp package.release.json package.json  # Use canary version for publishing
           npm publish --tag canary --access public
           cd ../..
 
           echo "Publishing react package..."
           cd packages/react
+          cp package.release.json package.json  # Use canary version for publishing
           npm publish --tag canary --access public
           cd ../..
 
           echo "Publishing nextjs package..."
           cd packages/nextjs
+          cp package.release.json package.json  # Use canary version for publishing
           npm publish --tag canary --access public
           cd ../..
 
