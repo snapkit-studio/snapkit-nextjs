@@ -79,6 +79,8 @@ jobs:
           echo "  - NextJS: $NEXTJS_PATH"
 
       - name: Test external app with tarballs
+        env:
+          SNAPKIT_ORGANIZATION_NAME: test-org
         run: |
           # Copy test fixture to temp directory
           cp -r test-fixtures/nextjs-external-app /tmp/test-app
@@ -102,11 +104,15 @@ jobs:
           npx playwright install chromium
 
       - name: Run E2E tests
+        env:
+          SNAPKIT_ORGANIZATION_NAME: test-org
         run: |
           cd /tmp/test-app
           npx playwright test
 
       - name: Test SSR rendering
+        env:
+          SNAPKIT_ORGANIZATION_NAME: test-org
         run: |
           cd /tmp/test-app
 
@@ -127,6 +133,8 @@ jobs:
           kill %1
 
       - name: Test client hydration
+        env:
+          SNAPKIT_ORGANIZATION_NAME: test-org
         run: |
           cd /tmp/test-app
 
