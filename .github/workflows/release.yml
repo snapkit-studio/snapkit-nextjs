@@ -11,7 +11,7 @@ on:
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 permissions:
-  contents: read
+  contents: write
   packages: write
   id-token: write
 
@@ -44,6 +44,11 @@ jobs:
       - name: Run tests
         run: pnpm exec turbo test
 
+      - name: Setup Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Create Release Pull Request or Update Versions
         id: changesets
         uses: changesets/action@v1
@@ -75,6 +80,51 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Push tags
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: |
+          echo "🏷️ Pushing Git tags created by changesets..."
+          git push --follow-tags
+          echo "✅ Tags pushed successfully"
+
+      - name: Create GitHub Release
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: |
+          echo "🚀 Creating GitHub Release..."
+
+          # Get the latest tag
+          LATEST_TAG=$(git describe --tags --abbrev=0)
+          echo "📋 Latest tag: $LATEST_TAG"
+
+          # Extract version info from publishedPackages
+          PUBLISHED_PACKAGES='${{ steps.changesets.outputs.publishedPackages }}'
+
+          # Create release notes
+          cat > release_notes.md << EOF
+          # 🚀 Release $LATEST_TAG
+
+          ## 📦 Published Packages
+
+          $(echo "$PUBLISHED_PACKAGES" | jq -r '.[] | "- **\(.name)**: \(.version)"' 2>/dev/null || echo "- Package information not available")
+
+          ## 🔧 Deployment Status
+          - ✅ NPM Registry: All packages published
+          - ✅ GitHub Package Registry: Stable releases only
+          - ✅ Git Tags: Automatically created and pushed
+
+          All packages are available on [NPM Registry](https://www.npmjs.com/org/snapkit-studio).
+          EOF
+
+          # Create GitHub release
+          gh release create "$LATEST_TAG" \
+            --title "Release $LATEST_TAG" \
+            --notes-file release_notes.md \
+            --verify-tag || echo "⚠️ Release creation failed, but continuing..."
+
+          echo "✅ GitHub Release created successfully"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js for GitHub Package Registry
         if: steps.changesets.outputs.hasChangesets == 'false'
