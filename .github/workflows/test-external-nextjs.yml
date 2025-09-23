@@ -88,12 +88,20 @@ jobs:
           sed -i "s/\"@snapkit-studio\/core\": \".*\"/\"@snapkit-studio\/core\": \"${{ steps.versions.outputs.core-version }}\"/" packages/react/package.release.json
           sed -i "s/\"@snapkit-studio\/core\": \".*\"/\"@snapkit-studio\/core\": \"${{ steps.versions.outputs.core-version }}\"/" packages/nextjs/package.release.json
 
+          # Debug: Show updated versions
+          echo "Updated package.release.json versions:"
+          echo "Core: $(grep '"version":' packages/core/package.release.json)"
+          echo "React: $(grep '"version":' packages/react/package.release.json)"
+          echo "NextJS: $(grep '"version":' packages/nextjs/package.release.json)"
+
+      - name: Prepare packages for release
+        run: |
+          # Prepare packages for release with updated versions
+          pnpm prepare-release
+
       - name: Prepare and publish canary versions
         id: publish
         run: |
-          # Prepare packages for release
-          pnpm prepare-release
-
           # Configure NPM authentication
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
 
@@ -101,19 +109,31 @@ jobs:
           echo "Publishing core package..."
           cd packages/core
           cp package.release.json package.json  # Use canary version for publishing
-          npm publish --tag canary --access public
+          echo "About to publish $(node -p 'require("./package.json").name + "@" + require("./package.json").version')"
+          npm publish --tag canary --access public || {
+            echo "Core package publish failed. Checking if already exists..."
+            npm view "@snapkit-studio/core@$(node -p 'require("./package.json").version')" version && echo "Version already exists, continuing..." || exit 1
+          }
           cd ../..
 
           echo "Publishing react package..."
           cd packages/react
           cp package.release.json package.json  # Use canary version for publishing
-          npm publish --tag canary --access public
+          echo "About to publish $(node -p 'require("./package.json").name + "@" + require("./package.json").version')"
+          npm publish --tag canary --access public || {
+            echo "React package publish failed. Checking if already exists..."
+            npm view "@snapkit-studio/react@$(node -p 'require("./package.json").version')" version && echo "Version already exists, continuing..." || exit 1
+          }
           cd ../..
 
           echo "Publishing nextjs package..."
           cd packages/nextjs
           cp package.release.json package.json  # Use canary version for publishing
-          npm publish --tag canary --access public
+          echo "About to publish $(node -p 'require("./package.json").name + "@" + require("./package.json").version')"
+          npm publish --tag canary --access public || {
+            echo "NextJS package publish failed. Checking if already exists..."
+            npm view "@snapkit-studio/nextjs@$(node -p 'require("./package.json").version')" version && echo "Version already exists, continuing..." || exit 1
+          }
           cd ../..
 
           # Set outputs for other jobs
