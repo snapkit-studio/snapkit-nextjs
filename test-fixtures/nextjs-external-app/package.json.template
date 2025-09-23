@@ -9,9 +9,9 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@snapkit-studio/core": "file:CORE_TARBALL_PATH",
-    "@snapkit-studio/react": "file:REACT_TARBALL_PATH",
-    "@snapkit-studio/nextjs": "file:NEXTJS_TARBALL_PATH",
+    "@snapkit-studio/core": "CORE_TARBALL_PATH",
+    "@snapkit-studio/react": "REACT_TARBALL_PATH",
+    "@snapkit-studio/nextjs": "NEXTJS_TARBALL_PATH",
     "next": "15.5.3",
     "react": "19.1.0",
     "react-dom": "19.1.0"

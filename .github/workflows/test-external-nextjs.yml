@@ -1,4 +1,4 @@
-name: Test External Next.js App
+name: Test External Next.js with Canary
 
 on:
   push:
@@ -15,8 +15,12 @@ on:
       - '.github/workflows/test-external-nextjs.yml'
 
 jobs:
-  test-external-app:
+  publish-canary:
     runs-on: ubuntu-latest
+    outputs:
+      core-version: ${{ steps.publish.outputs.core-version }}
+      react-version: ${{ steps.publish.outputs.react-version }}
+      nextjs-version: ${{ steps.publish.outputs.nextjs-version }}
 
     steps:
       - name: Checkout code
@@ -30,6 +34,7 @@ jobs:
         with:
           node-version: 22
           cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -37,20 +42,73 @@ jobs:
       - name: Build packages
         run: pnpm build
 
-      - name: Prepare packages for external testing
+      - name: Generate canary versions
+        id: versions
         run: |
-          # Run prepare-release to replace workspace protocol
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          COMMIT_SHA=${GITHUB_SHA::7}
+          CANARY_SUFFIX="canary.${TIMESTAMP}.${COMMIT_SHA}"
+
+          echo "core-version=1.9.0-${CANARY_SUFFIX}" >> $GITHUB_OUTPUT
+          echo "react-version=1.7.0-${CANARY_SUFFIX}" >> $GITHUB_OUTPUT
+          echo "nextjs-version=1.7.0-${CANARY_SUFFIX}" >> $GITHUB_OUTPUT
+
+      - name: Update package versions for canary release
+        run: |
+          # Update package.release.json versions
+          sed -i "s/\"version\": \".*\"/\"version\": \"${{ steps.versions.outputs.core-version }}\"/" packages/core/package.release.json
+          sed -i "s/\"version\": \".*\"/\"version\": \"${{ steps.versions.outputs.react-version }}\"/" packages/react/package.release.json
+          sed -i "s/\"version\": \".*\"/\"version\": \"${{ steps.versions.outputs.nextjs-version }}\"/" packages/nextjs/package.release.json
+
+          # Update react dependency in nextjs package
+          sed -i "s/\"@snapkit-studio\/react\": \".*\"/\"@snapkit-studio\/react\": \"${{ steps.versions.outputs.react-version }}\"/" packages/nextjs/package.release.json
+          # Update core dependencies
+          sed -i "s/\"@snapkit-studio\/core\": \".*\"/\"@snapkit-studio\/core\": \"${{ steps.versions.outputs.core-version }}\"/" packages/react/package.release.json
+          sed -i "s/\"@snapkit-studio\/core\": \".*\"/\"@snapkit-studio\/core\": \"${{ steps.versions.outputs.core-version }}\"/" packages/nextjs/package.release.json
+
+      - name: Prepare and publish canary versions
+        id: publish
+        run: |
+          # Prepare packages for release
           pnpm prepare-release
 
-          # Create tarballs for each package
-          cd packages/core && pnpm pack && cd ../..
-          cd packages/react && pnpm pack && cd ../..
-          cd packages/nextjs && pnpm pack && cd ../..
+          # Configure NPM authentication
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
 
-          # Store tarball paths
-          echo "CORE_TARBALL=$(pwd)/packages/core/snapkit-studio-core-*.tgz" >> $GITHUB_ENV
-          echo "REACT_TARBALL=$(pwd)/packages/react/snapkit-studio-react-*.tgz" >> $GITHUB_ENV
-          echo "NEXTJS_TARBALL=$(pwd)/packages/nextjs/snapkit-studio-nextjs-*.tgz" >> $GITHUB_ENV
+          # Publish in dependency order with canary tag
+          echo "Publishing core package..."
+          cd packages/core
+          npm publish --tag canary --access public
+          cd ../..
+
+          echo "Publishing react package..."
+          cd packages/react
+          npm publish --tag canary --access public
+          cd ../..
+
+          echo "Publishing nextjs package..."
+          cd packages/nextjs
+          npm publish --tag canary --access public
+          cd ../..
+
+          # Set outputs for other jobs
+          echo "core-version=${{ steps.versions.outputs.core-version }}" >> $GITHUB_OUTPUT
+          echo "react-version=${{ steps.versions.outputs.react-version }}" >> $GITHUB_OUTPUT
+          echo "nextjs-version=${{ steps.versions.outputs.nextjs-version }}" >> $GITHUB_OUTPUT
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  test-external-app:
+    needs: publish-canary
+    runs-on: ubuntu-latest
+    env:
+      CORE_VERSION: ${{ needs.publish-canary.outputs.core-version }}
+      REACT_VERSION: ${{ needs.publish-canary.outputs.react-version }}
+      NEXTJS_VERSION: ${{ needs.publish-canary.outputs.nextjs-version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup external test app
         run: |
@@ -58,13 +116,13 @@ jobs:
           cp -r test-fixtures/nextjs-external-app /tmp/test-app
           cd /tmp/test-app
 
-          # Replace placeholders in package.json template
-          sed "s|CORE_TARBALL_PATH|$CORE_TARBALL|g" package.json.template > package.json.tmp
-          sed "s|REACT_TARBALL_PATH|$REACT_TARBALL|g" package.json.tmp > package.json.tmp2
-          sed "s|NEXTJS_TARBALL_PATH|$NEXTJS_TARBALL|g" package.json.tmp2 > package.json
+          # Replace placeholders in package.json template with canary versions
+          sed "s|CORE_TARBALL_PATH|$CORE_VERSION|g" package.json.template > package.json.tmp
+          sed "s|REACT_TARBALL_PATH|$REACT_VERSION|g" package.json.tmp > package.json.tmp2
+          sed "s|NEXTJS_TARBALL_PATH|$NEXTJS_VERSION|g" package.json.tmp2 > package.json
           rm package.json.tmp package.json.tmp2
 
-          # Install dependencies
+          # Install dependencies from NPM registry
           npm install
 
       - name: Build external test app
@@ -100,49 +158,28 @@ jobs:
 
   test-ssr-hydration:
     runs-on: ubuntu-latest
-    needs: test-external-app
+    needs: publish-canary
+    env:
+      CORE_VERSION: ${{ needs.publish-canary.outputs.core-version }}
+      REACT_VERSION: ${{ needs.publish-canary.outputs.react-version }}
+      NEXTJS_VERSION: ${{ needs.publish-canary.outputs.nextjs-version }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build packages
-        run: pnpm build
-
-      - name: Prepare packages for testing
-        run: |
-          pnpm prepare-release
-          cd packages/core && pnpm pack && cd ../..
-          cd packages/react && pnpm pack && cd ../..
-          cd packages/nextjs && pnpm pack && cd ../..
-
-          echo "CORE_TARBALL=$(pwd)/packages/core/snapkit-studio-core-*.tgz" >> $GITHUB_ENV
-          echo "REACT_TARBALL=$(pwd)/packages/react/snapkit-studio-react-*.tgz" >> $GITHUB_ENV
-          echo "NEXTJS_TARBALL=$(pwd)/packages/nextjs/snapkit-studio-nextjs-*.tgz" >> $GITHUB_ENV
 
       - name: Setup and test SSR
         run: |
           cp -r test-fixtures/nextjs-external-app /tmp/ssr-test
           cd /tmp/ssr-test
 
-          # Setup package.json
-          sed "s|CORE_TARBALL_PATH|$CORE_TARBALL|g" package.json.template > package.json.tmp
-          sed "s|REACT_TARBALL_PATH|$REACT_TARBALL|g" package.json.tmp > package.json.tmp2
-          sed "s|NEXTJS_TARBALL_PATH|$NEXTJS_TARBALL|g" package.json.tmp2 > package.json
+          # Setup package.json with canary versions
+          sed "s|CORE_TARBALL_PATH|$CORE_VERSION|g" package.json.template > package.json.tmp
+          sed "s|REACT_TARBALL_PATH|$REACT_VERSION|g" package.json.tmp > package.json.tmp2
+          sed "s|NEXTJS_TARBALL_PATH|$NEXTJS_VERSION|g" package.json.tmp2 > package.json
           rm package.json.tmp package.json.tmp2
 
+          # Install dependencies from NPM registry
           npm install
           npm run build
 
@@ -164,54 +201,60 @@ jobs:
 
   test-client-hydration:
     runs-on: ubuntu-latest
-    needs: test-external-app
+    needs: publish-canary
+    env:
+      CORE_VERSION: ${{ needs.publish-canary.outputs.core-version }}
+      REACT_VERSION: ${{ needs.publish-canary.outputs.react-version }}
+      NEXTJS_VERSION: ${{ needs.publish-canary.outputs.nextjs-version }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build packages
-        run: pnpm build
-
       - name: Prepare and test hydration
         run: |
-          pnpm prepare-release
-          cd packages/core && pnpm pack && cd ../..
-          cd packages/react && pnpm pack && cd ../..
-          cd packages/nextjs && pnpm pack && cd ../..
-
-          export CORE_TARBALL=$(pwd)/packages/core/snapkit-studio-core-*.tgz
-          export REACT_TARBALL=$(pwd)/packages/react/snapkit-studio-react-*.tgz
-          export NEXTJS_TARBALL=$(pwd)/packages/nextjs/snapkit-studio-nextjs-*.tgz
-
           cp -r test-fixtures/nextjs-external-app /tmp/hydration-test
           cd /tmp/hydration-test
 
-          # Setup package.json
-          sed "s|CORE_TARBALL_PATH|$CORE_TARBALL|g" package.json.template > package.json.tmp
-          sed "s|REACT_TARBALL_PATH|$REACT_TARBALL|g" package.json.tmp > package.json.tmp2
-          sed "s|NEXTJS_TARBALL_PATH|$NEXTJS_TARBALL|g" package.json.tmp2 > package.json
+          # Setup package.json with canary versions
+          sed "s|CORE_TARBALL_PATH|$CORE_VERSION|g" package.json.template > package.json.tmp
+          sed "s|REACT_TARBALL_PATH|$REACT_VERSION|g" package.json.tmp > package.json.tmp2
+          sed "s|NEXTJS_TARBALL_PATH|$NEXTJS_VERSION|g" package.json.tmp2 > package.json
           rm package.json.tmp package.json.tmp2
 
+          # Install dependencies from NPM registry
           npm install
           npx playwright install chromium
 
           # Run specific hydration test
           npx playwright test client-interaction.spec.ts --reporter=list
+
+  cleanup-canary:
+    runs-on: ubuntu-latest
+    needs: [publish-canary, test-external-app, test-ssr-hydration, test-client-hydration]
+    if: always()
+
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Cleanup canary versions
+        run: |
+          # Configure NPM authentication
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
+
+          # Unpublish canary versions (optional - for cleanup)
+          echo "Cleaning up canary versions..."
+          npm unpublish @snapkit-studio/nextjs@${{ needs.publish-canary.outputs.nextjs-version }} --force || echo "NextJS package cleanup failed or already removed"
+          npm unpublish @snapkit-studio/react@${{ needs.publish-canary.outputs.react-version }} --force || echo "React package cleanup failed or already removed"
+          npm unpublish @snapkit-studio/core@${{ needs.publish-canary.outputs.core-version }} --force || echo "Core package cleanup failed or already removed"
+
+          echo "Canary cleanup completed"
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   publish-test-report:
     runs-on: ubuntu-latest
