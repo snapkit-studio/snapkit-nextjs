@@ -16,7 +16,7 @@ describe('UrlBuilderFactory', () => {
   const mockConfig: SnapkitConfig = {
     organizationName: 'test-org',
     defaultQuality: 80,
-    defaultOptimizeFormat: 'auto',
+    defaultFormat: 'auto',
   };
 
   beforeEach(() => {
@@ -45,7 +45,7 @@ describe('UrlBuilderFactory', () => {
     it('Should return same instance even with different quality/format', () => {
       const config1 = { ...mockConfig, defaultQuality: 80 };
       const config2 = { ...mockConfig, defaultQuality: 90 };
-      const config3 = { ...mockConfig, defaultOptimizeFormat: 'webp' as const };
+      const config3 = { ...mockConfig, defaultFormat: 'webp' as const };
 
       const builder1 = UrlBuilderFactory.getInstance(config1);
       const builder2 = UrlBuilderFactory.getInstance(config2);
@@ -166,12 +166,12 @@ describe('UrlBuilderFactory', () => {
       const config1 = {
         organizationName: 'test-org',
         defaultQuality: 80,
-        defaultOptimizeFormat: 'webp' as const,
+        defaultFormat: 'webp' as const,
       };
       const config2 = {
         organizationName: 'test-org',
         defaultQuality: 90,
-        defaultOptimizeFormat: 'avif' as const,
+        defaultFormat: 'avif' as const,
       };
 
       const builder1 = UrlBuilderFactory.getInstance(config1);
@@ -204,7 +204,7 @@ describe('UrlBuilderFactory', () => {
       const config = {
         organizationName: '',
         defaultQuality: 80,
-        defaultOptimizeFormat: 'auto' as const,
+        defaultFormat: 'auto' as const,
       };
 
       const builder = UrlBuilderFactory.getInstance(config);
@@ -216,7 +216,7 @@ describe('UrlBuilderFactory', () => {
       const config = {
         organizationName: 'org-with-special_chars.123',
         defaultQuality: 80,
-        defaultOptimizeFormat: 'auto' as const,
+        defaultFormat: 'auto' as const,
       };
 
       const builder = UrlBuilderFactory.getInstance(config);

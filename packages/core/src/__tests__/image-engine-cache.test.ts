@@ -16,7 +16,7 @@ describe('ImageEngineCache', () => {
   const mockConfig: SnapkitConfig = {
     organizationName: 'test-org',
     defaultQuality: 80,
-    defaultOptimizeFormat: 'auto',
+    defaultFormat: 'auto',
   };
 
   beforeEach(() => {
@@ -248,7 +248,7 @@ describe('ImageEngineCache', () => {
         { ...mockConfig, organizationName: 'org1' },
         { ...mockConfig, organizationName: 'org2' },
         { ...mockConfig, defaultQuality: 90 },
-        { ...mockConfig, defaultOptimizeFormat: 'webp' as const },
+        { ...mockConfig, defaultFormat: 'webp' as const },
       ];
 
       const engines = configs.map(config => ImageEngineCache.getInstance(config));

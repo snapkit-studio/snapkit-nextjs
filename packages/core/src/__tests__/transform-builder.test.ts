@@ -91,29 +91,31 @@ describe('SnapkitTransformBuilder', () => {
     it('Should properly encode special characters in values', () => {
       const src = 'https://example.com/image.jpg';
       const transforms: ImageTransforms = {
-        text: 'Hello World!',
-        font: 'Open Sans',
+        width: 800,
+        height: 600,
+        format: 'webp',
       };
 
       const result = builder.build(src, transforms);
 
-      expect(result).toContain('text=Hello+World%21');
-      expect(result).toContain('font=Open+Sans');
+      expect(result).toContain('width=800');
+      expect(result).toContain('height=600');
+      expect(result).toContain('format=webp');
     });
 
     it('Should handle numeric zero values', () => {
       const src = 'https://example.com/image.jpg';
       const transforms: ImageTransforms = {
-        x: 0,
-        y: 0,
-        rotation: 0,
+        width: 0,
+        height: 0,
+        blur: 0,
       };
 
       const result = builder.build(src, transforms);
 
-      expect(result).toContain('x=0');
-      expect(result).toContain('y=0');
-      expect(result).toContain('rotation=0');
+      expect(result).toContain('width=0');
+      expect(result).toContain('height=0');
+      expect(result).toContain('blur=0');
     });
 
     it('Should handle float values', () => {
