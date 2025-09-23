@@ -1,4 +1,9 @@
-import { DemoLayout, ExampleContainer, type NavGroup } from '@repo/demo-components';
+import {
+  DemoLayout,
+  ExampleContainer,
+  type NavGroup,
+} from '@repo/demo-components';
+
 import { DPROptimizationExample } from './examples/DPROptimizationExample';
 import { ReactServerComponentExample } from './examples/ReactServerComponentExample';
 import ServerClientImageExample from './examples/ServerClientImageExample';
@@ -7,30 +12,34 @@ import { SnapkitImageExample } from './examples/SnapkitImageExample';
 const navigation: NavGroup[] = [
   {
     title: 'Basic Features',
-    items: [
-      { id: 'basic', title: 'Basic Image Component', href: '#basic' },
-    ],
+    items: [{ id: 'basic', title: 'Basic Image Component', href: '#basic' }],
     defaultOpen: true,
   },
   {
     title: 'Next.js Features',
     items: [
-      { id: 'server-client', title: 'Server/Client Components', href: '#server-client' },
+      {
+        id: 'server-client',
+        title: 'Server/Client Components',
+        href: '#server-client',
+      },
     ],
     defaultOpen: true,
   },
   {
     title: 'React Features',
     items: [
-      { id: 'react-server-client', title: 'React Server Components', href: '#react-server-client' },
+      {
+        id: 'react-server-client',
+        title: 'React Server Components',
+        href: '#react-server-client',
+      },
     ],
     defaultOpen: true,
   },
   {
     title: 'Performance',
-    items: [
-      { id: 'dpr', title: 'DPR Optimization', href: '#dpr' },
-    ],
+    items: [{ id: 'dpr', title: 'DPR Optimization', href: '#dpr' }],
     defaultOpen: true,
   },
 ];

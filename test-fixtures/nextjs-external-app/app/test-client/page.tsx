@@ -1,19 +1,19 @@
 'use client';
 
-import { Image } from '@snapkit-studio/nextjs';
 import { useState } from 'react';
+import { Image } from '@snapkit-studio/nextjs';
 
 export default function TestClientPage() {
   const [loadStatus, setLoadStatus] = useState<Record<string, string>>({});
   const [errorStatus, setErrorStatus] = useState<Record<string, string>>({});
 
   const handleLoad = (id: string) => {
-    setLoadStatus(prev => ({ ...prev, [id]: 'loaded' }));
+    setLoadStatus((prev) => ({ ...prev, [id]: 'loaded' }));
     console.log(`Image ${id} loaded`);
   };
 
   const handleError = (id: string) => {
-    setErrorStatus(prev => ({ ...prev, [id]: 'error' }));
+    setErrorStatus((prev) => ({ ...prev, [id]: 'error' }));
     console.error(`Image ${id} failed to load`);
   };
 
@@ -95,7 +95,13 @@ export default function TestClientPage() {
         {/* 5. Interactive gallery */}
         <section data-testid="client-gallery">
           <h2>5. Interactive Gallery (All ClientImages)</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: '1rem',
+            }}
+          >
             {[1, 2, 3, 4, 5, 6].map((num) => (
               <div key={num} style={{ position: 'relative' }}>
                 <Image
@@ -116,7 +122,7 @@ export default function TestClientPage() {
                     color: 'white',
                     padding: '4px 8px',
                     borderRadius: '4px',
-                    fontSize: '12px'
+                    fontSize: '12px',
                   }}
                   data-testid={`status-gallery${num}`}
                 >
@@ -129,13 +135,25 @@ export default function TestClientPage() {
         </section>
 
         {/* Status summary */}
-        <section data-testid="status-summary" style={{ marginTop: '3rem', padding: '1rem', background: '#f0f0f0', borderRadius: '8px' }}>
+        <section
+          data-testid="status-summary"
+          style={{
+            marginTop: '3rem',
+            padding: '1rem',
+            background: '#f0f0f0',
+            borderRadius: '8px',
+          }}
+        >
           <h3>Load Status Summary:</h3>
-          <pre data-testid="load-status-json">{JSON.stringify(loadStatus, null, 2)}</pre>
+          <pre data-testid="load-status-json">
+            {JSON.stringify(loadStatus, null, 2)}
+          </pre>
           {Object.keys(errorStatus).length > 0 && (
             <>
               <h3>Error Status:</h3>
-              <pre data-testid="error-status-json">{JSON.stringify(errorStatus, null, 2)}</pre>
+              <pre data-testid="error-status-json">
+                {JSON.stringify(errorStatus, null, 2)}
+              </pre>
             </>
           )}
         </section>

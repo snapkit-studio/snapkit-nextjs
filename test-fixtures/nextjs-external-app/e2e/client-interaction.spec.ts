@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('ClientImage Interactions', () => {
   test.beforeEach(async ({ page }) => {
@@ -7,10 +7,13 @@ test.describe('ClientImage Interactions', () => {
 
   test('should handle onLoad events', async ({ page }) => {
     // Wait for the first image to load
-    await page.waitForFunction(() => {
-      const status = document.querySelector('[data-testid="status-image1"]');
-      return status?.textContent?.includes('loaded');
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+      () => {
+        const status = document.querySelector('[data-testid="status-image1"]');
+        return status?.textContent?.includes('loaded');
+      },
+      { timeout: 10000 },
+    );
 
     // Check that load status is updated
     const status = page.locator('[data-testid="status-image1"]');
@@ -18,7 +21,7 @@ test.describe('ClientImage Interactions', () => {
 
     // Verify console log was called
     const consoleLogs: string[] = [];
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'log') {
         consoleLogs.push(msg.text());
       }
@@ -29,16 +32,25 @@ test.describe('ClientImage Interactions', () => {
     await page.waitForTimeout(2000);
 
     // Check for load event logs
-    const hasLoadLog = consoleLogs.some(log => log.includes('Image image1 loaded'));
-    expect(hasLoadLog || (await status.textContent())?.includes('loaded')).toBeTruthy();
+    const hasLoadLog = consoleLogs.some((log) =>
+      log.includes('Image image1 loaded'),
+    );
+    expect(
+      hasLoadLog || (await status.textContent())?.includes('loaded'),
+    ).toBeTruthy();
   });
 
   test('should handle onError events', async ({ page }) => {
     // Wait for error to occur
-    await page.waitForFunction(() => {
-      const status = document.querySelector('[data-testid="status-error-image2"]');
-      return status?.textContent?.includes('error');
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+      () => {
+        const status = document.querySelector(
+          '[data-testid="status-error-image2"]',
+        );
+        return status?.textContent?.includes('error');
+      },
+      { timeout: 10000 },
+    );
 
     // Check that error status is updated
     const errorStatus = page.locator('[data-testid="status-error-image2"]');
@@ -50,10 +62,13 @@ test.describe('ClientImage Interactions', () => {
     await expect(networkImage).toBeVisible();
 
     // Wait for image to load
-    await page.waitForFunction(() => {
-      const status = document.querySelector('[data-testid="status-image3"]');
-      return status?.textContent?.includes('loaded');
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+      () => {
+        const status = document.querySelector('[data-testid="status-image3"]');
+        return status?.textContent?.includes('loaded');
+      },
+      { timeout: 10000 },
+    );
 
     // Network adaptive images should be ClientImage components
     const status = page.locator('[data-testid="status-image3"]');
@@ -61,25 +76,37 @@ test.describe('ClientImage Interactions', () => {
   });
 
   test('should force client mode when specified', async ({ page }) => {
-    const forcedClientImage = page.locator('[data-testid="client-image-forced"]');
+    const forcedClientImage = page.locator(
+      '[data-testid="client-image-forced"]',
+    );
     await expect(forcedClientImage).toBeVisible();
 
     // Wait for forced client image to load
-    await page.waitForFunction(() => {
-      const status = document.querySelector('[data-testid="status-image4"]');
-      return status?.textContent?.includes('loaded');
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+      () => {
+        const status = document.querySelector('[data-testid="status-image4"]');
+        return status?.textContent?.includes('loaded');
+      },
+      { timeout: 10000 },
+    );
 
     const status = page.locator('[data-testid="status-image4"]');
     await expect(status).toContainText('loaded');
   });
 
-  test('should load gallery images with individual status', async ({ page }) => {
+  test('should load gallery images with individual status', async ({
+    page,
+  }) => {
     // Wait for at least one gallery image to load
-    await page.waitForFunction(() => {
-      const statuses = document.querySelectorAll('[data-testid^="status-gallery"]');
-      return Array.from(statuses).some(s => s.textContent?.includes('✓'));
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+      () => {
+        const statuses = document.querySelectorAll(
+          '[data-testid^="status-gallery"]',
+        );
+        return Array.from(statuses).some((s) => s.textContent?.includes('✓'));
+      },
+      { timeout: 10000 },
+    );
 
     // Check that gallery images have status indicators
     const galleryStatuses = page.locator('[data-testid^="status-gallery"]');
@@ -112,7 +139,9 @@ test.describe('ClientImage Interactions', () => {
     }
   });
 
-  test('should handle multiple client images on same page', async ({ page }) => {
+  test('should handle multiple client images on same page', async ({
+    page,
+  }) => {
     // Count all client images
     const clientImages = page.locator('[data-testid^="client-image-"]');
     const count = await clientImages.count();
@@ -126,7 +155,9 @@ test.describe('ClientImage Interactions', () => {
     }
   });
 
-  test('should maintain interactivity with JavaScript enabled', async ({ page }) => {
+  test('should maintain interactivity with JavaScript enabled', async ({
+    page,
+  }) => {
     // Ensure JavaScript is enabled
     await page.setJavaScriptEnabled(true);
 
@@ -136,9 +167,11 @@ test.describe('ClientImage Interactions', () => {
 
     // Verify the page has client-side React hydration
     const hasReactRoot = await page.evaluate(() => {
-      return document.querySelector('#__next') !== null ||
-             document.querySelector('[data-reactroot]') !== null ||
-             document.querySelector('body > div') !== null;
+      return (
+        document.querySelector('#__next') !== null ||
+        document.querySelector('[data-reactroot]') !== null ||
+        document.querySelector('body > div') !== null
+      );
     });
     expect(hasReactRoot).toBeTruthy();
   });

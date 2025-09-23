@@ -24,13 +24,9 @@ export function ExampleContainer({
             <h4 className="mb-4 text-lg font-medium text-gray-700">
               Live Demo
             </h4>
-            <div className="rounded-lg bg-gray-100 p-4 lg:p-6">
-              {children}
-            </div>
+            <div className="rounded-lg bg-gray-100 p-4 lg:p-6">{children}</div>
             {description && (
-              <p className="mt-4 text-sm text-gray-600">
-                {description}
-              </p>
+              <p className="mt-4 text-sm text-gray-600">{description}</p>
             )}
           </div>
 
@@ -40,9 +36,7 @@ export function ExampleContainer({
               <h4 className="mb-4 text-lg font-medium text-gray-700">
                 Implementation
               </h4>
-              <CodeBlock language={language}>
-                {code}
-              </CodeBlock>
+              <CodeBlock language={language}>{code}</CodeBlock>
             </div>
           )}
         </div>

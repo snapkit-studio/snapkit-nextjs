@@ -12,7 +12,10 @@ export function useScrollSpy(elementIds: string[], offset = 100) {
         if (!element) continue;
 
         const { offsetTop, offsetHeight } = element;
-        if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+        if (
+          scrollPosition >= offsetTop &&
+          scrollPosition < offsetTop + offsetHeight
+        ) {
           setActiveId(id);
           break;
         }

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Auto Component Selection', () => {
   test.beforeEach(async ({ page }) => {
@@ -18,13 +18,15 @@ test.describe('Auto Component Selection', () => {
     await expect(serverImage).toHaveAttribute('loading', 'eager');
   });
 
-  test('should auto-select ClientImage when onLoad is present', async ({ page }) => {
+  test('should auto-select ClientImage when onLoad is present', async ({
+    page,
+  }) => {
     const clientImage = page.locator('[data-testid="auto-image-client"]');
     await expect(clientImage).toBeVisible();
 
     // Set up console listener before any actions
     const consoleLogs: string[] = [];
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'log') {
         consoleLogs.push(msg.text());
       }
@@ -34,12 +36,12 @@ test.describe('Auto Component Selection', () => {
     await page.waitForTimeout(3000);
 
     // Should have triggered onLoad (check console or DOM updates)
-    const hasLoadLog = consoleLogs.some(log =>
-      log.includes('Auto-selected client image loaded')
+    const hasLoadLog = consoleLogs.some((log) =>
+      log.includes('Auto-selected client image loaded'),
     );
 
     // The presence of onLoad makes it a ClientImage
-    expect(hasLoadLog || await clientImage.isVisible()).toBeTruthy();
+    expect(hasLoadLog || (await clientImage.isVisible())).toBeTruthy();
   });
 
   test('should force server mode despite client features', async ({ page }) => {
@@ -58,7 +60,9 @@ test.describe('Auto Component Selection', () => {
     await expect(forcedServer).toBeVisible();
   });
 
-  test('should force client mode despite no client features', async ({ page }) => {
+  test('should force client mode despite no client features', async ({
+    page,
+  }) => {
     const forcedClient = page.locator('[data-testid="forced-client-image"]');
     await expect(forcedClient).toBeVisible();
 
@@ -67,7 +71,9 @@ test.describe('Auto Component Selection', () => {
     await expect(forcedClient).toHaveAttribute('height', '600');
   });
 
-  test('should auto-select client for network-adaptive features', async ({ page }) => {
+  test('should auto-select client for network-adaptive features', async ({
+    page,
+  }) => {
     const networkImage = page.locator('[data-testid="auto-image-network"]');
     await expect(networkImage).toBeVisible();
 
@@ -100,7 +106,9 @@ test.describe('Auto Component Selection', () => {
     expect(count).toBe(4);
   });
 
-  test('should maintain proper selection with JS disabled', async ({ page }) => {
+  test('should maintain proper selection with JS disabled', async ({
+    page,
+  }) => {
     // Disable JavaScript
     await page.setJavaScriptEnabled(false);
     await page.reload();
@@ -110,7 +118,7 @@ test.describe('Auto Component Selection', () => {
       '[data-testid="auto-image-server"]',
       '[data-testid="forced-server-image"]',
       '[data-testid="mixed-server"]',
-      '[data-testid="mixed-priority"]'
+      '[data-testid="mixed-priority"]',
     ];
 
     for (const selector of serverImages) {
@@ -148,21 +156,29 @@ test.describe('Auto Component Selection', () => {
     await expect(mixedSelection).toHaveCount(4);
   });
 
-  test('should verify optimize prop overrides auto-selection', async ({ page }) => {
+  test('should verify optimize prop overrides auto-selection', async ({
+    page,
+  }) => {
     // Get all images with optimize prop
-    const forcedServerWithClient = page.locator('[data-testid="forced-server-image"]');
-    const forcedClientWithoutHandlers = page.locator('[data-testid="forced-client-image"]');
+    const forcedServerWithClient = page.locator(
+      '[data-testid="forced-server-image"]',
+    );
+    const forcedClientWithoutHandlers = page.locator(
+      '[data-testid="forced-client-image"]',
+    );
 
     // Both should be visible
     await expect(forcedServerWithClient).toBeVisible();
     await expect(forcedClientWithoutHandlers).toBeVisible();
 
     // Verify optimize="server" works even with client features
-    const serverOptimize = await forcedServerWithClient.getAttribute('data-testid');
+    const serverOptimize =
+      await forcedServerWithClient.getAttribute('data-testid');
     expect(serverOptimize).toBe('forced-server-image');
 
     // Verify optimize="client" works even without client features
-    const clientOptimize = await forcedClientWithoutHandlers.getAttribute('data-testid');
+    const clientOptimize =
+      await forcedClientWithoutHandlers.getAttribute('data-testid');
     expect(clientOptimize).toBe('forced-client-image');
   });
 });

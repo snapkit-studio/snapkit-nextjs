@@ -1,11 +1,13 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('ServerImage Rendering', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/test-server');
   });
 
-  test('should render basic ServerImage without client JS', async ({ page }) => {
+  test('should render basic ServerImage without client JS', async ({
+    page,
+  }) => {
     // Check basic image is rendered
     const basicImage = page.locator('[data-testid="server-image-basic"]');
     await expect(basicImage).toBeVisible();
@@ -34,13 +36,15 @@ test.describe('ServerImage Rendering', () => {
   });
 
   test('should render responsive ServerImage with sizes', async ({ page }) => {
-    const responsiveImage = page.locator('[data-testid="server-image-responsive"]');
+    const responsiveImage = page.locator(
+      '[data-testid="server-image-responsive"]',
+    );
     await expect(responsiveImage).toBeVisible();
 
     // Check sizes attribute
     await expect(responsiveImage).toHaveAttribute(
       'sizes',
-      '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+      '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
     );
 
     // Should have srcset with multiple sizes
@@ -74,8 +78,12 @@ test.describe('ServerImage Rendering', () => {
     // The actual format transformation would be applied by the image optimization service
   });
 
-  test('should have proper lazy loading for non-priority images', async ({ page }) => {
-    const nonPriorityImages = page.locator('[data-testid^="server-image-"]:not([data-testid="server-image-priority"])');
+  test('should have proper lazy loading for non-priority images', async ({
+    page,
+  }) => {
+    const nonPriorityImages = page.locator(
+      '[data-testid^="server-image-"]:not([data-testid="server-image-priority"])',
+    );
     const count = await nonPriorityImages.count();
 
     for (let i = 0; i < count; i++) {

@@ -96,8 +96,8 @@ npm run preview
 ### Vite Configuration (`vite.config.ts`)
 
 ```typescript
-import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [react()],
@@ -116,7 +116,7 @@ export default defineConfig({
 ### ESLint Configuration (`eslint.config.js`)
 
 ```javascript
-import { config } from "@repo/eslint-config/react-internal";
+import { config } from '@repo/eslint-config/react-internal';
 
 export default config;
 ```
@@ -133,7 +133,7 @@ The demo uses sample images located at:
 ### Basic Image Usage
 
 ```tsx
-import { Image } from "@snapkit-studio/react";
+import { Image } from '@snapkit-studio/react';
 
 <Image
   src="/landing-page/fox.jpg"
@@ -141,13 +141,13 @@ import { Image } from "@snapkit-studio/react";
   width={300}
   height={200}
   className="rounded-lg shadow-md"
-/>
+/>;
 ```
 
 ### Error Boundary Protection
 
 ```tsx
-import { ImageErrorBoundary, Image } from "@snapkit-studio/react";
+import { Image, ImageErrorBoundary } from '@snapkit-studio/react';
 
 <ImageErrorBoundary
   fallback={<CustomErrorFallback />}
@@ -159,14 +159,19 @@ import { ImageErrorBoundary, Image } from "@snapkit-studio/react";
     width={300}
     height={200}
   />
-</ImageErrorBoundary>
+</ImageErrorBoundary>;
 ```
 
 ### Fill Mode with Container
 
 ```tsx
 <div className="relative h-64 w-full overflow-hidden rounded-lg">
-  <Image src="/landing-page/fox.jpg" alt="Fill mode example" fill={true} className="object-cover" />
+  <Image
+    src="/landing-page/fox.jpg"
+    alt="Fill mode example"
+    fill={true}
+    className="object-cover"
+  />
 </div>
 ```
 
@@ -329,7 +334,13 @@ The demo uses Tailwind CSS utility classes. Modify classes in JSX or add custom 
 
 ```tsx
 // Custom component styling
-<Image src="/custom-image.jpg" alt="Custom styled" width={400} height={300} className="your-custom-classes" />
+<Image
+  src="/custom-image.jpg"
+  alt="Custom styled"
+  width={400}
+  height={300}
+  className="your-custom-classes"
+/>
 ```
 
 ## Troubleshooting

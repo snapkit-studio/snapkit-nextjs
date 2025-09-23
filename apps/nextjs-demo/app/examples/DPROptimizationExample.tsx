@@ -1,5 +1,5 @@
-import { Image } from '@snapkit-studio/nextjs';
 import { CodeBlock } from '@repo/demo-components';
+import { Image } from '@snapkit-studio/nextjs';
 
 export function DPROptimizationExample() {
   return (

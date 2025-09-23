@@ -4,7 +4,10 @@ export default function TestAutoSelectPage() {
   return (
     <div className="test-auto-select-page" style={{ padding: '2rem' }}>
       <h1>Auto Component Selection Test</h1>
-      <p>This page tests automatic selection between ServerImage and ClientImage based on props</p>
+      <p>
+        This page tests automatic selection between ServerImage and ClientImage
+        based on props
+      </p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         {/* Should render as ServerImage (no client features) */}
@@ -44,7 +47,7 @@ export default function TestAutoSelectPage() {
             width={800}
             height={600}
             optimize="server"
-            adjustQualityByNetwork={true}  // This would normally trigger client mode
+            adjustQualityByNetwork={true} // This would normally trigger client mode
             data-testid="forced-server-image"
           />
           <p>optimize="server" overrides client features</p>
@@ -81,7 +84,13 @@ export default function TestAutoSelectPage() {
         {/* Multiple images with different selection logic */}
         <section data-testid="mixed-selection">
           <h2>6. Mixed Selection in Same Page</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: '1rem',
+            }}
+          >
             <div>
               <Image
                 src="https://picsum.photos/400/300?server"

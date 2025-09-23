@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import type { DemoLayoutProps } from '../../types';
-import { useScrollSpy } from '../../hooks/useScrollSpy';
+import { useEffect, useState } from 'react';
+
 import { useIsMobile } from '../../hooks/useMediaQuery';
-import { Sidebar } from './Sidebar';
+import { useScrollSpy } from '../../hooks/useScrollSpy';
+import type { DemoLayoutProps } from '../../types';
 import { MobileMenu } from './MobileMenu';
+import { Sidebar } from './Sidebar';
 
 export function DemoLayout({
   title,
@@ -17,7 +18,9 @@ export function DemoLayout({
   const isMobile = useIsMobile();
 
   // Get all navigation item IDs
-  const allIds = navigation.flatMap(group => group.items.map(item => item.id));
+  const allIds = navigation.flatMap((group) =>
+    group.items.map((item) => item.id),
+  );
   const activeId = useScrollSpy(allIds);
 
   // Close sidebar when switching to desktop view
@@ -53,16 +56,14 @@ export function DemoLayout({
                 {title}
               </h1>
               {description && (
-                <p className="mt-4 text-lg text-gray-600 lg:text-xl max-w-3xl">
+                <p className="mt-4 max-w-3xl text-lg text-gray-600 lg:text-xl">
                   {description}
                 </p>
               )}
             </div>
 
             {/* Content */}
-            <div className="space-y-16">
-              {children}
-            </div>
+            <div className="space-y-16">{children}</div>
           </div>
         </main>
       </div>

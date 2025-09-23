@@ -1,11 +1,11 @@
 import { useState } from 'react';
+import { CodeBlock } from '@repo/demo-components';
 //
 import {
   Image,
   ImageErrorBoundary,
   withImageErrorBoundary,
 } from '@snapkit-studio/react';
-import { CodeBlock } from '@repo/demo-components';
 
 // Custom error fallback component
 function CustomErrorFallback({ error }: { error?: Error }) {

@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { createHighlighter, type Highlighter } from 'shiki';
 import { clsx } from 'clsx';
+import { createHighlighter, type Highlighter } from 'shiki';
+
 import type { CodeBlockProps } from '../../types';
 
 let highlighterInstance: Highlighter | null = null;
@@ -58,7 +59,7 @@ export function CodeBlock({
         console.error('Failed to highlight code:', error);
         // Fallback to plain text with basic styling
         setHighlightedCode(
-          `<pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm"><code>${children}</code></pre>`
+          `<pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm"><code>${children}</code></pre>`,
         );
       } finally {
         setIsLoading(false);
@@ -83,7 +84,7 @@ export function CodeBlock({
       <pre
         className={clsx(
           'animate-pulse overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-gray-100',
-          className
+          className,
         )}
       >
         <code>{children}</code>
@@ -92,11 +93,11 @@ export function CodeBlock({
   }
 
   return (
-    <div className="relative group">
+    <div className="group relative">
       {/* Copy button */}
       <button
         onClick={handleCopy}
-        className="absolute right-2 top-2 z-10 rounded-md bg-gray-700 px-2 py-1 text-xs text-gray-300 opacity-0 transition-opacity hover:bg-gray-600 group-hover:opacity-100"
+        className="absolute top-2 right-2 z-10 rounded-md bg-gray-700 px-2 py-1 text-xs text-gray-300 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-gray-600"
         aria-label="Copy code"
       >
         {copied ? 'Copied!' : 'Copy'}
@@ -104,7 +105,7 @@ export function CodeBlock({
 
       {/* Language label */}
       {language && (
-        <div className="absolute left-4 top-2 z-10 text-xs text-gray-400 opacity-60">
+        <div className="absolute top-2 left-4 z-10 text-xs text-gray-400 opacity-60">
           {language}
         </div>
       )}

@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @config "./tailwind.config.js";
 
 /* Shiki code highlighting custom styles */
@@ -22,7 +22,9 @@
 }
 
 .shiki code {
-  font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", "Consolas", "Courier New", monospace;
+  font-family:
+    'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas',
+    'Courier New', monospace;
   font-size: inherit;
   line-height: inherit;
   background: transparent;
