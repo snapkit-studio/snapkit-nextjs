@@ -45,13 +45,32 @@ jobs:
       - name: Generate canary versions
         id: versions
         run: |
+          # Changesets로 다음 버전 계산
+          echo "Calculating next versions with changesets..."
+          pnpm changeset:version
+
+          # 계산된 버전 추출
+          CORE_VERSION=$(node -p "require('./packages/core/package.release.json').version")
+          REACT_VERSION=$(node -p "require('./packages/react/package.release.json').version")
+          NEXTJS_VERSION=$(node -p "require('./packages/nextjs/package.release.json').version")
+
+          # 변경사항 되돌리기 (카나리 테스트용이므로)
+          git reset --hard HEAD
+
+          # 고유한 카나리 suffix 생성
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
           COMMIT_SHA=${GITHUB_SHA::7}
           CANARY_SUFFIX="canary.${TIMESTAMP}.${COMMIT_SHA}"
 
-          echo "core-version=1.9.0-${CANARY_SUFFIX}" >> $GITHUB_OUTPUT
-          echo "react-version=1.7.0-${CANARY_SUFFIX}" >> $GITHUB_OUTPUT
-          echo "nextjs-version=1.7.0-${CANARY_SUFFIX}" >> $GITHUB_OUTPUT
+          # 카나리 버전 생성
+          echo "core-version=${CORE_VERSION}-${CANARY_SUFFIX}" >> $GITHUB_OUTPUT
+          echo "react-version=${REACT_VERSION}-${CANARY_SUFFIX}" >> $GITHUB_OUTPUT
+          echo "nextjs-version=${NEXTJS_VERSION}-${CANARY_SUFFIX}" >> $GITHUB_OUTPUT
+
+          echo "Generated canary versions:"
+          echo "- Core: ${CORE_VERSION}-${CANARY_SUFFIX}"
+          echo "- React: ${REACT_VERSION}-${CANARY_SUFFIX}"
+          echo "- NextJS: ${NEXTJS_VERSION}-${CANARY_SUFFIX}"
 
       - name: Update package versions for canary release
         run: |
