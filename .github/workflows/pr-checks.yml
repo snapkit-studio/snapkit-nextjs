@@ -52,7 +52,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        package: ['@snapkit-studio/core', '@snapkit-studio/react', '@snapkit-studio/nextjs']
+        package:
+          [
+            '@snapkit-studio/core',
+            '@snapkit-studio/react',
+            '@snapkit-studio/nextjs',
+          ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

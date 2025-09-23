@@ -1,7 +1,7 @@
 name: ⚡ Performance Issue
 description: Report performance problems, slowdowns, or optimization opportunities
-title: "[Performance]: "
-labels: ["performance", "needs-investigation"]
+title: '[Performance]: '
+labels: ['performance', 'needs-investigation']
 assignees: []
 
 body:

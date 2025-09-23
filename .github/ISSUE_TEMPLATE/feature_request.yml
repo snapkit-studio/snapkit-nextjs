@@ -1,7 +1,7 @@
 name: ✨ Feature Request
 description: Suggest a new feature or enhancement for Snapkit
-title: "[Feature]: "
-labels: ["enhancement", "needs-triage"]
+title: '[Feature]: '
+labels: ['enhancement', 'needs-triage']
 assignees: []
 
 body:
@@ -76,7 +76,7 @@ body:
       description: Describe how different users would benefit from this feature.
       placeholder: |
         As a [type of user], I want [goal] so that [benefit].
-        
+
         Example:
         - As a designer, I want to bulk upload images with automatic tagging so that I can organize my assets more efficiently.
         - As a developer, I want API rate limiting information so that I can optimize my integration.

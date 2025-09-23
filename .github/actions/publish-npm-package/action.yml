@@ -98,8 +98,8 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: 22
-        registry-url: "https://npm.pkg.github.com"
-        scope: "@snapkit-studio"
+        registry-url: 'https://npm.pkg.github.com'
+        scope: '@snapkit-studio'
 
     - name: Publish to GitHub Packages
       if: inputs.dry-run != 'true' && steps.npm-check.outputs.exists != 'true'
