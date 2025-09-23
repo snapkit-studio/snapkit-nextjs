@@ -90,16 +90,16 @@ jobs:
           sed "s|NEXTJS_TARBALL_PATH|${{ steps.tarballs.outputs.nextjs-tarball }}|g" package.json.tmp2 > package.json
           rm package.json.tmp package.json.tmp2
 
-          # Create .env.production file with required environment variables
-          cat > .env.production << EOF
-          SNAPKIT_ORGANIZATION_NAME=test-org
-          EOF
-
           # Install dependencies from tarballs
           npm install
 
-          # Build the test app
-          npm run build
+          # Create .env.local file with required environment variables
+          cat > .env.local << EOF
+          SNAPKIT_ORGANIZATION_NAME=test-org
+          EOF
+
+          # Build the test app with environment variable
+          SNAPKIT_ORGANIZATION_NAME=test-org npm run build
 
       - name: Install Playwright browsers
         run: |
