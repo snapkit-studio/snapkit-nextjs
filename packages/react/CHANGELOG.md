@@ -1,5 +1,22 @@
 # @snapkit-studio/react
 
+## 1.7.1
+
+### Patch Changes
+
+- 471cffd: test: verify automated release workflow improvements
+
+  This changeset tests the complete automation of the release workflow including:
+  - Git tag creation and push
+  - GitHub release generation
+  - NPM and GitHub Package Registry deployment
+  - Prerelease version filtering
+
+  All packages should be bumped to test the improved CI/CD pipeline.
+
+- Updated dependencies [471cffd]
+  - @snapkit-studio/core@1.9.1
+
 ## 1.7.0
 
 ### Patch Changes
