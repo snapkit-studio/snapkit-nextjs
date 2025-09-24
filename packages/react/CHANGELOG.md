@@ -1,5 +1,19 @@
 # @snapkit-studio/react
 
+## 1.7.3
+
+### Patch Changes
+
+- 3e7e59b: Fix canary release dependency resolution
+  - Improve prepare-release script to handle canary versions correctly
+  - Ensure canary packages reference each other with exact versions
+  - Fix npm installation issues in test environments
+
+- 531635d: Test canary release process
+- Updated dependencies [3e7e59b]
+- Updated dependencies [531635d]
+  - @snapkit-studio/core@1.9.2
+
 ## 1.7.2
 
 ### Patch Changes
