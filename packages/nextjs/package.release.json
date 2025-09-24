@@ -44,11 +44,10 @@
     "version-info": "node -p \"'Package: @snapkit-studio/nextjs, Current version: ' + require('./package.json').version\""
   },
   "dependencies": {
-    "@snapkit-studio/core": "workspace:*",
-    "@snapkit-studio/react": "workspace:*"
+    "@snapkit-studio/core": "1.9.2-rc.1",
+    "@snapkit-studio/react": "1.7.3-rc.1"
   },
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^14.1.2",
     "@types/react": "^18.2.0",

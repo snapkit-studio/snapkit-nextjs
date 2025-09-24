@@ -1,5 +1,22 @@
 # @snapkit-studio/core
 
+## 1.9.2-rc.1
+
+### Patch Changes
+
+- Improve canary dependency resolution for testing
+
+## 1.9.2-rc.0
+
+### Patch Changes
+
+- 3e7e59b: Fix canary release dependency resolution
+  - Improve prepare-release script to handle canary versions correctly
+  - Ensure canary packages reference each other with exact versions
+  - Fix npm installation issues in test environments
+
+- 531635d: Test canary release process
+
 ## 1.9.1
 
 ### Patch Changes
