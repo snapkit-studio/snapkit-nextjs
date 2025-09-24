@@ -68,11 +68,16 @@ jobs:
       - name: Enter Prerelease Mode
         if: steps.changesets.outputs.has_changesets == 'true'
         run: |
-          npx changeset pre enter rc
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .
-          git commit -m "ci: enter prerelease mode" || echo "Already in prerelease mode"
+          # Check if already in prerelease mode
+          if [ ! -f .changeset/pre.json ]; then
+            npx changeset pre enter rc
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add .
+            git commit -m "ci: enter prerelease mode"
+          else
+            echo "Already in prerelease mode, continuing..."
+          fi
 
       - name: Create Canary Version
         if: steps.changesets.outputs.has_changesets == 'true'
