@@ -76,6 +76,74 @@ function removeRepoDependencies(deps) {
 // Removed workspace transformation - Changesets handles internal dependencies!
 
 /**
+ * Get canary versions from environment or package.json files
+ */
+function getCanaryVersions() {
+  const versions = {};
+
+  // Try to get versions from environment variables first
+  if (process.env.CANARY_CORE_VERSION) {
+    versions.core = process.env.CANARY_CORE_VERSION;
+  }
+  if (process.env.CANARY_REACT_VERSION) {
+    versions.react = process.env.CANARY_REACT_VERSION;
+  }
+  if (process.env.CANARY_NEXTJS_VERSION) {
+    versions.nextjs = process.env.CANARY_NEXTJS_VERSION;
+  }
+
+  // Fallback to reading from package.json files
+  if (!versions.core) {
+    const corePackage = readPackageJson('packages/core');
+    versions.core = corePackage.version;
+  }
+  if (!versions.react) {
+    const reactPackage = readPackageJson('packages/react');
+    versions.react = reactPackage.version;
+  }
+  if (!versions.nextjs) {
+    const nextjsPackage = readPackageJson('packages/nextjs');
+    versions.nextjs = nextjsPackage.version;
+  }
+
+  console.log(`   📋 Canary versions detected:
+     - @snapkit-studio/core: ${versions.core}
+     - @snapkit-studio/react: ${versions.react}
+     - @snapkit-studio/nextjs: ${versions.nextjs}`);
+
+  return versions;
+}
+
+/**
+ * Replace workspace protocol with canary versions for internal packages
+ */
+function replaceWorkspaceWithCanaryVersions(deps, versions) {
+  if (!deps) return deps;
+
+  const updated = { ...deps };
+  let updatedCount = 0;
+
+  Object.keys(updated).forEach((dep) => {
+    if (dep === '@snapkit-studio/core' &&
+        (updated[dep].startsWith('workspace:') || updated[dep].startsWith('workspace'))) {
+      const oldValue = updated[dep];
+      updated[dep] = versions.core;
+      updatedCount++;
+      console.log(`   🚀 Updated ${dep}: ${oldValue} → ${versions.core} (canary)`);
+    }
+    if (dep === '@snapkit-studio/react' &&
+        (updated[dep].startsWith('workspace:') || updated[dep].startsWith('workspace'))) {
+      const oldValue = updated[dep];
+      updated[dep] = versions.react;
+      updatedCount++;
+      console.log(`   🚀 Updated ${dep}: ${oldValue} → ${versions.react} (canary)`);
+    }
+  });
+
+  return updatedCount > 0 ? updated : deps;
+}
+
+/**
  * Replace workspace protocol with latest version for internal packages
  */
 function replaceWorkspaceWithLatest(deps) {
@@ -110,16 +178,38 @@ function transformPackageForRelease(packageData, packageInfo) {
   console.log(`\n🔄 Preparing ${packageInfo.name} for release...`);
   console.log(`   ℹ️  Processing dependencies for npm publication`);
 
-  // First, replace workspace protocol with latest for internal packages
-  transformed.dependencies = replaceWorkspaceWithLatest(
-    transformed.dependencies,
-  );
-  transformed.devDependencies = replaceWorkspaceWithLatest(
-    transformed.devDependencies,
-  );
-  transformed.peerDependencies = replaceWorkspaceWithLatest(
-    transformed.peerDependencies,
-  );
+  // Check if this is a canary release
+  const isCanaryRelease = process.env.CANARY_RELEASE === 'true';
+
+  if (isCanaryRelease) {
+    console.log(`   🚀 Detected CANARY release mode`);
+    const canaryVersions = getCanaryVersions();
+
+    // For canary releases, replace workspace with exact canary versions
+    transformed.dependencies = replaceWorkspaceWithCanaryVersions(
+      transformed.dependencies,
+      canaryVersions
+    );
+    transformed.devDependencies = replaceWorkspaceWithCanaryVersions(
+      transformed.devDependencies,
+      canaryVersions
+    );
+    transformed.peerDependencies = replaceWorkspaceWithCanaryVersions(
+      transformed.peerDependencies,
+      canaryVersions
+    );
+  } else {
+    // For regular releases, replace workspace protocol with latest
+    transformed.dependencies = replaceWorkspaceWithLatest(
+      transformed.dependencies,
+    );
+    transformed.devDependencies = replaceWorkspaceWithLatest(
+      transformed.devDependencies,
+    );
+    transformed.peerDependencies = replaceWorkspaceWithLatest(
+      transformed.peerDependencies,
+    );
+  }
 
   // Then remove @repo/ dependencies
   transformed.dependencies = removeRepoDependencies(transformed.dependencies);

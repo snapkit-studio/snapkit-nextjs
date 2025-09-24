@@ -105,8 +105,24 @@ jobs:
       - name: Prepare for NPM Publishing
         if: steps.changesets.outputs.has_changesets == 'true'
         run: |
-          # Prepare release packages (clean dependencies)
+          # Set canary release mode and versions in environment
+          export CANARY_RELEASE=true
+          export CANARY_CORE_VERSION="${{ steps.version.outputs.core_version }}"
+          export CANARY_REACT_VERSION="${{ steps.version.outputs.react_version }}"
+          export CANARY_NEXTJS_VERSION="${{ steps.version.outputs.nextjs_version }}"
+
+          echo "🚀 Running prepare-release in CANARY mode"
+          echo "   - Core: ${CANARY_CORE_VERSION}"
+          echo "   - React: ${CANARY_REACT_VERSION}"
+          echo "   - NextJS: ${CANARY_NEXTJS_VERSION}"
+
+          # Prepare release packages with canary versions
           pnpm prepare-release
+
+          # Copy .release.json files to package.json for publishing
+          cp packages/core/package.release.json packages/core/package.json
+          cp packages/react/package.release.json packages/react/package.json
+          cp packages/nextjs/package.release.json packages/nextjs/package.json
 
           # Configure NPM authentication
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
@@ -117,6 +133,11 @@ jobs:
         id: npm_publish
         run: |
           echo "📦 Publishing canary versions to NPM..."
+
+          # Save original package.json files
+          cp packages/core/package.json packages/core/package.original.json
+          cp packages/react/package.json packages/react/package.original.json
+          cp packages/nextjs/package.json packages/nextjs/package.original.json
 
           # Publish core package
           cd packages/core
@@ -132,6 +153,11 @@ jobs:
           cd packages/nextjs
           npm publish --tag canary --access public
           cd ../..
+
+          # Restore original package.json files for tarball creation
+          mv packages/core/package.original.json packages/core/package.json
+          mv packages/react/package.original.json packages/react/package.json
+          mv packages/nextjs/package.original.json packages/nextjs/package.json
 
           echo "npm_published=true" >> $GITHUB_OUTPUT
           echo "✅ Published canary versions to NPM"
