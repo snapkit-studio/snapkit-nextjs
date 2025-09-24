@@ -56,22 +56,8 @@ jobs:
           mkdir -p /tmp/canary-test
           cd /tmp/canary-test
 
-          # Copy test app
+          # Copy test app files
           cp -r ${{ github.workspace }}/test-fixtures/nextjs-external-app/* .
-
-      - name: Download Canary Packages
-        working-directory: /tmp/canary-test
-        run: |
-          TAG="${{ steps.version.outputs.tag }}"
-
-          # Download tarballs from GitHub release
-          gh release download "${TAG}" \
-            --repo ${{ github.repository }} \
-            --pattern "*.tgz"
-
-          ls -la *.tgz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -81,7 +67,9 @@ jobs:
       - name: Install and Build Test App
         working-directory: /tmp/canary-test
         run: |
-          # Create package.json from template
+          # Create package.json - install from NPM with exact canary version
+          VERSION="${{ steps.version.outputs.version }}"
+
           cat > package.json << EOF
           {
             "name": "test-canary-app",
@@ -97,9 +85,9 @@ jobs:
               "next": "^15.0.0",
               "react": "^19.0.0",
               "react-dom": "^19.0.0",
-              "@snapkit-studio/core": "file:./snapkit-studio-core.tgz",
-              "@snapkit-studio/react": "file:./snapkit-studio-react.tgz",
-              "@snapkit-studio/nextjs": "file:./snapkit-studio-nextjs.tgz"
+              "@snapkit-studio/core": "${VERSION}",
+              "@snapkit-studio/react": "${VERSION}",
+              "@snapkit-studio/nextjs": "${VERSION}"
             },
             "devDependencies": {
               "@playwright/test": "^1.40.0",
@@ -111,8 +99,17 @@ jobs:
           }
           EOF
 
-          # Install dependencies
+          # Show package.json for debugging
+          echo "📋 Package.json content:"
+          cat package.json
+
+          # Install dependencies from NPM registry
+          echo "📦 Installing packages from NPM..."
           npm install
+
+          # Verify installed versions
+          echo "✅ Installed package versions:"
+          npm list @snapkit-studio/core @snapkit-studio/react @snapkit-studio/nextjs
 
           # Create environment file
           cat > .env.local << EOF
@@ -120,6 +117,7 @@ jobs:
           EOF
 
           # Build the test app
+          echo "🔨 Building test app..."
           SNAPKIT_ORGANIZATION_NAME=test-org npm run build
 
       - name: Install Playwright

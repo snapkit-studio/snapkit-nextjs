@@ -102,11 +102,47 @@ jobs:
           - @snapkit-studio/react@${REACT_VERSION}
           - @snapkit-studio/nextjs@${NEXTJS_VERSION}" || echo "No version changes"
 
-      - name: Create Tarballs
+      - name: Prepare for NPM Publishing
+        if: steps.changesets.outputs.has_changesets == 'true'
+        run: |
+          # Prepare release packages (clean dependencies)
+          pnpm prepare-release
+
+          # Configure NPM authentication
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
+
+      - name: Publish to NPM with canary tag
+        if: steps.changesets.outputs.has_changesets == 'true'
+        id: npm_publish
+        run: |
+          echo "📦 Publishing canary versions to NPM..."
+
+          # Publish core package
+          cd packages/core
+          npm publish --tag canary --access public
+          cd ../..
+
+          # Publish react package
+          cd packages/react
+          npm publish --tag canary --access public
+          cd ../..
+
+          # Publish nextjs package
+          cd packages/nextjs
+          npm publish --tag canary --access public
+          cd ../..
+
+          echo "npm_published=true" >> $GITHUB_OUTPUT
+          echo "✅ Published canary versions to NPM"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create Tarballs for GitHub Release
         if: steps.changesets.outputs.has_changesets == 'true'
         id: tarball
         run: |
-          # Create tarballs for each package
+          # Create tarballs for GitHub Release backup
           cd packages/core
           npm pack
           CORE_TARBALL=$(ls *.tgz)
@@ -152,7 +188,17 @@ jobs:
 
           ## 📥 Installation
           \`\`\`bash
-          # Using the attached tarballs
+          # Install canary version from NPM
+          npm install @snapkit-studio/core@canary
+          npm install @snapkit-studio/react@canary
+          npm install @snapkit-studio/nextjs@canary
+
+          # Or specify exact version
+          npm install @snapkit-studio/core@${{ steps.version.outputs.core_version }}
+          npm install @snapkit-studio/react@${{ steps.version.outputs.react_version }}
+          npm install @snapkit-studio/nextjs@${{ steps.version.outputs.nextjs_version }}
+
+          # Alternatively, use the attached tarballs
           npm install ./snapkit-studio-core.tgz
           npm install ./snapkit-studio-react.tgz
           npm install ./snapkit-studio-nextjs.tgz
