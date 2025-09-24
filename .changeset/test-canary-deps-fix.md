@@ -4,4 +4,4 @@
 "@snapkit-studio/nextjs": patch
 ---
 
-Improve canary dependency resolution for testing
+Test canary dependency resolution improvements

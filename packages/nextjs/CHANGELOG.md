@@ -1,5 +1,14 @@
 # @snapkit-studio/nextjs
 
+## 1.7.3-rc.2
+
+### Patch Changes
+
+- Test canary dependency resolution improvements
+- Updated dependencies
+  - @snapkit-studio/core@1.9.2-rc.2
+  - @snapkit-studio/react@1.7.3-rc.2
+
 ## 1.7.3-rc.1
 
 ### Patch Changes

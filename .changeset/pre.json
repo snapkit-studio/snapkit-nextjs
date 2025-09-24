@@ -11,8 +11,6 @@
     "@snapkit-studio/react": "1.7.2"
   },
   "changesets": [
-    "fix-canary-dependencies",
-    "improve-canary-deps",
-    "test-canary-release"
+    "test-canary-deps-fix"
   ]
 }
