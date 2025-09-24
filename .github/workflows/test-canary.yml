@@ -112,11 +112,16 @@ jobs:
           # Create environment file
           cat > .env.local << EOF
           SNAPKIT_ORGANIZATION_NAME=test-org
+          NEXT_PUBLIC_SNAPKIT_ORGANIZATION_NAME=test-org
           EOF
+
+          # Show environment file for debugging
+          echo "📋 Environment variables:"
+          cat .env.local
 
           # Build the test app
           echo "🔨 Building test app..."
-          SNAPKIT_ORGANIZATION_NAME=test-org npm run build
+          npm run build
 
       - name: Install Playwright
         working-directory: /tmp/canary-test
@@ -127,7 +132,7 @@ jobs:
         working-directory: /tmp/canary-test
         run: |
           # Start the app
-          SNAPKIT_ORGANIZATION_NAME=test-org npm run start &
+          npm run start &
           SERVER_PID=$!
 
           # Wait for server to be ready
@@ -154,7 +159,7 @@ jobs:
         working-directory: /tmp/canary-test
         run: |
           # Start production server
-          SNAPKIT_ORGANIZATION_NAME=test-org npm run start &
+          npm run start &
           SERVER_PID=$!
 
           # Wait for server
