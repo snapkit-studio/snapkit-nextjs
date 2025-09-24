@@ -1,0 +1,235 @@
+name: Release Canary
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/**'
+      - '.changeset/**'
+  workflow_dispatch:
+    inputs:
+      prerelease:
+        description: 'Create pre-release version (rc/beta/alpha)'
+        required: false
+        default: 'rc'
+        type: choice
+        options:
+          - rc
+          - beta
+          - alpha
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+  actions: write
+
+jobs:
+  release-canary:
+    name: Create Canary Release
+    runs-on: ubuntu-latest
+    outputs:
+      released: ${{ steps.release.outputs.released }}
+      version: ${{ steps.release.outputs.version }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Packages
+        run: pnpm build
+
+      - name: Check for Changesets
+        id: changesets
+        run: |
+          if [ -n "$(ls -A .changeset/*.md 2>/dev/null | grep -v README.md)" ]; then
+            echo "has_changesets=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changesets=false" >> $GITHUB_OUTPUT
+            echo "No changesets found. Skipping canary release."
+          fi
+
+      - name: Enter Prerelease Mode
+        if: steps.changesets.outputs.has_changesets == 'true'
+        run: |
+          npx changeset pre enter rc
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "ci: enter prerelease mode" || echo "Already in prerelease mode"
+
+      - name: Create Canary Version
+        if: steps.changesets.outputs.has_changesets == 'true'
+        id: version
+        run: |
+          npx changeset version
+
+          # Extract version from package.json
+          CORE_VERSION=$(node -p "require('./packages/core/package.json').version")
+          REACT_VERSION=$(node -p "require('./packages/react/package.json').version")
+          NEXTJS_VERSION=$(node -p "require('./packages/nextjs/package.json').version")
+
+          echo "core_version=${CORE_VERSION}" >> $GITHUB_OUTPUT
+          echo "react_version=${REACT_VERSION}" >> $GITHUB_OUTPUT
+          echo "nextjs_version=${NEXTJS_VERSION}" >> $GITHUB_OUTPUT
+
+          echo "📦 Canary versions created:"
+          echo "  - @snapkit-studio/core: ${CORE_VERSION}"
+          echo "  - @snapkit-studio/react: ${REACT_VERSION}"
+          echo "  - @snapkit-studio/nextjs: ${NEXTJS_VERSION}"
+
+          # Commit version changes
+          git add .
+          git commit -m "chore: bump canary versions
+
+          - @snapkit-studio/core@${CORE_VERSION}
+          - @snapkit-studio/react@${REACT_VERSION}
+          - @snapkit-studio/nextjs@${NEXTJS_VERSION}" || echo "No version changes"
+
+      - name: Create Tarballs
+        if: steps.changesets.outputs.has_changesets == 'true'
+        id: tarball
+        run: |
+          # Create tarballs for each package
+          cd packages/core
+          npm pack
+          CORE_TARBALL=$(ls *.tgz)
+          mv $CORE_TARBALL ../../snapkit-studio-core.tgz
+          cd ../..
+
+          cd packages/react
+          npm pack
+          REACT_TARBALL=$(ls *.tgz)
+          mv $REACT_TARBALL ../../snapkit-studio-react.tgz
+          cd ../..
+
+          cd packages/nextjs
+          npm pack
+          NEXTJS_TARBALL=$(ls *.tgz)
+          mv $NEXTJS_TARBALL ../../snapkit-studio-nextjs.tgz
+          cd ../..
+
+          echo "tarball_created=true" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Pre-release
+        if: steps.changesets.outputs.has_changesets == 'true'
+        id: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.version.outputs.core_version }}"
+          TAG="v${VERSION}"
+
+          # Create release notes
+          cat > release-notes.md << EOF
+          # 🚀 Canary Release ${TAG}
+
+          > ⚠️ This is a pre-release version for testing. Do not use in production.
+
+          ## 📦 Package Versions
+          - **@snapkit-studio/core**: ${{ steps.version.outputs.core_version }}
+          - **@snapkit-studio/react**: ${{ steps.version.outputs.react_version }}
+          - **@snapkit-studio/nextjs**: ${{ steps.version.outputs.nextjs_version }}
+
+          ## 🧪 Testing
+          This canary release will be automatically tested. Check the test workflow for results.
+
+          ## 📥 Installation
+          \`\`\`bash
+          # Using the attached tarballs
+          npm install ./snapkit-studio-core.tgz
+          npm install ./snapkit-studio-react.tgz
+          npm install ./snapkit-studio-nextjs.tgz
+          \`\`\`
+
+          ## ⏭️ Next Steps
+          - If tests pass: Automatic promotion to stable version
+          - If tests fail: Fix issues and create new canary release
+          EOF
+
+          # Create GitHub release with tarballs
+          gh release create "${TAG}" \
+            --prerelease \
+            --title "Canary Release ${TAG}" \
+            --notes-file release-notes.md \
+            snapkit-studio-core.tgz \
+            snapkit-studio-react.tgz \
+            snapkit-studio-nextjs.tgz
+
+          echo "released=true" >> $GITHUB_OUTPUT
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+
+          echo "✅ Created GitHub pre-release: ${TAG}"
+
+      - name: Trigger Canary Tests
+        if: steps.release.outputs.released == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'test-canary.yml',
+              ref: 'main',
+              inputs: {
+                version: '${{ steps.release.outputs.version }}',
+                tag: '${{ steps.release.outputs.tag }}'
+              }
+            });
+
+            console.log('✅ Triggered canary test workflow');
+
+      - name: Slack Notification - Canary Created
+        if: steps.release.outputs.released == 'true' && always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              attachments: [{
+                color: 'warning',
+                title: '🚀 Canary Release Created',
+                text: 'A new canary version has been created and is ready for testing.',
+                fields: [
+                  {
+                    title: 'Version',
+                    value: '${{ steps.release.outputs.version }}',
+                    short: true
+                  },
+                  {
+                    title: 'Tag',
+                    value: '${{ steps.release.outputs.tag }}',
+                    short: true
+                  },
+                  {
+                    title: 'Status',
+                    value: 'Testing in progress...',
+                    short: false
+                  }
+                ],
+                footer: 'GitHub Actions',
+                footer_icon: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png',
+                ts: ${{ github.event.head_commit.timestamp }}
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        continue-on-error: true

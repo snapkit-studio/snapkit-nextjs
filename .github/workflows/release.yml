@@ -2,11 +2,12 @@ name: Release Packages
 
 on:
   workflow_run:
-    workflows: ['CI', 'Test External Next.js with Canary']
+    workflows: ['CI']
     types:
       - completed
     branches:
       - main
+  workflow_dispatch:
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -21,8 +22,8 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     if: |
-      github.event.workflow_run.conclusion == 'success' &&
-      (github.event.workflow_run.name == 'CI' || github.event.workflow_run.name == 'Test External Next.js with Canary')
+      (github.event_name == 'workflow_dispatch') ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.name == 'CI')
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
