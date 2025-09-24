@@ -67,9 +67,7 @@ jobs:
       - name: Install and Build Test App
         working-directory: /tmp/canary-test
         run: |
-          # Create package.json - install from NPM with exact canary version
-          VERSION="${{ steps.version.outputs.version }}"
-
+          # Create package.json - install from NPM with canary tag
           cat > package.json << EOF
           {
             "name": "test-canary-app",
@@ -85,9 +83,9 @@ jobs:
               "next": "^15.0.0",
               "react": "^19.0.0",
               "react-dom": "^19.0.0",
-              "@snapkit-studio/core": "${VERSION}",
-              "@snapkit-studio/react": "${VERSION}",
-              "@snapkit-studio/nextjs": "${VERSION}"
+              "@snapkit-studio/core": "canary",
+              "@snapkit-studio/react": "canary",
+              "@snapkit-studio/nextjs": "canary"
             },
             "devDependencies": {
               "@playwright/test": "^1.40.0",
